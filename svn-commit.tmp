@@ -1,0 +1,9 @@
+
+--This line, and those below, will be ignored--
+
+M    CMOD/src/Patter.h
+M    CMOD/src/Piece.cpp
+M    CMOD/src/Piece.h
+M    CMOD/src/parser/Parser.l
+M    LASSIE/src/FunctionGenerator.cpp
+M    LASSIE/src/MarkovModelLibraryWindow.cpp

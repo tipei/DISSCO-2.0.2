@@ -1,0 +1,13 @@
+To generate the documentation, either install doxygen on the system so that it
+is available on the path, OR copy the binary file 'doxygen' into this directory.
+The generator first looks on the PATH, then it tries the current directory. This
+way you do not need to have administrator priviledges in order to get the docs.
+
+After doxygen is somewhere the script will find, simply type:
+./view-latest-docs.sh
+
+To generate and view (in Firefox) the latest documentation.
+
+If you do not need to regenerate the documentation and simply want to view it:
+./view-docs.sh
+

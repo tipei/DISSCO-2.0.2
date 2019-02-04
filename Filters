@@ -1,0 +1,8 @@
+High level call: CMOD, Bottom.cpp, applyFilter(Sound* s), extracting filter information and construction BiQuadFilter with fiter type specified.
+LASS:
+LowPassFilter: 1st order, used only for LPCombFilter.
+LPCombFilter: used only for Reverb.
+AllPassFilter: used only for Reverb.
+BiQuadFilter:low pass filter, High pass filter,band pass filter , Notch Filter , Peaking band EQ filter, Low shelf filter, High shelf filters are implemented 
+
+

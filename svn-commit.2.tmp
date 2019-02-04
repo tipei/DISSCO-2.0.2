@@ -1,0 +1,12 @@
+
+--This line, and those below, will be ignored--
+
+M    CMOD/src/Bottom.cpp
+M    CMOD/src/Note.cpp
+M    CMOD/src/Piece.cpp
+M    LASSIE/src/FunctionGenerator.cpp
+M    LASSIE/src/MarkovModelLibraryWindow.cpp
+M    LASSIE/src/ProjectViewController.cpp
+M    LASSIE/src/ProjectViewController.h
+M    LASSIE/src/UI/FileNewObject.ui
+M    LASSIE/src/UI/ProjectPropertiesDialog.ui

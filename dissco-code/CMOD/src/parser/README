@@ -1,0 +1,20 @@
+To add a new keyword:
+
+1) Edit the Parser.l file. There are comments in the file telling you where to
+add a new token. The token can take any POSIX regular expression, but for the
+most part we will only add the word we want to look for. Then you need to
+specify an action to be taken, within {}'s. For the most part this will just be
+to return some token. The token name can be whatever you wish, as long as it
+does not clash with another token.
+
+2) Next edit the Parser.y file. There also comments here telling you where to
+add the new token. The Parser.y file takes patterns based on its tokens and
+rules you can specify, and then can execute arbitrary C code.
+
+3) Then run the regenerate-parser.sh file. This builds Parser.h and Parser.cpp 
+using the Parser.y and Parser.l files.
+
+Note:
+The script used to create a test parser; however it no longer is functional, so
+the command to build it has been commented out of the script.
+
