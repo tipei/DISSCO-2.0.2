@@ -148,6 +148,7 @@ void Bottom::buildChildren(){
       exit(1);
     }
   }
+
   //Using the temporary events that were created, construct the actual children.
   //The code below is different from buildchildren in Event class.
   for (int i = 0; i < childSoundsAndNotes.size(); i++) {
@@ -170,6 +171,25 @@ void Bottom::buildChildren(){
   }
 
 }
+
+//---------------------------------------------------------------------------//
+
+void Bottom::modifyChildren(){            //Incomplete Override
+
+  //Randomly modify elements
+
+   //const short unsigned num = 15 ;
+   //const short unsigned* loudness_val = &num;
+
+   //cout<<computeLoudness();
+
+   //loudnessElement->setNodeValue(loudness_val);
+
+   //cout<<*loudnessElement->getNodeValue(); //Checking if update is successful
+
+}
+
+//---------------------------------------------------------------------------//
 
 //----------------------------------------------------------------------------//
 
@@ -321,23 +341,19 @@ void Bottom::buildNote(SoundAndNoteWrapper* _soundNoteWrapper) {
   newNote->setPitchWellTempered(absPitchNum);
 
   //Bars and durations
-  newNote->collectSounds( _soundNoteWrapper->ts.startEDU.toPrettyString(),
-			  _soundNoteWrapper->ts.durationEDU.toPrettyString());
+  newNote->notateDurations( (string)_soundNoteWrapper->name,
+ 			    _soundNoteWrapper->ts.startEDU.toPrettyString(),
+			    _soundNoteWrapper->ts.durationEDU.toPrettyString());
 
   Output::endSubLevel();
-
-  //childNotes.push_back(newNote);
+  childNotes.push_back(newNote);
 }
 
 
-//----------------NOT USED - WHY ?--------------------------------------------//
+//----------------------------------------------------------------------------//
 
 list<Note> Bottom::getNotes() {
   list<Note> result;
-
-cout << "Bottom:: getNotes()" << endl;;
-int sever; cin >> sever;
-
   for(int i = 0; i < childNotes.size(); i++)
     result.push_back(*childNotes[i]);
   return result;
@@ -355,28 +371,64 @@ float Bottom::computeBaseFreq() {
     /* 2nd arg is a string (HERTZ or POW2) */
 
     if (utilities->evaluate(XMLTC(continuumFlagElement), NULL)==0) { //Hertz
+      float expVal = 0;
+      for(int i = 0; i < 10; i++){
+        expVal += utilities->evaluate(XMLTC(valueElement), (void*)this);
+      }
+      expVal /= 10;
       baseFreqResult = utilities->evaluate(XMLTC(valueElement), (void*)this);
+      float diff = baseFreqResult - expVal;
+      baseFreqResult -= 0.4 * diff;
       /* 3rd arg is a float (baseFreq in Hz) */
     }
     else  {//power of 2
       /* 3rd arg is a float (power of 2) */
+      float expVal = 0;
+      for(int i = 0; i < 10; i++){
+        float step = utilities->evaluate(XMLTC(valueElement), (void*)this);
+        float range = log10(CEILING / MINFREQ) / log10(2.); // change log base
+        expVal += pow(2, step * range) * MINFREQ;  // equal chance for all 8vs
+      }
+      expVal /= 10;
       float step = utilities->evaluate(XMLTC(valueElement), (void*)this);
-      double range = log10(CEILING / MINFREQ) / log10(2.); // change log base
+      float range = log10(CEILING / MINFREQ) / log10(2.); // change log base
       baseFreqResult = pow(2, step * range) * MINFREQ;  // equal chance for all 8vs
+
+      float diff = baseFreqResult - expVal;
+      baseFreqResult -= 0.4 * diff;
     }
 
   } else if (utilities->evaluate(XMLTC(freqFlagElement), (void*) this)==0) { //equal tempered
     /* 2nd arg is an int */
-
+    float expVal = 0;
+    for(int i = 0; i < 10; i++){
+      wellTempPitch = utilities->evaluate(XMLTC(valueElement), (void*)this);
+      // cout << " Bottom - wellTempPitch=" << wellTempPitch << endl;
+      expVal += C0 * pow(WELL_TEMP_INCR, wellTempPitch);
+    }
+    expVal /= 10;
     wellTempPitch = utilities->evaluate(XMLTC(valueElement), (void*)this);
     // cout << " Bottom - wellTempPitch=" << wellTempPitch << endl;
     baseFreqResult = C0 * pow(WELL_TEMP_INCR, wellTempPitch);
 
+    float diff = baseFreqResult - expVal;
+    baseFreqResult -= 0.4 * diff;
+
   } else  {// fundamental
     /* 2nd arg is (float)fundamental_freq, 3rd arg is (int)overtone_num */
+    float expVal = 0;
+    for(int i = 0; i < 10; i++){
+      float fund_freq = utilities->evaluate(XMLTC(valueElement), (void*)this);
+      int overtone_step = utilities->evaluate(XMLTC(valueElement2), (void*)this);
+      expVal += fund_freq * overtone_step;
+    }
+    expVal /= 10;
     float fund_freq = utilities->evaluate(XMLTC(valueElement), (void*)this);
     int overtone_step = utilities->evaluate(XMLTC(valueElement2), (void*)this);
     baseFreqResult = fund_freq * overtone_step;
+
+    float diff = baseFreqResult - expVal;
+    baseFreqResult -= 0.4 * diff;
   }
 
   return baseFreqResult;
@@ -385,7 +437,16 @@ float Bottom::computeBaseFreq() {
 //----------------------------------------------------------------------------//
 
 float Bottom::computeLoudness() {
-  return utilities->evaluate(XMLTC(loudnessElement), (void*)this);
+  float expVal = 0;
+  for(int i = 0; i < 10; i++){
+      expVal += utilities->evaluate(XMLTC(loudnessElement), (void*)this);
+  }
+  expVal /= 10;
+  float loudval = utilities->evaluate(XMLTC(loudnessElement), (void*)this);
+  float diff = loudval - expVal;
+  loudval -= 0.4 * diff;
+  cout<<loudval<<endl;
+  return loudval;
 }
 
 //----------------------------------------------------------------------------//
@@ -831,6 +892,7 @@ void Bottom::applyReverberation(Sound* s) {
 void Bottom::applyModifiers(Sound *s, int numPartials) {
   vector<Modifier> modNoDep;  //mods without dependencies
   map<string, vector<Modifier> > modMutEx; // map mutex group names to the mods
+
 
   DOMElement* modifiersIncludingAncestorsElement = (DOMElement*) modifiersElement->cloneNode(true);
 

@@ -38,7 +38,6 @@ obj/Debug/UpgradeProjectFormat/UpgradeProjectFormat.o: \
  LASSIE/src/../../CMOD/src/../../LASS/src/Pan.h \
  LASSIE/src/../../CMOD/src/../../LASS/src/Score.h \
  LASSIE/src/../../CMOD/src/../../LASS/src/BiQuadFilter.h \
- LASSIE/src/../../CMOD/src/../../LASS/src/MarkovModel.h \
  LASSIE/src/../../CMOD/src/../../LASS/src/Score.h \
  LASSIE/src/../../CMOD/src/Rational.h \
  LASSIE/src/../../CMOD/src/muParser/muParser.h \
@@ -143,8 +142,6 @@ LASSIE/src/../../CMOD/src/../../LASS/src/Pan.h:
 LASSIE/src/../../CMOD/src/../../LASS/src/Score.h:
 
 LASSIE/src/../../CMOD/src/../../LASS/src/BiQuadFilter.h:
-
-LASSIE/src/../../CMOD/src/../../LASS/src/MarkovModel.h:
 
 LASSIE/src/../../CMOD/src/../../LASS/src/Score.h:
 

@@ -1036,8 +1036,7 @@ obj/Debug/lassie/MainWindow.o: LASSIE/src/MainWindow.cpp \
  LASSIE/src/../../LASS/src/MultiPan.h LASSIE/src/../../LASS/src/Pan.h \
  LASSIE/src/../../LASS/src/Score.h \
  LASSIE/src/../../LASS/src/BiQuadFilter.h \
- LASSIE/src/../../LASS/src/MarkovModel.h LASSIE/src/../../CMOD/src/CMOD.h \
- LASSIE/src/../../CMOD/src/Libraries.h \
+ LASSIE/src/../../CMOD/src/CMOD.h LASSIE/src/../../CMOD/src/Libraries.h \
  LASSIE/src/../../CMOD/src/../../LASS/src/LASS.h \
  LASSIE/src/../../CMOD/src/../../LASS/src/StandardHeaders.h \
  LASSIE/src/../../CMOD/src/../../LASS/src/AbstractIterator.h \
@@ -1073,7 +1072,6 @@ obj/Debug/lassie/MainWindow.o: LASSIE/src/MainWindow.cpp \
  LASSIE/src/../../CMOD/src/../../LASS/src/Types.h \
  LASSIE/src/../../CMOD/src/../../LASS/src/XmlReader.h \
  LASSIE/src/../../CMOD/src/../../LASS/src/BiQuadFilter.h \
- LASSIE/src/../../CMOD/src/../../LASS/src/MarkovModel.h \
  LASSIE/src/../../CMOD/src/../../LASS/src/Score.h \
  LASSIE/src/../../CMOD/src/Rational.h \
  LASSIE/src/../../CMOD/src/muParser/muParser.h \
@@ -1098,9 +1096,7 @@ obj/Debug/lassie/MainWindow.o: LASSIE/src/MainWindow.cpp \
  LASSIE/src/../../CMOD/src/parser/Parser.h \
  LASSIE/src/../../CMOD/src/Utilities.h LASSIE/src/ProjectViewController.h \
  LASSIE/src/IEvent.h LASSIE/src/FileOperations.h \
- LASSIE/src/HelpOperations.h LASSIE/src/EnvelopeLibraryWindow.h \
- LASSIE/src/MarkovModelLibraryWindow.h \
- LASSIE/src/../../LASS/src/MarkovModel.h
+ LASSIE/src/HelpOperations.h LASSIE/src/EnvelopeLibraryWindow.h
 
 LASSIE/src/MainWindow.h:
 
@@ -3318,8 +3314,6 @@ LASSIE/src/../../LASS/src/Score.h:
 
 LASSIE/src/../../LASS/src/BiQuadFilter.h:
 
-LASSIE/src/../../LASS/src/MarkovModel.h:
-
 LASSIE/src/../../CMOD/src/CMOD.h:
 
 LASSIE/src/../../CMOD/src/Libraries.h:
@@ -3394,8 +3388,6 @@ LASSIE/src/../../CMOD/src/../../LASS/src/XmlReader.h:
 
 LASSIE/src/../../CMOD/src/../../LASS/src/BiQuadFilter.h:
 
-LASSIE/src/../../CMOD/src/../../LASS/src/MarkovModel.h:
-
 LASSIE/src/../../CMOD/src/../../LASS/src/Score.h:
 
 LASSIE/src/../../CMOD/src/Rational.h:
@@ -3467,7 +3459,3 @@ LASSIE/src/FileOperations.h:
 LASSIE/src/HelpOperations.h:
 
 LASSIE/src/EnvelopeLibraryWindow.h:
-
-LASSIE/src/MarkovModelLibraryWindow.h:
-
-LASSIE/src/../../LASS/src/MarkovModel.h:

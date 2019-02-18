@@ -2,17 +2,17 @@
 CMOD (composition module)
 Copyright (C) 2005  Sever Tipei (s-tipei@uiuc.edu)
 Modified by Ming-ching Chiu 2013
-                                                                                
+
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
-                                                                                
+
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
-                                                                                
+
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -33,9 +33,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //----------------------------------------------------------------------------//
 //Checked
 
-Event::Event(DOMElement* _element, 
-             TimeSpan _timeSpan, 
-             int _type, 
+Event::Event(DOMElement* _element,
+             TimeSpan _timeSpan,
+             int _type,
              Tempo _tempo,
              Utilities* _utilities,
              DOMElement* _ancestorSpa,
@@ -53,37 +53,37 @@ Event::Event(DOMElement* _element,
   utilities( _utilities),
   modifiersIncludingAncestorsElement(NULL),
   sieveAligned(false){
-  
+
   //Initialize parameters
   DOMElement* thisEventElement = _element->GFEC();
-  string typeString =XMLTC(thisEventElement); 
+  string typeString =XMLTC(thisEventElement);
   type = atoi(typeString.c_str());
-  
+
   thisEventElement = thisEventElement->GNES();
-  name = XMLTC(thisEventElement);  
+  name = XMLTC(thisEventElement);
   ts = _timeSpan;
   tempo = _tempo;
-  
+
   thisEventElement = thisEventElement->GNES();
   maxChildDur = (float)utilities->evaluate(XMLTC(thisEventElement), (void*)this);
-  
+
   thisEventElement = thisEventElement->GNES();
   int newEDUPerBeat = (int) utilities->evaluate(XMLTC(thisEventElement),(void*)this);
   Ratio k(newEDUPerBeat,1);
   Tempo fvTempo;
   fvTempo.setEDUPerTimeSignatureBeat(k);
-  
+
   thisEventElement = thisEventElement->GNES();
   fvTempo.setTimeSignature(getTimeSignatureStringFromDOMElement(thisEventElement));
-  
+
   thisEventElement = thisEventElement->GNES();
   fvTempo.setTempo(getTempoStringFromDOMElement(thisEventElement));
-  
+
   fvTempo.getTempoBeat();
 
   fvTempo.setStartTime(tempo.getStartTime());
-  
-  
+
+
   if(tempo.getStartTime() == 0){
     tempo = fvTempo;
   }
@@ -105,11 +105,11 @@ Event::Event(DOMElement* _element,
     cout << "  " << fvTempo.getEDUPerTimeSignatureBeat() << endl;
     cout << "  " << fvTempo.getStartTime() << endl;
   }
-  
+
   //This part initializes childnum and childnames
-  
+
   DOMElement* numChildrenElement = thisEventElement->GNES();
-  
+
   //store the pointer to be used in buildChildren()
   childEventDefElement = numChildrenElement->GNES();
   childStartTimeElement = childEventDefElement->GFEC();
@@ -120,22 +120,22 @@ Event::Event(DOMElement* _element,
   methodFlagElement = DurationSieveElement->GNES();
   childStartTypeFlag = methodFlagElement->GNES();
   childDurationTypeFlag = childStartTypeFlag->GNES();
-  
+
   //layers, initialize child names
   thisEventElement = childEventDefElement->GNES();
   DOMElement* layerElement = thisEventElement->GFEC();
   while (layerElement){
-    
+
     layerElements.push_back(layerElement);
     DOMElement* childPackage = layerElement->GFEC()->GNES()->GFEC();
-    
+
     while(childPackage){
       childTypeElements.push_back(childPackage);
       childPackage = childPackage->GNES();
     }
     layerElement = layerElement->GNES();
   }
-  
+
 
   DOMElement* flagElement = numChildrenElement->GFEC();
   if (XMLTC(flagElement) =="0"){ // Continuum
@@ -156,83 +156,82 @@ Event::Event(DOMElement* _element,
 //  cout << "areaElement=" << areaElement << endl;
     double underOne = utilities->evaluate( XMLTC(underOneElement),(void*)this);
     double soundsPsec = pow(2, density * area - underOne); //this can't be right..
-//  cout<<"density:"<< density<<", area:"<<area<<", underOne:"<<underOne<<endl;  
-      
-    //not sure which version is the correct one. ask sever  
+//  cout<<"density:"<< density<<", area:"<<area<<", underOne:"<<underOne<<endl;
+
+    //not sure which version is the correct one. ask sever
     numChildren = (int)(soundsPsec * ts.duration + underOne/area);
 //  cout << "     numChildren=" << numChildren << endl;
     //numChildren = (int)(soundsPsec * layerElements * ts.duration + 0.5);
-    
+
   }
   else {// by layer
   numChildren = 0;
     for (int i = 0; i < layerElements.size(); i ++){
       numChildren +=utilities->evaluate(XMLTC(layerElements[i]->GFEC()),(void*)this);
-    } 
+    }
   }
-  
-  if (type <=3){ //top, high, mid, low 
-    
+
+  if (type <=3){ //top, high, mid, low
+
     thisEventElement = thisEventElement->GNES();
     if (_ancestorSpa != NULL) {
       spatializationElement = _ancestorSpa;
     }
     else if (Utilities::removeSpaces(XMLTC(thisEventElement)) ==""){
-        spatializationElement = NULL;    
+        spatializationElement = NULL;
     }
     else {
       spatializationElement = thisEventElement;
     }
-    
+
     thisEventElement = thisEventElement->GNES();
     if (_ancestorRev != NULL) {
       reverberationElement = _ancestorRev;
     }
     else if (Utilities::removeSpaces(XMLTC(thisEventElement)) ==""){
-        reverberationElement = NULL;    
+        reverberationElement = NULL;
     }
     else {
       reverberationElement = thisEventElement;
     }
-    
+
     thisEventElement = thisEventElement->GNES();
     if (_ancestorFil != NULL) {
       filterElement = _ancestorFil;
     }
     else if (Utilities::removeSpaces(XMLTC(thisEventElement)) ==""){
-        filterElement = NULL;    
+        filterElement = NULL;
     }
     else {
       filterElement = thisEventElement;
     }
-    
-    
+
+
     thisEventElement = thisEventElement->GNES();
     modifiersElement = thisEventElement;
     modifiersIncludingAncestorsElement = (DOMElement*) modifiersElement->cloneNode(true);
-    
+
     if (_ancestorModifiers != NULL){
-    
+
       DOMElement* ancestorModifierIter = _ancestorModifiers->GFEC();
       while(ancestorModifierIter !=NULL){
         DOMElement* cloneModifier = (DOMElement*) ancestorModifierIter->cloneNode(true);
         modifiersIncludingAncestorsElement->appendChild((DOMNode*)cloneModifier);
         ancestorModifierIter = ancestorModifierIter->GNES();
       }
-      
+
     }// end handling _ancestorModifiers
-   
+
    //cout<<"Event:"<<name<<":\nModifiers after merge:"<<XMLTC(modifiersIncludingAncestorsElement)<<endl<<endl<<"============="<<endl;
   } // end event type = 0, 1, 2, 3
-  
-  
+
 }
 
 
 //----------------------------------------------------------------------------//
 
 string Event::getTempoStringFromDOMElement(DOMElement* _element){
-  
+
   /*
   <Tempo>
         <MethodFlag>0</MethodFlag>
@@ -246,41 +245,41 @@ string Event::getTempoStringFromDOMElement(DOMElement* _element){
   DOMElement* thisElement = _element->GFEC();
   string stringbuffer = "";
   string methodFlag = XMLTC(thisElement); //it's either 0 or 1
-  
+
   thisElement = thisElement->GNES();
   string prefix =  XMLTC(thisElement);
-  
+
   thisElement = thisElement->GNES();
   string noteValue = XMLTC(thisElement);
-  
+
   thisElement = thisElement->GNES();
   double fractionEntry1 = utilities->evaluate(XMLTC(thisElement),(void*)this);
-  
+
   thisElement = thisElement->GNES();
   double fractionEntry2 = utilities->evaluate(XMLTC(thisElement),(void*)this);
-  
+
   thisElement = thisElement->GNES();
   double valueEntry = utilities->evaluate(XMLTC(thisElement),(void*)this);
-  
-  
+
+
   if (prefix == "1"){
       stringbuffer = stringbuffer + "dotted ";
     }
     else if (prefix == "2" ){
       stringbuffer = stringbuffer + "double dotted ";
-    }     
+    }
     else if (prefix =="3"){
       stringbuffer = stringbuffer + "triple ";
-    }          
+    }
     else if (prefix =="4"){
       stringbuffer = stringbuffer + "quintuple ";
-    }     
+    }
     else if (prefix =="5"){
       stringbuffer = stringbuffer + "sextuple ";
-    }     
+    }
     else if (prefix =="6"){
       stringbuffer = stringbuffer + "septuple ";
-    }     
+    }
 
     if (noteValue == "0"){
       stringbuffer = stringbuffer + "whole = ";
@@ -300,37 +299,37 @@ string Event::getTempoStringFromDOMElement(DOMElement* _element){
     else if (noteValue == "5"){
       stringbuffer = stringbuffer + "thirtysecond = ";
     }
- 
-  if (methodFlag == "0") {// tempo as note value 
-  
+
+  if (methodFlag == "0") {// tempo as note value
+
     char tempobuffer[20];
     sprintf(tempobuffer, "%f", valueEntry);
     stringbuffer = stringbuffer + string(tempobuffer);
   }
-  
+
   else { // tempo as fraction
     //"entry1" notes in "value" seconds
     //entry : value = actual number : 60
     //entry1 * 60 / value = actual number
-    
-    
+
+
     double entry1 = fractionEntry1 * 60;
     double den = valueEntry;
-    
+
     char tempobuffer [20];
     sprintf(tempobuffer, "%f", entry1);
     string numString = string(tempobuffer);
-    
+
     sprintf (tempobuffer,"%f", den);
     string denString = string(tempobuffer);
-    
+
     string ratioNumber = numString + "/" + denString;
     Ratio ratio = Ratio(ratioNumber);
-    
+
     sprintf(tempobuffer, "%d", ratio.Num());
-    
+
     if (ratio.Den() ==1){
-     	stringbuffer = stringbuffer + string(tempobuffer) ;   
+     	stringbuffer = stringbuffer + string(tempobuffer) ;
     }
     else{
     	stringbuffer = stringbuffer + string(tempobuffer) + "/";
@@ -350,15 +349,15 @@ string Event::getTimeSignatureStringFromDOMElement(DOMElement* _element){
         <Entry1>4</Entry1>
         <Entry2>4</Entry2>
       </TimeSignature>
-  */    
+  */
 
   DOMElement* thisElement = _element->GFEC();
   int entry1 = utilities->evaluate(XMLTC(thisElement),(void*)this);
-  
+
   char charbuffer[20];
   sprintf(charbuffer, "%d", entry1);
   string stringbuffer =  string(charbuffer);
-    
+
   thisElement = thisElement->GNES();
   int entry2 = utilities->evaluate(XMLTC(thisElement),(void*)this);
   sprintf(charbuffer, "%d", entry2);
@@ -376,7 +375,7 @@ void Event::buildChildren(){
     Output::beginSubLevel(name);
     outputProperties();
   }
-  
+
   string eventclass;
   switch (type){
     case 0: eventclass = "T         : ";break;
@@ -385,7 +384,7 @@ void Event::buildChildren(){
     case 3: eventclass = "------L   : ";break;
   }
   //Build the event's children.
-  
+
   //Create the event definition iterator.
         /*
         <Entry1>1</Entry1>
@@ -399,7 +398,7 @@ void Event::buildChildren(){
         */
   string method = XMLTC(methodFlagElement);
 
-  
+
   //Set the number of possible restarts (for buildDiscrete)
   restartsRemaining = restartsNormallyAllowed;
 
@@ -409,7 +408,7 @@ void Event::buildChildren(){
     cerr << "There may be a bug in the code. Please report." << endl;
     exit(1);
   }
-  
+
   /*  old code. --Ming-ching May 06, 2013
   //Make sure the childType indexes correctly.
   if (childType >= typeVect.size() || typeVect[childType] == "") {
@@ -417,14 +416,14 @@ void Event::buildChildren(){
     exit(1);
   }
   */
- 
+
   //Create the child events.
   for (currChildNum = 0; currChildNum < numChildren; currChildNum++) {
     if (method == "0")
       checkEvent(buildContinuum());
-    else if (method == "1") 
+    else if (method == "1")
       checkEvent(buildSweep());
-    
+
     else if (method == "2")
       checkEvent(buildDiscrete());
     else {
@@ -432,21 +431,21 @@ void Event::buildChildren(){
       exit(1);
     }
   }
-  
+
   //Using the temporary events that were created, construct the actual children.
   for (int i = 0; i < temporaryChildEvents.size(); i++) {
-     
+
     //Increment the static current child number.
     currChildNum = i;
-  
+
     //build child.
     Event *e = temporaryChildEvents[currChildNum];
     childEvents.push_back(e);
   }
-  
+
   //Clear the temporary event list.
   temporaryChildEvents.clear();
-  
+
   //For each child that was created, build its children.
   for(int i = 0; i < childEvents.size(); i++){
     //overload in bottom
@@ -456,12 +455,12 @@ void Event::buildChildren(){
 		If we are to stop the generation here
 		call new method childEvents[i]->buildEmptyChildren()
 			in place of buildChildren,
-		then 
-		
+		then
+
 		!!! REFACTOR THIS INTO A SINGLE CALLABLE METHOD !!!
 		if (soundSynthesis){
     		MultiTrack* renderedScore = utilities->doneCMOD();
-			!!! REPLACE GET NEXT SOUND FILE WITH A NEW NAMING METHOD !!!    		
+			!!! REPLACE GET NEXT SOUND FILE WITH A NEW NAMING METHOD !!!
 			string soundFilename = getNextSoundFile();
     		//Write to file.
     		AuWriter::write(*renderedScore, soundFilename);
@@ -472,13 +471,30 @@ void Event::buildChildren(){
     //TODO: DELETE ELSEWHERE. Cleanup should probably be done after execution.
 		delete childEvents[i];
   }
-  
+
   if (utilities->getOutputParticel()){
   //End this output sublevel.
     Output::addProperty("Updated Tempo Start Time", tempo.getStartTime());
     Output::endSubLevel();
   }
 }
+
+//---------------------------------------------------------------------------//
+
+void Event::modifyChildren(){            //Incomplete
+
+  //Randomly modify reverb and spatial elements
+
+  //cout<<childEvents.size();
+
+  for(int i = 0; i < childEvents.size(); i++){
+
+     childEvents[i]->modifyChildren();
+  }
+
+}
+
+//---------------------------------------------------------------------------//
 
 //----------------------------------------------------------------------------//
 void Event::findLeafChildren(vector<Event*> & leafChildren){
@@ -487,7 +503,7 @@ void Event::findLeafChildren(vector<Event*> & leafChildren){
 		leafChildren.push_back(this);
 	}
 	else{
-		cout << "numchildren: " << childEvents.size() 
+		cout << "numchildren: " << childEvents.size()
                      << "----Non-Leaf----: " << name << endl;
 	}
 	for(int i = 0; i < childEvents.size(); i++){
@@ -504,21 +520,21 @@ void Event::findLeafChildren(vector<Event*> & leafChildren){
 bool Event::buildContinuum() {
   string startType = XMLTC(childStartTypeFlag);
   string durType = XMLTC(childDurationTypeFlag);
-  
+
   // Whether we should align notes to sieves
   bool align = (   sieveAligned
                 && Utilities::isSieveFunction(childStartTimeElement)
-                && Utilities::isSieveFunction(childDurationElement) 
+                && Utilities::isSieveFunction(childDurationElement)
                 && startType == "1"
                 && durType == "1");
-  
+
   if (currChildNum == 0) {
     checkPoint = 0;
   }
   else {
     checkPoint = Random::Rand();
   }
-  
+
   // get the start time
   float rawChildStartTime = 0.0;
   float rawChildDuration = 0.0;
@@ -555,16 +571,16 @@ bool Event::buildContinuum() {
 
     // get the duration
     rawChildDuration = utilities->evaluate(XMLTC(childDurationElement),(void*)this);
-    
-    // assign previousChild Duration here so that the next child can use it 
-    previousChildDuration = rawChildDuration; 
-    
+
+    // assign previousChild Duration here so that the next child can use it
+    previousChildDuration = rawChildDuration;
+
     // pre-quantize the duration in case "EDU" is used
     int rawChildDurationInt = (int)rawChildDuration;
     int maxChildDurInt = (int)maxChildDur;
     if(rawChildDurationInt > maxChildDurInt)
         rawChildDurationInt = maxChildDurInt;
-    
+
     // how to process duration: EDU, SECONDS or PERCENTAGE
     if (durType == "1") {//EDU
       tsChild.durationEDU = Ratio(rawChildDurationInt, 1);
@@ -591,9 +607,9 @@ bool Event::buildContinuum() {
   // get the type
   childType = utilities->evaluate(XMLTC(childTypeElement),(void*)this);
   string childName = XMLTC(childTypeElements[childType]->GFEC());
-    
+
   checkPoint = (double)tsChild.start / ts.duration;
-  
+
   if (utilities->getOutputParticel()){
   //Output parameters in the different units available.
     Output::beginSubLevel("Continuum");
@@ -626,11 +642,11 @@ bool Event::buildContinuum() {
 bool Event::buildSweep() {
   string startType = XMLTC(childStartTypeFlag);
   string durType = XMLTC(childDurationTypeFlag);
- 
+
   // Whether we should align notes to sieves
   bool align = (   sieveAligned
                 && Utilities::isSieveFunction(childStartTimeElement)
-                && Utilities::isSieveFunction(childDurationElement) 
+                && Utilities::isSieveFunction(childDurationElement)
                 && startType == "1"
                 && durType == "1");
 
@@ -639,18 +655,18 @@ bool Event::buildSweep() {
     tsPrevious.start = 0;
     tsPrevious.startEDU = 0;
   }
-  
+
   // Set checkpoint to the endpoint of the last event
   checkPoint = tsPrevious.start / ts.duration;
 
   if (checkPoint > 1) {
-    cerr << "Event::Sweep -- Error1: tsChild.start outside range of " 
+    cerr << "Event::Sweep -- Error1: tsChild.start outside range of "
         << "parent duration." << endl;
-    cerr << "      childStime=" << tsChild.start << ", parentDur=" 
+    cerr << "      childStime=" << tsChild.start << ", parentDur="
         << ts.duration << endl;
-    cerr << "      in file: " << name << ", childNum=" 
+    cerr << "      in file: " << name << ", childNum="
         << currChildNum << endl;
-    cerr << "currChildNum=" << currChildNum << " tsPrevious.start=" 
+    cerr << "currChildNum=" << currChildNum << " tsPrevious.start="
         << tsPrevious.start << " checkPoint=" << checkPoint << endl;
     exit(1);
   }
@@ -671,11 +687,11 @@ bool Event::buildSweep() {
     tsChild.duration = childPt.dur * tempo.getEDUDurationInSeconds().To<float>();
   } else {
     // get the start time
-    rawChildStartTime = 
+    rawChildStartTime =
       utilities->evaluate(XMLTC(childStartTimeElement),(void*)this);
-  
+
     if (startType == "1" ) {		//EDU
-      tsChild.start = rawChildStartTime * 
+      tsChild.start = rawChildStartTime *
         tempo.getEDUDurationInSeconds().To<float>() + tsPrevious.start;
       tsChild.startEDU = Ratio((int)rawChildStartTime, 1) + tsPrevious.startEDU;
     } else if (startType == "2") {	//seconds
@@ -685,28 +701,28 @@ bool Event::buildSweep() {
       tsChild.start = rawChildStartTime * ts.duration + tsPrevious.start; // convert to seconds
       tsChild.durationEDU = Ratio(0, 0); // floating point is not exact: NaN
     }
-  
+
     if (tsChild.start < tsPrevious.start) {
       tsChild.start = tsPrevious.start;
       tsChild.startEDU = tsPrevious.startEDU;
     }
-  
+
     if (currChildNum == 0) {
       tsChild.start = 0;
       tsChild.startEDU = 0;
     }
     // get the duration
     rawChildDuration = utilities->evaluate(XMLTC(childDurationElement),(void*)this);
-    
-    //assign previousChild Duration here so that the next child can use it 
-    previousChildDuration = rawChildDuration;  
-    
+
+    //assign previousChild Duration here so that the next child can use it
+    previousChildDuration = rawChildDuration;
+
     // pre-quantize the duration in case "EDU" is used
     int rawChildDurationInt = (int)rawChildDuration;
     int maxChildDurInt = (int)maxChildDur;
     if(rawChildDurationInt > maxChildDurInt)
         rawChildDurationInt = maxChildDurInt;
-  
+
     if (durType == "1") {
       tsChild.durationEDU = Ratio(rawChildDurationInt, 1);
       tsChild.duration = // convert to seconds
@@ -728,11 +744,11 @@ bool Event::buildSweep() {
   checkPoint = tsChild.start / ts.duration;
 
   if (checkPoint > 1) {
-    cerr << "Event::Sweep -- Error2: tsChild.start outside range of " 
+    cerr << "Event::Sweep -- Error2: tsChild.start outside range of "
         << "parent duration." << endl;
-    cerr << "      childStime=" << tsChild.start << ", parentDur=" 
+    cerr << "      childStime=" << tsChild.start << ", parentDur="
         << ts.duration << endl;
-    cerr << "      in file: " << name << ", childNum=" 
+    cerr << "      in file: " << name << ", childNum="
         << currChildNum << endl;
     exit(1);
   }
@@ -740,7 +756,7 @@ bool Event::buildSweep() {
   // get the type
   childType = utilities->evaluate(XMLTC(childTypeElement),(void*)this);
   string childName = XMLTC(childTypeElements[childType]->GFEC());
-  
+
   tsPrevious.start = tsChild.start; //+ tsChild.duration;
   tsPrevious.startEDU = tsChild.startEDU; //+ tsChild.durationEDU;
   if (utilities->getOutputParticel()){
@@ -784,28 +800,28 @@ PatternPair::~PatternPair(){
 
 void Event::addPattern(std::string _string, Patter* _pat){
   PatternPair* n = new PatternPair(_string, _pat);
-  patternStorage.push_back(n);  
+  patternStorage.push_back(n);
 }
 
 
 //---------------------------------------------------------------------------//
 
 Event::~Event() {
-  
-  //if ( modifiersIncludingAncestorsElement!=NULL) 
-  //  			delete modifiersIncludingAncestorsElement; 
+
+  //if ( modifiersIncludingAncestorsElement!=NULL)
+  //  			delete modifiersIncludingAncestorsElement;
 //turns out that clone dom node is not created in heap
   for (int i = 0; i < temporaryXMLParsers.size(); i++){
     delete temporaryXMLParsers[i];
   }
-  
+
   vector<PatternPair*>::iterator iter = patternStorage.begin();
-  
+
   for (; iter != patternStorage.end(); iter ++){
-    delete *iter;  
+    delete *iter;
   }
-    
-  if ( matrix != NULL) delete matrix;  
+
+  if ( matrix != NULL) delete matrix;
 }
 
 
@@ -817,7 +833,7 @@ void* waitForDiscreteResponse(void* _event){
   string response = "";
   cin >>response;
 	string * retval = new string(response);
-	
+
   event->setDiscreteFailedResponse(response);
   return (void *) retval;
 }
@@ -832,15 +848,15 @@ void Event::tryToRestart(void) {
   if(restartsRemaining > 0) {
     restartsRemaining--;
     cout << "Failed to build child " << currChildNum << " of " << numChildren
-      << " in file " << name << ". There are " << restartsRemaining 
+      << " in file " << name << ". There are " << restartsRemaining
       << " tries remaining." << endl;
 //  int sever; cin >> sever;
   } else {
     //Ask for permission to build with less children.
-    cout << "Event::tryToRestart - currChildNum=" << currChildNum 
+    cout << "Event::tryToRestart - currChildNum=" << currChildNum
          << " numChildren=" << numChildren << endl;
     cerr << "No tries remain. Try building with one less child? (Y/n)" << endl;
-    
+
     bool inputAccepted = false;
     string answer = "";
     while (!inputAccepted){
@@ -858,40 +874,40 @@ void Event::tryToRestart(void) {
         sleep(1);
         counter --;
       }*/
-      
-      //warning! memory leak here! There is a problem killing thread waiting for cin. need to figure this out. 
+
+      //warning! memory leak here! There is a problem killing thread waiting for cin. need to figure this out.
       // --Ming-ching May 06, 2013)
       //pthread_cancel(discreteWaitForInputIfFailedThread);
-      
+
       //answer = (counter ==0)? "y" : discreteFailedResponse;
 			answer = thisfail;
 			delete ((string*)myfail);
-      if (answer == "y" || answer == "Y" || answer =="n" || answer == "N") inputAccepted = true; 
+      if (answer == "y" || answer == "Y" || answer =="n" || answer == "N") inputAccepted = true;
       else {
         cout<<"Please enter 'y' or 'n'."<<endl;
       }
-     
+
     }
-    if (answer == "n"|| answer == "N") {		
+    if (answer == "n"|| answer == "N") {
 			exit(1);
     }
     //Build with one less child.
     numChildren--; cerr << "Changed numChildren to " << numChildren << endl;
-    
+
     //Reset the restart count.
     restartsRemaining = restartsAllowedWithFewerChildren;
   }
-  
+
   //Start over by clearing the event arrays and resetting the for-loop index.
 	// NOTE: SHOULD BE -1
-  currChildNum = -1;    
+  currChildNum = -1;
   for (int i = 0; i < childEvents.size(); i++)
     delete temporaryChildEvents[i];
   temporaryChildEvents.clear();
 
   //Clear the temporary event list.
   childSoundsAndNotes.clear();			//sever 5/29/2016
-  
+
   patternStorage.clear();
 }
 
@@ -900,7 +916,7 @@ void Event::tryToRestart(void) {
 //Checked
 
 void Event::checkEvent(bool buildResult) {
-  
+
   //If the build failed, restart if necessary.
   if (!buildResult) {
     tryToRestart();
@@ -911,22 +927,22 @@ void Event::checkEvent(bool buildResult) {
   yet within the piece. The following section uses the start time/tempo rules to
   determine the correct exact and inexact start times, in some cases leading to
   a new tempo.*/
-  
+
   /*Inexact start time is global. That is, it *always* refers to the position in
-  time relative to the beginning of the piece. Thus the child start time is 
+  time relative to the beginning of the piece. Thus the child start time is
   merely the child offset added of the parent start time.*/
   tsChild.start += ts.start;
-  
+
   /*The next part of the code deals with exactness issues since inexact and
   exact events may be nested inside each other.*/
-  
+
   /*The following graphic attempts to show the many possibilities of nested
   exact and inexact offsets.
-  
+
   i = inexact start offset
   e = exact start offset
   T = tempo start time
-  
+
   0=============================================================================
   |            EVENT 1-----------------------------------------------------. . .
   |            |           EVENT 2-----------------------------------------. . .
@@ -943,7 +959,7 @@ void Event::checkEvent(bool buildResult) {
   |    TEMPO   |   START   |  TIMES   |         |         |       |
                \\                                         \\
                T1         (T1)       (T1)                 T5     (T5)
-  
+
   Inexact Start Times (~ means the exact value is truncated to floating point):
   Event 1 = i1
   Event 2 = i1 + ~e2
@@ -951,7 +967,7 @@ void Event::checkEvent(bool buildResult) {
   Event 4 = i1 + ~e2 + ~e3 + i4
   Event 5 = i1 + ~e2 + ~e3 + i4 + i5
   Event 6 = i1 + ~e2 + ~e3 + i4 + i5 + ~e6
-  
+
   Exact Start Times:
   Event 1 = (not applicable)
   Event 2 = T1 + e2
@@ -959,10 +975,10 @@ void Event::checkEvent(bool buildResult) {
   Event 4 = (not applicable)
   Event 5 = (not applicable)
   Event 6 = T5 + e6
-  
+
   Note that Event 4 ignores tempo information altogether since its child is
   inexact.
-  
+
   Possible combinations:
   1) Parent inexact, child inexact (Events 4-5)
   Since both are inexact, nothing further is to be done. They will both only
@@ -970,7 +986,7 @@ void Event::checkEvent(bool buildResult) {
   if(!ts.startEDU.isDeterminate() && !tsChild.startEDU.isDeterminate()) {
     //Nothing to do here.
   }
-  
+
   /*2) Parent exact, child inexact (Events 3-4)
   Since the child is inexact, nothing further is to be done. The child will
   simply have a global inexact time offset. The parent will already have
@@ -982,7 +998,7 @@ void Event::checkEvent(bool buildResult) {
   /*3) Parent exact, child exact (Events 2-3)
   Since the both are exact, the child inherits the tempo of the parent. Its
   exact offset is calculated by adding the exact parent start time offset.
-  
+
   Important Note:
   If the child attempts to override the parent tempo, it will be ignored and the
   above calculation. This is to prevent implicitly nested tempos, which are
@@ -1002,14 +1018,14 @@ void Event::checkEvent(bool buildResult) {
     to buildChildEvents, to constructChild, to EventFactory::Build, and finally
     to initDiscreteInfo.*/
   }
-  
-  /*4) Parent inexact, child exact (Events 1-2, 5-6) 
+
+  /*4) Parent inexact, child exact (Events 1-2, 5-6)
   In this case, since the parent did not have an exact offset from the
   grandparent, the exact child needs a new reference point. This triggers the
   creation of a new tempo start time *for the parent*. Since the child is
   offset an exact amount from the parent, the parent is the new tempo reference.
-  
-  This could easily be the source of confusion: when a parent offset is inexact, 
+
+  This could easily be the source of confusion: when a parent offset is inexact,
   and a child offset is exact, it is the parent which takes on the new tempo.
   Note that this implies that the child's siblings will refer to the same new
   tempo start time.*/
@@ -1021,7 +1037,7 @@ void Event::checkEvent(bool buildResult) {
     tempo.setStartTime(ts.start);
     //We need to force child to have the same tempo. See statement for 3).
   }
- 
+
   //Make sure the childType indexes correctly.
   if (childType >= childTypeElements.size() ) {
     cerr << "There is a mismatch between childType and typeVect." << endl;
@@ -1031,22 +1047,22 @@ void Event::checkEvent(bool buildResult) {
   //Create new event.
   DOMElement* discretePackage = childTypeElements[childType];
   EventType childEventType = (EventType) utilities->evaluate(XMLTC(discretePackage->GFEC()->GNES()),(void*)this);
-  
-  string childEventName = XMLTC(discretePackage->GFEC());  
+
+  string childEventName = XMLTC(discretePackage->GFEC());
   DOMElement* childElement = utilities->getEventElement(childEventType, childEventName);
 
   Event* e;
   if (childEventType == eventBottom){
     e = (Event*)   new Bottom(childElement, tsChild, childType, tempo, utilities,
                 spatializationElement, reverberationElement, filterElement, modifiersIncludingAncestorsElement);
-    
-    
+
+
     if(tsChild.startEDU.isDeterminate()){
     //cout<<"Child start EDU is determinate."<<endl;
       e->tempo = tempo;
     }
   }
-  
+
   else if (childEventType == eventSound || childEventType == eventNote){
     childSoundsAndNotes.push_back(new SoundAndNoteWrapper
 		  (childElement,tsChild, childEventName, childType, tempo));
@@ -1066,10 +1082,10 @@ void Event::checkEvent(bool buildResult) {
       e->tempo = tempo;
     }
   }
-  
+
   //Add the event to the temporary event list.
   temporaryChildEvents.push_back(e);
-  
+
 }
 
 
@@ -1132,7 +1148,7 @@ int Event::getAvailableEDU()
   //Return exact duration if it is already apparent.
   if(ts.startEDU.isDeterminate() && ts.startEDU != Ratio(0, 1))
     return ts.startEDU.To<int>();
- 
+
   //The duration is not exact.
   int myDurationInt = (int)ts.duration;
   Ratio EDUs;
@@ -1156,7 +1172,7 @@ int Event::getAvailableEDU()
     else //Implied EDUs.Den() != 0
       durationScalar = ts.duration;
   }
-  
+
   //The duration is not exact, so the available EDUs must be quantized.
   float approximateEDUs = EDUs.To<float>() * durationScalar;
   int quantizedEDUs = (int)(approximateEDUs + 0.001f);
@@ -1174,7 +1190,7 @@ int Event::getAvailableEDU()
 string Event::getEDUDurationExactness(void) {
   float actualEDUDuration =
     (Ratio(getAvailableEDU(), 1) * tempo.getEDUDurationInSeconds()).To<float>();
-  
+
   if(actualEDUDuration == ts.duration)
     return "Yes";
   else if(fabs(actualEDUDuration / ts.duration - 1.0f) < 0.01f)
@@ -1195,21 +1211,21 @@ string Event::unitTypeToUnits(string type) {
   else if(type == "PERCENTAGE")
     return "normalized";
   else
-    return "";  
+    return "";
 }
 
 
 //----------------------------------------------------------------------------//
 
 bool Event::buildDiscrete() {
-  
+
   if (currChildNum == 0) {
     checkPoint = 0;
   }
   MatPoint childPt;
-    
+
   if (matrix == NULL) buildMatrix(true);
- 
+
   // get something out of the matrix
   childPt  = matrix->chooseDiscrete(numChildren - currChildNum - 1);
 
@@ -1224,20 +1240,20 @@ bool Event::buildDiscrete() {
   int durEDU = childPt.dur;
   childType = childPt.type;
   string childName = XMLTC(childTypeElements[childType]->GFEC());
-  
+
   if(durEDU > (int)maxChildDur)
     durEDU = maxChildDur;
   tsChild.startEDU = stimeEDU;
   tsChild.durationEDU = durEDU;
-  
-  tsChild.start = (float)stimeEDU * 
+
+  tsChild.start = (float)stimeEDU *
     tempo.getEDUDurationInSeconds().To<float>();
-  tsChild.duration = (float)durEDU * 
+  tsChild.duration = (float)durEDU *
     tempo.getEDUDurationInSeconds().To<float>();
 
   // using edu
   checkPoint = (double)tsChild.start / ts.duration;
-  
+
   if (utilities->getOutputParticel()){
   //Output parameters in the different units available.
     Output::beginSubLevel("Discrete");
@@ -1272,16 +1288,16 @@ void Event::buildMatrix(bool discrete) {
   vector<Envelope*> attackEnvs;
   vector<Envelope*> durEnvs;
   vector<int> numTypesInLayers;
-  
+
   if (discrete) {
     attackSiv = (Sieve*) utilities->evaluateObject(
                   XMLTC(AttackSieveElement),
                   (void*) this, eventSiv);
-                      
+
     durSiv = (Sieve*) utilities->evaluateObject(
                   XMLTC(DurationSieveElement),
                   (void*) this, eventSiv);
-  } else { 
+  } else {
     attackSiv = utilities->evaluateSieve(XMLTC(childStartTimeElement), (void*) this);
     durSiv = utilities->evaluateSieve(XMLTC(childDurationElement), (void*) this);
   }
@@ -1290,49 +1306,49 @@ void Event::buildMatrix(bool discrete) {
   for (int i = 0; i < childTypeElements.size(); i ++){
     double prob = utilities->evaluate(XMLTC(childTypeElements[i]->GFEC()->GNES()->GNES()), (void*) this);
     typeProbs.push_back(prob);
-    weightSum += prob; 
+    weightSum += prob;
   }
   for (int i = 0; i < typeProbs.size(); i ++){
     typeProbs[i] = typeProbs[i] / weightSum;
-    
-  } 
-  
+
+  }
+
   if (discrete) {
     for (int i = 0; i < childTypeElements.size(); i ++){
       // attack env
       DOMElement* elementIter = childTypeElements[i]->GFEC()->GNES()->GNES()->GNES();
-      
+
       string attackEnvString = XMLTC(elementIter);
       elementIter = elementIter ->GNES();
       string attackEnvScaleString = XMLTC(elementIter);
-      
-      string attackFunctionString = 
+
+      string attackFunctionString =
               "<Fun><Name>EnvLib</Name><Env>" +
-              attackEnvString + 
+              attackEnvString +
               "</Env><Scale>" +
               attackEnvScaleString +
               "</Scale></Fun>";
-      
+
       elementIter = elementIter ->GNES();
       string durationEnvString = XMLTC(elementIter);
-      
+
       elementIter = elementIter ->GNES();
       string durationEnvScaleString = XMLTC(elementIter);
-      
-      string durationFunctionString = 
+
+      string durationFunctionString =
               "<Fun><Name>EnvLib</Name><Env>" +
-              durationEnvString + 
+              durationEnvString +
               "</Env><Scale>" +
               durationEnvScaleString +
               "</Scale></Fun>";
-      
+
       attackEnvs.push_back((Envelope*)
         utilities->evaluateObject(attackFunctionString, this, eventEnv));
-      
+
       durEnvs.push_back((Envelope*)
         utilities->evaluateObject(durationFunctionString, this, eventEnv));
     }
-  } 
+  }
   for (int i = 0; i < layerElements.size(); i ++){
     int numOfDiscretePackages = 0;
     DOMElement* elementIter = layerElements[i]->GFEC()->GNES()->GFEC();
@@ -1342,12 +1358,12 @@ void Event::buildMatrix(bool discrete) {
     }
     numTypesInLayers.push_back (numOfDiscretePackages);
   }
-  
+
   int parentEDUs = str_to_int(tempo.getEDUPerSecond().toPrettyString()) * ts.duration;
 
   matrix = new Matrix(childTypeElements.size(), attackSiv->GetNumItems(),
        durSiv->GetNumItems(),  numTypesInLayers, parentEDUs, tempo, sieveAligned);
-  
+
   if (discrete) {
     matrix->setAttacks(attackSiv, attackEnvs);
     matrix->setDurations(durSiv, parentEDUs, durEnvs);

@@ -21,8 +21,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //----------------------------------------------------------------------------//
 //
 //   Bottom.h  This class is used to store and manage the details of the
-//   bottom level objects.  Unlike the other events, bottom does not create 
-//   subevents.  In stead it creates sounds for synthesis and notes for 
+//   bottom level objects.  Unlike the other events, bottom does not create
+//   subevents.  In stead it creates sounds for synthesis and notes for
 //   traditional notated scores are created.  Visual events might be added
 //   later.
 //
@@ -47,7 +47,7 @@ class Bottom : public Event {
 
     /*DOMElements are held here because these variables need to be recomputed for
     every sound and note since there could be some randomness built in. */
-   
+
     DOMElement* frequencyElement;
     DOMElement* loudnessElement;
     DOMElement* modifiersElement;
@@ -56,11 +56,11 @@ class Bottom : public Event {
     //Current partial during the processing of the event
     int currPartialNum;
 
-    
+
     /*Maps each mod name to an indicator if it's being used:
      -1 = initVal, 0 = notUsed, 1 = used.*/
     map<string, double> mod_used;
-    
+
     //Pitch number for a well-tempered frequency (used to create notes)
 
     int wellTempPitch;		//(sever will change it to float)
@@ -73,17 +73,17 @@ class Bottom : public Event {
 //----------------------------------------------------------------------------//
 
   public:
-    
+
     /**
     * This is the constructor for new CMOD model
     *
     */
-    
+
     Bottom(DOMElement* _element, TimeSpan _timeSpan, int _type, Tempo _tempo, Utilities* _utilities, DOMElement* _ancestorSpa, DOMElement* _ancestorRev,
           DOMElement* _ancestorFil,DOMElement* _ancestorModifiers);
-    
-    
-    
+
+
+
     /**
     *   Destructor.
     **/
@@ -97,12 +97,18 @@ class Bottom : public Event {
      *  and Visuals instead of child Events.
      **/
     void constructChild(SoundAndNoteWrapper* _SoundNoteWrapper);
-    
+
     /**
      *  The build method
      *
      **/
     void buildChildren();
+
+    /**
+    * Added by Rishabh. Experimental.
+    **/
+
+    void modifyChildren();
 
 
     /**
@@ -152,23 +158,23 @@ class Bottom : public Event {
      * \param noteVect a reference to a vector of notes
     **/
     list<Note> getNotes();
-    
+
     /**
      * building the notes / sounds. However in the new version building notes
      * is not implemented yet.
      **/
     void buildChildEvents();
-    
+
     /**
      * construct each child.
      **/
     void constructChild(TimeSpan ts, int type, string name, Tempo tempo);
-    
+
     //getters
     DOMElement* getSPAElement(){return spatializationElement;}
     DOMElement* getREVElement(){return reverberationElement;}
     DOMElement* getFILElement(){return filterElement;}
-    
+
 
 
     //--------------------- Private helper methods  -----------------------//
@@ -196,7 +202,7 @@ class Bottom : public Event {
     /**
      *   Assigns a frequency to a partial according to baseFrequency and the
      *   deviation (which is randomly selected as positive or negative).
-     *   Frequencies are checked against the MINFREQ and CEILING 
+     *   Frequencies are checked against the MINFREQ and CEILING
      *   (see define.h) and set (applied to the sound object) with setParam
      *   \param part reference to a partial
      *   \param deviation the deviation
@@ -206,7 +212,7 @@ class Bottom : public Event {
     float setPartialFreq(Partial& part, float deviation, float baseFrequency, int partNum);
 
     /**
-     *  Chooses an envelope number for each partial then a scaling factor and 
+     *  Chooses an envelope number for each partial then a scaling factor and
      *  then assigns the scaled envelope.  There are different methods for
      *  choosing the envelope and its scaling factor.
      * \param part reference to a partial
@@ -229,7 +235,7 @@ class Bottom : public Event {
      *  \param s a pointer to the sound being created
      **/
     void applyFilter(Sound* s);
-     
+
     /**
      *  Applies spatialization to a sound
      *  \param s a pointer to the sound being created
@@ -241,42 +247,42 @@ class Bottom : public Event {
      *  Sets the spatialization of a sound according to a stereo environment
      *  \param s pointer to a sound
      *  \param envList List of FileValues (envelopes)
-     *  \param applyHow string containing info if it applies to sound or 
-     *     individual partials 
+     *  \param applyHow string containing info if it applies to sound or
+     *     individual partials
      *  \param numParts the number of partials in this sound
      **/
-    void spatializationStereo(Sound *s, 
-                              DOMElement* _channels, 
+    void spatializationStereo(Sound *s,
+                              DOMElement* _channels,
                               string applyHow,
                               int numParts);
 
     /**
-     *  Sets the spatialization of a sound by assigning each speaker in an 
+     *  Sets the spatialization of a sound by assigning each speaker in an
      *     array its own envelope
      *  \param s pointer to a sound
      *  \param outerList List of Lists of FileValues (envelopes)
-     *  \param applyHow string containing info if it applies to sound or 
-     *     individual partials 
+     *  \param applyHow string containing info if it applies to sound or
+     *     individual partials
      *  \param numParts the number of partials in this sound
      **/
-    void spatializationMultiPan(Sound *s, 
-                                DOMElement* _channels,  
+    void spatializationMultiPan(Sound *s,
+                                DOMElement* _channels,
                                 string applyHow,
                                 int numParts);
 
     /**
-     *  Sets the spatialization of a sound assuming a speaker array 
-     *     forming a circle and uses polar coordinates to spread 
+     *  Sets the spatialization of a sound assuming a speaker array
+     *     forming a circle and uses polar coordinates to spread
      *     the sound between them. (see LASS).
      *  \param s pointer to a sound
-     *  \param channels are actually theta and radius 
+     *  \param channels are actually theta and radius
 
-     *  \param applyHow string containing info if it applies to sound or 
-     *     individual partials 
+     *  \param applyHow string containing info if it applies to sound or
+     *     individual partials
      *  \param numParts the number of partials in this sound
      **/
-    void spatializationPolar(Sound *s, 
-                             DOMElement* _channels,  
+    void spatializationPolar(Sound *s,
+                             DOMElement* _channels,
                              string applyHow,
                              int numParts);
 
@@ -287,11 +293,11 @@ class Bottom : public Event {
     void applyReverberation(Sound* s);
 
     /**
-    *  Use of modifiers: tremolo, vibrato, transients. Makes 3 lists/maps - 
-    *  one for modifiers with no dependencies, one for modifiers grouped 
-    *  together, and one for modifiers with direct dependencies on other 
-    *  modifiers. It goes through each list (in the order mentioned) to 
-    *  find which modifiers to use and their respective values and applies 
+    *  Use of modifiers: tremolo, vibrato, transients. Makes 3 lists/maps -
+    *  one for modifiers with no dependencies, one for modifiers grouped
+    *  together, and one for modifiers with direct dependencies on other
+    *  modifiers. It goes through each list (in the order mentioned) to
+    *  find which modifiers to use and their respective values and applies
     *  each of them.
     **/
     void applyModifiers(Sound *s, int numPartials);

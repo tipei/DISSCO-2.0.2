@@ -77,7 +77,6 @@ OBJECTS := \
 	$(OBJDIR)/EnvelopeLibraryWindow.o \
 	$(OBJDIR)/HelpOperations.o \
 	$(OBJDIR)/FunctionGenerator.o \
-	$(OBJDIR)/MarkovModelLibraryWindow.o \
 	$(OBJDIR)/ProjectViewController.o \
 
 RESOURCES := \
@@ -176,9 +175,6 @@ $(OBJDIR)/HelpOperations.o: LASSIE/src/HelpOperations.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 $(OBJDIR)/FunctionGenerator.o: LASSIE/src/FunctionGenerator.cpp
-	@echo $(notdir $<)
-	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-$(OBJDIR)/MarkovModelLibraryWindow.o: LASSIE/src/MarkovModelLibraryWindow.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 $(OBJDIR)/ProjectViewController.o: LASSIE/src/ProjectViewController.cpp

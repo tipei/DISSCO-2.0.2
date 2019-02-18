@@ -37,6 +37,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 
+
 //----------------------------------------------------------------------------//
 
 int PieceHelper::getDirectoryList(string dir, vector<string> &files) {
@@ -219,6 +220,8 @@ void Piece::Print() {
 
 
 Piece::Piece(string _workingPath, string _projectTitle){
+  for(int i = 0; i < 3; i++){
+
   path = _workingPath;
   projectName = _projectTitle;
   //Change working directory.
@@ -257,7 +260,6 @@ Piece::Piece(string _workingPath, string _projectTitle){
   numThreads = atoi(XMLTC(element).c_str());
   element = element->GNES();
   bool outputParticel = (XMLTC(element).compare("True")==0)?true:false;
-
 
   //check if seed exists
   string seed;
@@ -298,9 +300,47 @@ Piece::Piece(string _workingPath, string _projectTitle){
     Print();
   }
 
+  //Modify the XML file - Eperimental
+  string evName = utilities->topEventnames.at(0);
+  EventType evType = (EventType)0;
+  utilities->currChild = 0;
+
+  DOMElement* topEvEl = utilities->getEventElement(evType, evName);
+  vector<DOMElement*> children = calculateAesthetic(topEvEl);
+
+  for(int i = 0; i < children.size(); i++){
+      vector<DOMElement*> currChildren = calculateAesthetic(children[i]);
+
+      for(int j = 0; j < currChildren.size(); j++){
+        children.push_back(currChildren[j]);
+      }
+      //cout<<"Child No: "<<i<<endl;
+  }
+
+  //(Only bottom events for now)
+  double pieceAesthetic = 0.0;
+  double fitnessSum = 0.0;
+  int numUniqueEvents = 0;
+  std::map<double, string> bottoms;
+  std::vector<string> names;
+
+  for(std::map<string, double>::iterator it = utilities->eventValues.begin(); it != utilities->eventValues.end(); ++it){
+    names.push_back(it->first);
+    if(it->second != 0.0){
+      pieceAesthetic += it->second;
+      numUniqueEvents++;
+      bottoms.insert(std::pair<double, string>(it->second, it->first));
+      cout<<it->first<<", "<<it->second<<endl;
+      fitnessSum += it->second;
+    }
+  }
+
+  //pieceAesthetic /= numUniqueEvents;
+  //cout<<"Piece aesthetic: "<<pieceAesthetic<<endl;
 
   //Create the Top event and recursively build its children.
-  DOMElement* topElement =utilities->getEventElement(eventTop, fileList);
+  DOMElement* topElement = utilities->getEventElement(eventTop, fileList);
+  utilities->currChild = 0;
   Event* topEvent = new Event(topElement,
         pieceSpan,0, mainTempo, utilities, NULL,NULL,NULL,NULL);
   topEvent->buildChildren();
@@ -337,6 +377,7 @@ Piece::Piece(string _workingPath, string _projectTitle){
     endl << endl;
   cout.flush();
 
+
   //clean up
   delete utilities;
   delete parser;
@@ -344,7 +385,796 @@ Piece::Piece(string _workingPath, string _projectTitle){
   XMLPlatformUtils::Terminate();
 
 }
+}
 
 Piece::~Piece(){
   //do nothing
 }
+
+//Experiment 2
+vector<DOMElement*> Piece::calcEventM(DOMElement* eventElement){
+
+      vector<DOMElement*> childElements;
+	    DOMElement* thisEventElement = eventElement->GFEC(); //type
+	    string typeString = XMLTC(thisEventElement);
+	    int type = atoi(typeString.c_str());
+	    double mVal = 0.0;
+
+	    thisEventElement = thisEventElement->GNES(); //name
+	    string name = XMLTC(thisEventElement);
+
+	    if(type <= 4){  //Top, High, Medium, Low, Bottom
+
+	      thisEventElement = thisEventElement->GNES(); //maxChildDur
+	      float maxChildDur = (float)utilities->evaluate(XMLTC(thisEventElement), (void*)this);
+
+	      thisEventElement = thisEventElement->GNES(); //newEDUPerBeat
+	      int newEDUPerBeat = (int) utilities->evaluate(XMLTC(thisEventElement),(void*)this);
+
+	      thisEventElement = thisEventElement->GNES(); //Time Signature element
+
+	      thisEventElement = thisEventElement->GNES(); //Tempo element
+
+	      DOMElement* numChildrenElement = thisEventElement->GNES(); //Num children element
+
+	      DOMElement* childEventDefElement = numChildrenElement->GNES();
+	      DOMElement* childStartTimeElement = childEventDefElement->GFEC();
+	      DOMElement* childTypeElement = childStartTimeElement->GNES();
+	      DOMElement* childDurationElement = childTypeElement->GNES();
+	      DOMElement* AttackSieveElement = childDurationElement->GNES();
+	      DOMElement* DurationSieveElement = AttackSieveElement->GNES();
+	      DOMElement* methodFlagElement = DurationSieveElement->GNES();
+	      DOMElement* childStartTypeFlag = methodFlagElement->GNES();
+	      DOMElement* childDurationTypeFlag = childStartTypeFlag->GNES();
+
+	      //Read Flag values (Needed for modification)
+	      string defFlag = XMLTC(methodFlagElement);
+	      int definitionVal = atoi(defFlag.c_str());
+
+	      if(definitionVal == 0){     //Only Continuum
+
+		    //Calculating start time orignality
+		    string startFlag = XMLTC(childStartTypeFlag);
+		    int startFlagVal = atoi(startFlag.c_str());
+
+	      //layers, initialize child names
+	      thisEventElement = childEventDefElement->GNES();
+	      DOMElement* layerElement = thisEventElement->GFEC();
+	      vector<DOMElement*> layerElements;
+	      vector<DOMElement*> childTypeElements;
+
+	      while (layerElement){
+
+		        layerElements.push_back(layerElement);
+		        DOMElement* childPackage = layerElement->GFEC()->GNES()->GFEC();
+
+		        while(childPackage){
+		            childTypeElements.push_back(childPackage);
+		            childPackage = childPackage->GNES();
+		        }
+		        layerElement = layerElement->GNES();
+	      }
+
+	      int numChildren;
+	      DOMElement* flagElement = numChildrenElement->GFEC();
+	      if (XMLTC(flagElement) =="0"){ // Continuum
+		          DOMElement* entry1Element = flagElement->GNES();
+		            if (XMLTC(entry1Element)==""){
+		                numChildren = childTypeElements.size();
+		            }
+		            else {
+		                  numChildren =(int) utilities->evaluate(XMLTC(entry1Element), (void*)this);
+		            }
+	      }
+	      else if (XMLTC(flagElement) == "1"){ // Density
+		        DOMElement* densityElement = numChildrenElement->GFEC()->GNES();
+		        DOMElement* areaElement = densityElement->GNES();
+		        DOMElement* underOneElement = areaElement->GNES();
+		        double density = utilities->evaluate( XMLTC(densityElement),(void*)this);
+		        double area = utilities->evaluate( XMLTC(areaElement),(void*)this);
+		        double underOne = utilities->evaluate( XMLTC(underOneElement),(void*)this);
+		        double soundsPsec = pow(2, density * area - underOne); //this can't be right..
+
+		        numChildren = (int)(soundsPsec * utilities->evaluate(pieceDuration, NULL) + underOne/area);
+	      }
+	      else {// by layer
+	         numChildren = 0;
+	    	   for (int i = 0; i < layerElements.size(); i ++){
+		           numChildren +=utilities->evaluate(XMLTC(layerElements[i]->GFEC()),(void*)this);
+		       }
+	      }
+
+	      if(type == 4){ //Bottom
+		        XMLCh* extraInfoString = XMLString::transcode("ExtraInfo");
+		        DOMNodeList* extraInfoList = eventElement->getElementsByTagName(extraInfoString);
+		        DOMElement* extraInfo = (DOMElement*) extraInfoList->item(0);
+		        XMLString::release(&extraInfoString);
+
+        		//Frequency Entropy
+        		DOMElement* frequencyElement = extraInfo->GFEC();
+        		DOMElement* frequencyFlagElement = frequencyElement->GFEC();
+        		string flagNum = XMLTC(frequencyFlagElement);
+        		int flagVal = atoi(flagNum.c_str());
+
+        		if(flagVal == 0){ //Equal Temperament
+        		  mVal += EQUAL_TEMP * (log(1 / EQUAL_TEMP)/log(2));
+        		  DOMElement* freqEntry1 = frequencyFlagElement->GNES()->GNES();
+        	  }
+
+        	  else if(flagVal == 1){//Fundamental
+        		    mVal += FUNDAMENTAL * (log(1 / FUNDAMENTAL)/log(2));
+        		      DOMElement* freqEntry1 = frequencyFlagElement->GNES()->GNES();
+        		        DOMElement* freqEntry2 = freqEntry1->GNES();
+        	  }
+
+	         else if(flagVal == 2){//Continuum
+	            mVal += CONTINUUM * (log(1 / CONTINUUM)/log(2));
+		          DOMElement* freqEntry1 = frequencyFlagElement->GNES()->GNES();
+		          DOMElement* continuumFlagElement = frequencyFlagElement->GNES();
+
+          		if (utilities->evaluate(XMLTC(continuumFlagElement), NULL)==0) { //Hertz
+          		   mVal += HZ * (log(1 / HZ)/log(2));
+          		  /* 3rd arg is a float (baseFreq in Hz) */
+          		}
+
+        		else  {
+        		   mVal += POW2 * (log(1 / POW2)/log(2));
+        		  /* 3rd arg is a float (power of 2) */
+        		  float step = utilities->evaluate(XMLTC(freqEntry1), (void*)this);
+        		  double range = log10(CEILING / MINFREQ) / log10(2.); // change log base
+        		  double baseFreqResult = pow(2, step * range) * MINFREQ;  // equal chance for all 8vs
+        		}
+	        }
+
+    	      /*entropy = calculateEntropyRatio(samples, "Pow2", 0, 15000); //Freq in Hz
+    	      currentEntropy = utilities->eventValues[name];
+    	      utilities->eventValues.erase(name);
+    	      newEntropy = (currentEntropy + entropy); // Mean of ratios
+    	      utilities->eventValues.insert(std::pair<string, double> (name, newEntropy));
+    	      //cout<<"Entropy Ratio:"<<entropy<<endl;*/
+
+    	      printf("%f\n", mVal);
+
+      	    for(int i = 0; i < numChildren; i++){
+
+      	      double childType = utilities->evaluate(XMLTC(childTypeElement),(void*)this);
+      	      string childName = XMLTC(childTypeElements[childType]->GFEC());
+      	      EventType childEventType = (EventType) utilities->evaluate(XMLTC(childTypeElements[childType]->GFEC()->GNES()),(void*)this);
+
+      	      DOMElement* childElement = utilities->getEventElement(childEventType, childName);
+      	      childElements.push_back(childElement);
+      	  }
+
+	        return childElements;
+	  }
+	}
+}
+}
+
+//Experimental
+
+vector<DOMElement*> Piece::modifyPiece(DOMElement* eventElement){
+
+  //Read certain properties of this event/ Navigate the XML
+  vector<DOMElement*> childElements;
+  DOMElement* thisEventElement = eventElement->GFEC(); //type
+  string typeString = XMLTC(thisEventElement);
+  int type = atoi(typeString.c_str());
+
+  thisEventElement = thisEventElement->GNES(); //name
+  string name = XMLTC(thisEventElement);
+
+     if(type == 4){ //Bottom. (only doing bottom for now)
+      XMLCh* extraInfoString = XMLString::transcode("ExtraInfo");
+      DOMNodeList* extraInfoList = eventElement->getElementsByTagName(extraInfoString);
+      DOMElement* extraInfo = (DOMElement*) extraInfoList->item(0);
+      XMLString::release(&extraInfoString);
+
+      //Modifying Frequency
+      DOMElement* frequencyElement = extraInfo->GFEC();
+      DOMElement* frequencyFlagElement = frequencyElement->GFEC();
+      string flagNum = XMLTC(frequencyFlagElement);
+      int flagVal = atoi(flagNum.c_str());
+
+      if(flagVal == 0){ //Equal Tempered
+        DOMElement* freqEntry1 = frequencyFlagElement->GNES()->GNES();
+
+        if(freqEntry1->GFEC() != NULL){
+          DOMElement* funcElement = freqEntry1->GFEC();
+          functionModifier(funcElement, 80);
+        }
+
+        else{
+
+          string freqNum = XMLTC(freqEntry1);
+          int freqVal = atoi(freqNum.c_str());
+          freqVal = Random::RandInt(8, 80);
+
+          char lval[33];
+          sprintf(lval, "%d", freqVal);
+
+          XMLCh *freq;
+          freq = XMLString::transcode(lval);
+          freqEntry1->getFirstChild()->setNodeValue(freq);
+          XMLString::release(&freq);
+
+      }
+    }
+
+    else if(flagVal == 1){    //Didnt change Partial Number
+      DOMElement* freqEntry1 = frequencyFlagElement->GNES()->GNES();
+
+      if(freqEntry1->GFEC() != NULL){
+        DOMElement* funcElement = freqEntry1->GFEC();
+        //functionModifier(funcElement, 100);
+      }
+
+      else{
+
+        string freqNum = XMLTC(freqEntry1);
+        int freqVal = atoi(freqNum.c_str());
+        //freqVal = (freqVal + Random::RandInt(0, 10)) % 100;
+
+        char lval[33];
+        sprintf(lval, "%d", freqVal);
+
+        XMLCh *freq;
+        freq = XMLString::transcode(lval);
+        freqEntry1->getFirstChild()->setNodeValue(freq);
+        XMLString::release(&freq);
+
+    }
+    }
+
+    else if(flagVal == 2){
+      DOMElement* continuumFlagElement = frequencyFlagElement->GNES();
+      string contflagNum = XMLTC(continuumFlagElement);
+      int contflagVal = atoi(contflagNum.c_str());
+      DOMElement* freqEntry1 = frequencyFlagElement->GNES()->GNES();
+
+      if(freqEntry1->GFEC() != NULL){
+        DOMElement* funcElement = freqEntry1->GFEC();
+        if(contflagVal == 0){
+         functionModifier(funcElement, 15000);
+      }
+        else{
+         functionModifier(funcElement, 14);
+        }
+      }
+
+      else{
+
+        string freqNum = XMLTC(freqEntry1);
+        int freqVal = atoi(freqNum.c_str());
+        if(contflagVal == 0){
+         freqVal = Random::RandInt(0, 15000);
+      }
+        else{
+         freqVal = Random::RandInt(0, 14);
+        }
+
+        char lval[33];
+        sprintf(lval, "%d", freqVal);
+
+        XMLCh *freq;
+        freq = XMLString::transcode(lval);
+        freqEntry1->getFirstChild()->setNodeValue(freq);
+        XMLString::release(&freq);
+
+    }
+    }
+
+      //Modifying Loudness
+      DOMElement* loudnessElement = frequencyElement->GNES();
+
+      if(loudnessElement->GFEC() != NULL){
+        DOMElement* funcElement = loudnessElement->GFEC();
+        functionModifier(funcElement, 225);
+      }
+
+      else{
+        //char *loudnessvalue = XMLString::transcode(loudnessElement->getFirstChild()->getNodeValue());
+        //cout<<"hey:"<<loudnessvalue[0]<<loudnessvalue[1]<<loudnessvalue[2]<<endl;
+
+        string typeString = XMLTC(loudnessElement);
+        int val = atoi(typeString.c_str());
+        int loudnessNum = val;
+        loudnessNum = Random::RandInt(0, 225);
+        //cout<<"loudness = "<< loudnessNum<<endl;
+
+        char lval[33];
+        sprintf(lval, "%d", loudnessNum);
+
+        XMLCh *loud;
+        loud = XMLString::transcode(lval);
+        loudnessElement->getFirstChild()->setNodeValue(loud);
+        XMLString::release(&loud);
+
+    }
+
+      loudnessElement->GNES(); // Spatialization element
+      loudnessElement->GNES()->GNES(); // Reverb element
+      loudnessElement->GNES()->GNES()->GNES(); // Filters element
+      loudnessElement->GNES()->GNES()->GNES()->GNES(); // Modifiers element
+    }
+
+    /*for(int i = 0; i < numChildren; i++){
+
+      double childType = utilities->evaluate(XMLTC(childTypeElement),(void*)this);
+      string childName = XMLTC(childTypeElements[childType]->GFEC());
+      EventType childEventType = (EventType) utilities->evaluate(XMLTC(childTypeElements[childType]->GFEC()->GNES()),(void*)this);
+
+      DOMElement* childElement = utilities->getEventElement(childEventType, childName);
+      childElements.push_back(childElement);
+
+      //cout<<childName<<"!!!!!!!!!!!!!!!!!!!!!!"<<endl;
+
+  }*/
+
+   return childElements;
+ }
+
+//Experimental
+void Piece::functionModifier(DOMElement* functionElement, int maxValue){ //Needs some range info
+
+  string functionName = XMLTC(functionElement->GFEC());
+
+  if(functionName.compare("RandomInt") == 0){
+
+    //cout<<"RandomInt"<<endl;
+
+    DOMElement* lowBoundElement = functionElement->GFEC()->GNES();
+    DOMElement* highBoundElement = lowBoundElement->GNES();
+
+    if(lowBoundElement->GFEC() != NULL){
+      functionModifier(lowBoundElement->GFEC(), maxValue);
+    }
+
+    else{
+      int lowBound = atoi(XMLTC(lowBoundElement).c_str());
+      lowBound = (lowBound + Random::RandInt(0, maxValue/2)) % (maxValue/2);
+      char val[33];
+      sprintf(val, "%d", lowBound);
+      XMLCh *low;
+      low = XMLString::transcode(val);
+      lowBoundElement->getFirstChild()->setNodeValue(low);
+      XMLString::release(&low);
+
+    }
+
+    if(highBoundElement->GFEC() != NULL){
+      functionModifier(highBoundElement->GFEC(), maxValue);
+    }
+
+    else{
+      int highBound = atoi(XMLTC(highBoundElement).c_str());
+      highBound = (highBound + Random::RandInt(0, maxValue/2)) % (maxValue/2) + maxValue/2;
+      char val[33];
+      sprintf(val, "%d", highBound);
+      XMLCh *high;
+      high = XMLString::transcode(val);
+      highBoundElement->getFirstChild()->setNodeValue(high);
+      XMLString::release(&high);
+
+  }
+  }
+
+  else if (functionName.compare("Random") == 0){
+
+    DOMElement* lowBoundElement = functionElement->GFEC()->GNES();
+    DOMElement* highBoundElement = lowBoundElement->GNES();
+
+    if(lowBoundElement->GFEC() != NULL){
+      functionModifier(lowBoundElement->GFEC(), maxValue);
+    }
+
+    else{
+      double lowBound = atof(XMLTC(lowBoundElement).c_str());
+      lowBound = fmod((lowBound + Random::Rand(0, maxValue/2)), maxValue/2);
+      char val[33];
+      sprintf(val, "%f", lowBound);
+      XMLCh *low;
+      low = XMLString::transcode(val);
+      lowBoundElement->getFirstChild()->setNodeValue(low);
+      XMLString::release(&low);
+
+    }
+
+    if(highBoundElement->GFEC() != NULL){
+      functionModifier(highBoundElement->GFEC(), maxValue);
+    }
+
+    else{
+      double highBound = atof(XMLTC(highBoundElement).c_str());
+      highBound = fmod((highBound + Random::Rand(0, maxValue/2)), maxValue/2) + maxValue/2;
+      char val[33];
+      sprintf(val, "%f", highBound);
+      XMLCh *high;
+      high = XMLString::transcode(val);
+      highBoundElement->getFirstChild()->setNodeValue(high);
+      XMLString::release(&high);
+
+  }
+
+  }
+
+  else if (functionName.compare("Select") == 0){
+    DOMElement* listElement = functionElement->GFEC()->GNES();
+    DOMElement* indexElement = listElement->GNES();
+
+    std::vector<std::string> list = utilities->listElementToStringVector(listElement);
+
+    if(indexElement->GFEC() != NULL){
+      functionModifier(indexElement->GFEC(), list.size() - 1);
+    }
+
+    else{
+      int indexVal = atoi(XMLTC(indexElement).c_str());
+      indexVal = (indexVal + 1)%(list.size() - 1);
+      char val[33];
+      sprintf(val, "%d", indexVal);
+      XMLCh *index;
+      index = XMLString::transcode(val);
+      indexElement->getFirstChild()->setNodeValue(index);
+      XMLString::release(&index);
+    }
+  }
+
+  else if (functionName.compare("GetPattern") == 0){
+    //Do Later
+
+  }
+  else if (functionName.compare("Randomizer") == 0){
+
+    DOMElement* baseValElement = functionElement->GFEC()->GNES();
+    DOMElement* percDevElement = baseValElement->GNES();
+
+    if(baseValElement->GFEC() != NULL){
+      functionModifier(baseValElement->GFEC(), maxValue);
+    }
+
+    else{
+      double baseVal = atof(XMLTC(baseValElement).c_str());
+      baseVal = fmod(baseVal + Random::Rand(0, baseVal/10), maxValue/2);
+      char val[33];
+      sprintf(val, "%f", baseVal);
+      XMLCh *base;
+      base = XMLString::transcode(val);
+      baseValElement->getFirstChild()->setNodeValue(base);
+      XMLString::release(&base);
+
+    }
+
+    if(percDevElement->GFEC() != NULL){
+      functionModifier(percDevElement->GFEC(), maxValue);
+    }
+
+    else{
+      double percDev = atof(XMLTC(percDevElement).c_str());
+      percDev = fmod((percDev + Random::Rand(0, percDev/10)), 1);
+      char val[33];
+      sprintf(val, "%f", percDev);
+      XMLCh *dev;
+      dev = XMLString::transcode(val);
+      percDevElement->getFirstChild()->setNodeValue(dev);
+      XMLString::release(&dev);
+
+   }
+
+  }
+  else if (functionName.compare("RandomDensity") == 0) {
+
+    DOMElement* envelopeNumberElement = functionElement->GFEC()->GNES();
+    DOMElement* lowBoundElement = envelopeNumberElement->GNES();
+    DOMElement* highBoundElement = lowBoundElement->GNES();
+
+    if(lowBoundElement->GFEC() != NULL){
+      functionModifier(lowBoundElement->GFEC(), maxValue);
+    }
+
+    else{
+      double lowBound = atof(XMLTC(lowBoundElement).c_str());
+      lowBound = fmod((lowBound + Random::Rand(0, maxValue/2)), maxValue/2);
+      char val[33];
+      sprintf(val, "%f", lowBound);
+      XMLCh *low;
+      low = XMLString::transcode(val);
+      lowBoundElement->getFirstChild()->setNodeValue(low);
+      XMLString::release(&low);
+
+    }
+
+    if(highBoundElement->GFEC() != NULL){
+      functionModifier(highBoundElement->GFEC(), maxValue);
+    }
+
+    else{
+      double highBound = atof(XMLTC(highBoundElement).c_str());
+      highBound = fmod((highBound + Random::Rand(0, maxValue/2)), maxValue/2) + maxValue/2;
+      char val[33];
+      sprintf(val, "%f", highBound);
+      XMLCh *high;
+      high = XMLString::transcode(val);
+      highBoundElement->getFirstChild()->setNodeValue(high);
+      XMLString::release(&high);
+
+  }
+
+  }
+  else if (functionName.compare("ChooseL") == 0){
+    //Do Later
+
+  }
+
+  else if (functionName.compare("ValuePick") == 0){
+    //Do Later
+
+  }
+
+  else if (functionName.compare("Stochos") == 0){
+
+  }
+  else if (functionName.compare("Decay") == 0){
+
+  }
+
+  else if (functionName.compare("Fibonacci") == 0){
+
+  }
+
+  else if (functionName.compare("LN") == 0){
+
+  }
+
+  else if (functionName.compare("Inverse") == 0){
+
+  }
+}
+
+vector<DOMElement*> Piece::calculateAesthetic(DOMElement* eventElement){
+
+    vector<DOMElement*> childElements;
+    const int NUM_SAMPLES = 100;
+    std::vector<double> samples;
+    double entropy = 0.0;
+    double currentEntropy, newEntropy;
+    DOMElement* thisEventElement = eventElement->GFEC(); //type
+    string typeString = XMLTC(thisEventElement);
+    int type = atoi(typeString.c_str());
+
+    thisEventElement = thisEventElement->GNES(); //name
+    string name = XMLTC(thisEventElement);
+
+    if(type <= 4){  //Top, High, Medium, Low, Bottom
+
+      thisEventElement = thisEventElement->GNES(); //maxChildDur
+      float maxChildDur = (float)utilities->evaluate(XMLTC(thisEventElement), (void*)this);
+
+      thisEventElement = thisEventElement->GNES(); //newEDUPerBeat
+      int newEDUPerBeat = (int) utilities->evaluate(XMLTC(thisEventElement),(void*)this);
+
+      thisEventElement = thisEventElement->GNES(); //Time Signature element
+
+      thisEventElement = thisEventElement->GNES(); //Tempo element
+
+      DOMElement* numChildrenElement = thisEventElement->GNES(); //Num children element
+
+      DOMElement* childEventDefElement = numChildrenElement->GNES();
+      DOMElement* childStartTimeElement = childEventDefElement->GFEC();
+      DOMElement* childTypeElement = childStartTimeElement->GNES();
+      DOMElement* childDurationElement = childTypeElement->GNES();
+      DOMElement* AttackSieveElement = childDurationElement->GNES();
+      DOMElement* DurationSieveElement = AttackSieveElement->GNES();
+      DOMElement* methodFlagElement = DurationSieveElement->GNES();
+      DOMElement* childStartTypeFlag = methodFlagElement->GNES();
+      DOMElement* childDurationTypeFlag = childStartTypeFlag->GNES();
+
+      //Read Flag values (Needed for modification)
+      string defFlag = XMLTC(methodFlagElement);
+      int definitionVal = atoi(defFlag.c_str());
+
+      if(definitionVal == 0){     //Only Continuum
+
+        //Calculating start time orignality
+        string startFlag = XMLTC(childStartTypeFlag);
+        int startFlagVal = atoi(startFlag.c_str());
+
+      //layers, initialize child names
+      thisEventElement = childEventDefElement->GNES();
+      DOMElement* layerElement = thisEventElement->GFEC();
+      vector<DOMElement*> layerElements;
+      vector<DOMElement*> childTypeElements;
+
+      while (layerElement){
+
+        layerElements.push_back(layerElement);
+        DOMElement* childPackage = layerElement->GFEC()->GNES()->GFEC();
+
+        while(childPackage){
+          childTypeElements.push_back(childPackage);
+          childPackage = childPackage->GNES();
+        }
+        layerElement = layerElement->GNES();
+      }
+
+      int numChildren;
+      DOMElement* flagElement = numChildrenElement->GFEC();
+      if (XMLTC(flagElement) =="0"){ // Continuum
+        DOMElement* entry1Element = flagElement->GNES();
+        if (XMLTC(entry1Element)==""){
+          numChildren = childTypeElements.size();
+        }
+        else {
+          numChildren =(int) utilities->evaluate(XMLTC(entry1Element), (void*)this);
+        }
+      }
+      else if (XMLTC(flagElement) == "1"){ // Density
+        DOMElement* densityElement = numChildrenElement->GFEC()->GNES();
+        DOMElement* areaElement = densityElement->GNES();
+        DOMElement* underOneElement = areaElement->GNES();
+        double density = utilities->evaluate( XMLTC(densityElement),(void*)this);
+        double area = utilities->evaluate( XMLTC(areaElement),(void*)this);
+        double underOne = utilities->evaluate( XMLTC(underOneElement),(void*)this);
+        double soundsPsec = pow(2, density * area - underOne); //this can't be right..
+
+        numChildren = (int)(soundsPsec * utilities->evaluate(pieceDuration, NULL) + underOne/area);
+
+      }
+      else {// by layer
+      numChildren = 0;
+        for (int i = 0; i < layerElements.size(); i ++){
+          numChildren +=utilities->evaluate(XMLTC(layerElements[i]->GFEC()),(void*)this);
+        }
+      }
+
+      if(type == 4){ //Bottom
+        XMLCh* extraInfoString = XMLString::transcode("ExtraInfo");
+        DOMNodeList* extraInfoList = eventElement->getElementsByTagName(extraInfoString);
+        DOMElement* extraInfo = (DOMElement*) extraInfoList->item(0);
+        XMLString::release(&extraInfoString);
+
+        //Frequency Entropy
+        samples.clear();
+        DOMElement* frequencyElement = extraInfo->GFEC();
+        DOMElement* frequencyFlagElement = frequencyElement->GFEC();
+        string flagNum = XMLTC(frequencyFlagElement);
+        int flagVal = atoi(flagNum.c_str());
+
+        if(flagVal == 0){
+          DOMElement* freqEntry1 = frequencyFlagElement->GNES()->GNES();
+
+          for(int i = 0; i < NUM_SAMPLES; i++){
+            double wellTempPitch = utilities->evaluate(XMLTC(freqEntry1), (void*)this);
+            double baseFreqResult = C0 * pow(WELL_TEMP_INCR, wellTempPitch);
+            samples.push_back(baseFreqResult);
+          }
+      }
+
+      else if(flagVal == 1){
+        DOMElement* freqEntry1 = frequencyFlagElement->GNES()->GNES();
+        DOMElement* freqEntry2 = freqEntry1->GNES();
+
+        for(int i = 0; i < NUM_SAMPLES; i++){
+          float fund_freq = utilities->evaluate(XMLTC(freqEntry1), (void*)this);
+          int overtone_step = utilities->evaluate(XMLTC(freqEntry2), (void*)this);
+          double baseFreqResult = fund_freq * overtone_step;
+          samples.push_back(baseFreqResult);
+        }
+      }
+
+      else if(flagVal == 2){
+        DOMElement* freqEntry1 = frequencyFlagElement->GNES()->GNES();
+        DOMElement* continuumFlagElement = frequencyFlagElement->GNES();
+
+        for(int i = 0; i < NUM_SAMPLES; i++){
+        if (utilities->evaluate(XMLTC(continuumFlagElement), NULL)==0) { //Hertz
+          samples.push_back(utilities->evaluate(XMLTC(freqEntry1), (void*)this));
+          /* 3rd arg is a float (baseFreq in Hz) */
+        }
+        else  {
+          /* 3rd arg is a float (power of 2) */
+          float step = utilities->evaluate(XMLTC(freqEntry1), (void*)this);
+          double range = log10(CEILING / MINFREQ) / log10(2.); // change log base
+          double baseFreqResult = pow(2, step * range) * MINFREQ;  // equal chance for all 8vs
+          samples.push_back(baseFreqResult);
+        }
+      }
+      }
+
+      entropy = calculateEntropyRatio(samples, "Pow2", 0, 15000); //Freq in Hz
+      currentEntropy = utilities->eventValues[name];
+      utilities->eventValues.erase(name);
+      newEntropy = (currentEntropy + entropy); // Mean of ratios
+      utilities->eventValues.insert(std::pair<string, double> (name, newEntropy));
+      //cout<<"Entropy Ratio:"<<entropy<<endl;
+
+      //LOUDNESS Entropy
+
+      DOMElement *loudnessElement = frequencyElement->GNES();
+      samples.clear();
+
+      for(int i = 0; i < NUM_SAMPLES;){
+        double loudval = utilities->evaluate(XMLTC(loudnessElement), (void*)this);
+        if(loudval >= 1.0){
+          samples.push_back(loudval);
+          i++;
+        }
+      }
+
+      entropy = calculateEntropyRatio(samples, "Pow2", 0, 256); //Loudness
+      currentEntropy = utilities->eventValues[name];
+      utilities->eventValues.erase(name);
+      newEntropy = (currentEntropy + entropy); // Mean of ratios
+      utilities->eventValues.insert(std::pair<string, double> (name, newEntropy));
+      //cout<<"Entropy Ratio:"<<entropy<<endl;
+    }
+
+    for(int i = 0; i < numChildren; i++){
+
+      double childType = utilities->evaluate(XMLTC(childTypeElement),(void*)this);
+      string childName = XMLTC(childTypeElements[childType]->GFEC());
+      EventType childEventType = (EventType) utilities->evaluate(XMLTC(childTypeElements[childType]->GFEC()->GNES()),(void*)this);
+
+      DOMElement* childElement = utilities->getEventElement(childEventType, childName);
+      childElements.push_back(childElement);
+  }
+
+   return childElements;
+  }
+}
+}
+
+  double Piece::calculateEntropyRatio(vector<double> sampleData, string partitionMethod, double min, double max){
+
+    if(min == 0 && partitionMethod.compare("Pow2") == 0){
+      min++; //For log to work
+    }
+    int numPartitions = 100; //Arbitrary
+    vector<double> probs(numPartitions, 0.0);
+    double shannonEntropy = 0.0, maxEntropy, redundancy;
+
+    std::sort(sampleData.begin(), sampleData.end());
+
+    double sampleRange = sampleData[sampleData.size() - 1] - sampleData[0];
+
+    for(int i = 0; i < sampleData.size(); i++){
+      if(partitionMethod.compare("Pow2") == 0){
+        probs[(int)(log(sampleData[i])/log(2))] += 1.0/sampleData.size();
+      }
+      else if(partitionMethod.compare("Unit") == 0){
+        probs[(int)sampleData[i]] += 1.0/sampleData.size();
+      }
+    }
+
+    for(int i = 0; i < probs.size(); i++){
+
+      if(probs[i] > 0.0){
+      shannonEntropy += -1 * probs[i] * log(probs[i])/log(2);
+    }
+  }
+
+  if(shannonEntropy < 0.0){     // C++ log stuff error?
+    shannonEntropy = 0.0;
+  }
+
+  //cout<<"Shannon: "<<shannonEntropy;
+
+  if(partitionMethod.compare("Pow2") == 0){
+
+    numPartitions = ceil(log(max)/log(2)) - floor(log(min)/log(2));
+  }
+
+  else if(partitionMethod.compare("Unit") == 0){
+
+    numPartitions = max - min;
+  }
+
+  maxEntropy = log(numPartitions)/log(2);
+  //redundancy = 1 - (shannonEntropy/maxEntropy);
+  redundancy = maxEntropy - shannonEntropy;
+  double relativeShannonEntropy = shannonEntropy/maxEntropy;
+  double benseOriginality = relativeShannonEntropy/redundancy;
+  cout<<shannonEntropy/maxEntropy<<endl;
+
+  return redundancy;
+  }

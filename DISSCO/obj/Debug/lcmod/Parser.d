@@ -36,7 +36,6 @@ obj/Debug/lcmod/Parser.o: CMOD/src/parser/Parser.cpp \
  CMOD/src/parser/../../../LASS/src/Pan.h \
  CMOD/src/parser/../../../LASS/src/Score.h \
  CMOD/src/parser/../../../LASS/src/BiQuadFilter.h \
- CMOD/src/parser/../../../LASS/src/MarkovModel.h \
  CMOD/src/parser/../../../LASS/src/Score.h CMOD/src/parser/../Rational.h \
  CMOD/src/parser/../muParser/muParser.h \
  CMOD/src/parser/../muParser/muParserBase.h \
@@ -127,8 +126,6 @@ CMOD/src/parser/../../../LASS/src/Pan.h:
 CMOD/src/parser/../../../LASS/src/Score.h:
 
 CMOD/src/parser/../../../LASS/src/BiQuadFilter.h:
-
-CMOD/src/parser/../../../LASS/src/MarkovModel.h:
 
 CMOD/src/parser/../../../LASS/src/Score.h:
 

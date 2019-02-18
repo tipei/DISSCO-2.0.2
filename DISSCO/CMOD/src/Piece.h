@@ -31,7 +31,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Libraries.h"
 #include "Note.h"
-
+#include <stdlib.h>
+#include <stdio.h>
 
 //----------------------------------------------------------------------------//
 
@@ -89,6 +90,33 @@ class Piece {
   ///Gets the next available sound file.
   string getNextSoundFile();
 
+  //Modifies the Piece by writing to the DOMDocument. Returns vector of its children.
+  // Experimental
+  vector<DOMElement*> modifyPiece(DOMElement* eventElement);
+
+  //Identifies function and modifies their numbers. Experimental
+  void functionModifier(DOMElement* functionElement, int maxValue);
+
+  //Calculates Aesthetic value for every event. Returns vector of events children.
+  //Experimental
+  vector<DOMElement*> calculateAesthetic(DOMElement* eventElement);
+
+  //Calculates Shannon Entropy ratio based on sampled values
+  double calculateEntropyRatio(vector<double> sampleData, string partitionMethod,
+                                double min, double max);
+
+  // Genetic Evolution Algorithm.
+  void geneticOptimization(string fitnessFunction, double optimum);
+
+  // Crossover and Mutation Function
+  void crossoverMutation(DOMElement* parent1, DOMElement* parent2, DOMElement* child,
+                         double mutationProb);
+
+  // Experiment 2: Calculate M val for an event
+  vector<DOMElement *> calcEventM(DOMElement* eventElement);
+
+  // Exp 2: List
+
   private:
 
   string path;
@@ -106,7 +134,6 @@ class Piece {
   int sampleRate;
   int sampleSize;
   int numThreads;
-
 
 };
 

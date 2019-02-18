@@ -1036,8 +1036,7 @@ obj/Debug/lassie/EnvLibDrawingArea.o: LASSIE/src/EnvLibDrawingArea.cpp \
  LASSIE/src/../../LASS/src/MultiPan.h LASSIE/src/../../LASS/src/Pan.h \
  LASSIE/src/../../LASS/src/Score.h \
  LASSIE/src/../../LASS/src/BiQuadFilter.h \
- LASSIE/src/../../LASS/src/MarkovModel.h LASSIE/src/../../CMOD/src/CMOD.h \
- LASSIE/src/../../CMOD/src/Libraries.h \
+ LASSIE/src/../../CMOD/src/CMOD.h LASSIE/src/../../CMOD/src/Libraries.h \
  LASSIE/src/../../CMOD/src/../../LASS/src/LASS.h \
  LASSIE/src/../../CMOD/src/../../LASS/src/StandardHeaders.h \
  LASSIE/src/../../CMOD/src/../../LASS/src/AbstractIterator.h \
@@ -1073,7 +1072,6 @@ obj/Debug/lassie/EnvLibDrawingArea.o: LASSIE/src/EnvLibDrawingArea.cpp \
  LASSIE/src/../../CMOD/src/../../LASS/src/Types.h \
  LASSIE/src/../../CMOD/src/../../LASS/src/XmlReader.h \
  LASSIE/src/../../CMOD/src/../../LASS/src/BiQuadFilter.h \
- LASSIE/src/../../CMOD/src/../../LASS/src/MarkovModel.h \
  LASSIE/src/../../CMOD/src/../../LASS/src/Score.h \
  LASSIE/src/../../CMOD/src/Rational.h \
  LASSIE/src/../../CMOD/src/muParser/muParser.h \
@@ -3316,8 +3314,6 @@ LASSIE/src/../../LASS/src/Score.h:
 
 LASSIE/src/../../LASS/src/BiQuadFilter.h:
 
-LASSIE/src/../../LASS/src/MarkovModel.h:
-
 LASSIE/src/../../CMOD/src/CMOD.h:
 
 LASSIE/src/../../CMOD/src/Libraries.h:
@@ -3391,8 +3387,6 @@ LASSIE/src/../../CMOD/src/../../LASS/src/Types.h:
 LASSIE/src/../../CMOD/src/../../LASS/src/XmlReader.h:
 
 LASSIE/src/../../CMOD/src/../../LASS/src/BiQuadFilter.h:
-
-LASSIE/src/../../CMOD/src/../../LASS/src/MarkovModel.h:
 
 LASSIE/src/../../CMOD/src/../../LASS/src/Score.h:
 

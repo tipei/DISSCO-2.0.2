@@ -31,12 +31,10 @@ unsigned int Random::seed = 0;
 
 //----------------------------------------------------------------------------//
 
-void Random::Seed(unsigned int n) {
+void Random::Seed(unsigned int n) { // Allow seed to be changed multiple times for brewing piece
 
-  if (seed == 0){
   seed = n;
   srand(n);
-  }
 }
 
 //----------------------------------------------------------------------------//
@@ -65,7 +63,7 @@ double Random::Rand(double low, double high) {
 
 //----------------------------------------------------------------------------//
 
-double Random::Rand(double low, double high, Random::distribution_type 
+double Random::Rand(double low, double high, Random::distribution_type
  distribution) {
   double randNum = Rand();
 
@@ -104,7 +102,7 @@ double Random::Rand(Random::distribution_type distribution) {
 int Random::RandInt(int lowNum, int highNum) {
   int range = (highNum - lowNum) + 1;
   int result = lowNum + (int)( range * Rand() );
-  return result;  
+  return result;
 }
 
 //----------------------------------------------------------------------------//
@@ -166,7 +164,7 @@ void Random::AssignProb(list<double> &myProbList) {
 double Random::PreferedValueDistribution(double value, double checkPoint) {
   double probability;
 
-  probability = exp(FIRST_CONST + SECOND_CONST * pow(2, (value - 0.5)) * 
+  probability = exp(FIRST_CONST + SECOND_CONST * pow(2, (value - 0.5)) *
    pow(2, checkPoint));
 
   return probability;

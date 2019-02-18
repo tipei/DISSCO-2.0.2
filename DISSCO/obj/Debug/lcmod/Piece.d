@@ -26,12 +26,11 @@ obj/Debug/lcmod/Piece.o: CMOD/src/Piece.cpp CMOD/src/Piece.h \
  CMOD/src/../../LASS/src/Reverb.h CMOD/src/../../LASS/src/Spatializer.h \
  CMOD/src/../../LASS/src/MultiPan.h CMOD/src/../../LASS/src/Pan.h \
  CMOD/src/../../LASS/src/Score.h CMOD/src/../../LASS/src/BiQuadFilter.h \
- CMOD/src/../../LASS/src/MarkovModel.h CMOD/src/../../LASS/src/Score.h \
- CMOD/src/Rational.h CMOD/src/muParser/muParser.h \
- CMOD/src/muParser/muParserBase.h CMOD/src/muParser/muParserDef.h \
- CMOD/src/muParser/muParserFixes.h CMOD/src/muParser/muParserStack.h \
- CMOD/src/muParser/muParserError.h CMOD/src/muParser/muParserToken.h \
- CMOD/src/muParser/muParserCallback.h \
+ CMOD/src/../../LASS/src/Score.h CMOD/src/Rational.h \
+ CMOD/src/muParser/muParser.h CMOD/src/muParser/muParserBase.h \
+ CMOD/src/muParser/muParserDef.h CMOD/src/muParser/muParserFixes.h \
+ CMOD/src/muParser/muParserStack.h CMOD/src/muParser/muParserError.h \
+ CMOD/src/muParser/muParserToken.h CMOD/src/muParser/muParserCallback.h \
  CMOD/src/muParser/muParserTokenReader.h \
  CMOD/src/muParser/muParserBytecode.h CMOD/src/FileValue.h \
  CMOD/src/Define.h CMOD/src/Patter.h CMOD/src/Sieve.h CMOD/src/Bottom.h \
@@ -119,8 +118,6 @@ CMOD/src/../../LASS/src/Pan.h:
 CMOD/src/../../LASS/src/Score.h:
 
 CMOD/src/../../LASS/src/BiQuadFilter.h:
-
-CMOD/src/../../LASS/src/MarkovModel.h:
 
 CMOD/src/../../LASS/src/Score.h:
 
