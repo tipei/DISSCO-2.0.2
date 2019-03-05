@@ -1,14 +1,14 @@
 /*
 CMOD (composition module)
 Copyright (C) 2005  Sever Tipei (s-tipei@uiuc.edu)
-   
-   
+
+
    Update:
-   This class is not yet implemented in the XML version of CMOD. 
-   
+   This class is not yet implemented in the XML version of CMOD.
+
                                             --Ming-ching Chiu May 06 2013
-                                            
-                                            
+
+
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -53,30 +53,30 @@ class Note {
 // static ofstream notaFile;
 
     		//Rhythm//
-    
+
     //The timespan of the note.
     TimeSpan ts;
-    
+
     //The parent tempo.
     Tempo tempo;
-    
+
     		//Pitch//
-    
+
     //Absolute numeric value of the pitch
     int pitchNum;
-    
+
     //The octave the pitch is in
     int octaveNum;
-    
+
     //The number of the pitches within the octave
     int octavePitch;
-    
+
     //The string name of this pitch
     std::string pitchName;
 
     //Dynamic number
     int loudnessNum;
-    
+
     //Dynamic marking (i.e. "ff")
     std::string loudnessMark;
 
@@ -93,7 +93,7 @@ class Note {
     int start_t; //start time
     int end_t; //end time
 
-    int tuplet; 
+    int tuplet;
     string tuplet_name;
     int split;
     int diff, first_half_dur, last_half_dur, tuplet_1, tuplet_2;
@@ -106,7 +106,7 @@ class Note {
 
     //Constructor with timespan and tempo
     Note(TimeSpan ts, Tempo tempo);
-    
+
     //Copy constructor
     Note(const Note& other);
 
@@ -134,7 +134,7 @@ class Note {
     /**
      *  Assigns the pitch of a note
      *  \param freqHz The frequency of the note in Hz
-     *  \return int pitchNum, while float wellTemperedPitch could 
+     *  \return int pitchNum, while float wellTemperedPitch could
      *    aaccommodate 1/4 tones.
      *
      *  \note: this assumes an equal tempered scale of 12 semitones
@@ -159,9 +159,9 @@ class Note {
     /**
       *  Assigns any modifiers to the sound: expressive mark attached to notes:
       *   accent, espressivo, marcato, portato, staccatissimo, staccato, tenuto,
-      *   prall, prallup, pralldown, upprall, downprall, prallprall, lineprall, 
+      *   prall, prallup, pralldown, upprall, downprall, prallprall, lineprall,
       *   prall mordent mordent upmordent downmordent trill turn reverseturn
-      *   shortfermata, fermata, longfermata, verylongfermata, upbow, downbow, 
+      *   shortfermata, fermata, longfermata, verylongfermata, upbow, downbow,
       *   flageolet, open, halfopen, lheel, rheel, ltoe, rtoe, snappizzicato,
       *    stopped, segno, coda, varcoda (LyliPond markings)
       *  \param modNums
@@ -177,7 +177,7 @@ class Note {
      *   Adds pitch, dynamics and playing techniques.
      *   \param
     **/
-    void notateDurations( string aName, string startEDU, string durationEDU); 
+    void notateDurations( string aName, string startEDU, string durationEDU);
 
   /**
     * When a note's duration is longer than barEDU, this function splits
@@ -187,10 +187,10 @@ class Note {
     **/
     string split_bars(int bar_diff);
 
-    /** 
+    /**
      *      not in use ?
      *
-     * Converts duration (in EDU) to a string representing the type of the 
+     * Converts duration (in EDU) to a string representing the type of the
      * note(s)
      * \param dur - duration of the note
      * \output: string
@@ -205,9 +205,9 @@ class Note {
     void notate();
 
 
-  /** 
-    * Some duration need two notes to notate, such notation is marked 
-    * starting with an '!'. This function read this mark and split it into 
+  /**
+    * Some duration need two notes to notate, such notation is marked
+    * starting with an '!'. This function read this mark and split it into
     * two notes.
     * \param s - string that holds the duration info. s will be modified
     * \param pitch_out - output pitch
@@ -216,18 +216,18 @@ class Note {
    void translate(string & s, string pitch_out);
 
 
-   /** 
+   /**
     *            not in use ?
     *
-    * Sorts the note into a vector and keep the vector in time 
+    * Sorts the note into a vector and keep the vector in time
     *  increasing order
     *  \input: Note * n - pointer to a note
     **/
   static void sort_notes(Note * n);
 
   /**
-  * Sorts individual note into a vector and keeps the vector in time 
-  *  increasing order (for original notes). This function is similar to prev 
+  * Sorts individual note into a vector and keeps the vector in time
+  *  increasing order (for original notes). This function is similar to prev
   *  one but sorts notes into another vector.
   *  \param Note * n - pointer to a note
   **/
@@ -235,7 +235,7 @@ class Note {
 
 
   /**
-   * Checks if the gap between two notes(dur of a rest sign) is valid. If not, 
+   * Checks if the gap between two notes(dur of a rest sign) is valid. If not,
    *  the beginning time of the second note will be modified to a valid value.
    *  Then each note is converted to a corresponding notation
    *								-shenyi
@@ -251,7 +251,7 @@ class Note {
   static void verify_rests(int &time1, int & time2, string loud);
 
   /**
-   * Checks if time is valid, if it is not, change it to closest 
+   * Checks if time is valid, if it is not, change it to closest
    *  valid value
    *  \input: int &time - (reference) time to be verified
    **/
@@ -264,7 +264,7 @@ class Note {
     string split_internal(int dur);
 
   /**
-   *            not in use 
+   *            not in use
    **/
    bool need_split(int dur, int beatEDUs);
 
@@ -289,13 +289,13 @@ class Note {
     void split_across_bar(int bar_diff);
 
     /**
-     *          not in use 
+     *          not in use
      **/
     string new_convert_dur_to_type(int dur);
 
 };
 
-//extern string convert_dur_to_type(int dur); 
+//extern string convert_dur_to_type(int dur);
 
 extern int beatEDUs;
 
@@ -318,10 +318,9 @@ extern int str_to_int(string s);
 bool is_valid(Rational<int> temp);
 
  /*
-  extern string restsign_dur_to_type(int start_time, int end_time, int dur, 
-   int tuplet, int tuplet_s_t); 
+  extern string restsign_dur_to_type(int start_time, int end_time, int dur,
+   int tuplet, int tuplet_s_t);
   */
 
 
 #endif /* NOTE_H */
-

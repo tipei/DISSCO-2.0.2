@@ -27,7 +27,7 @@
 #include "Bottom.h"
 #include "Random.h"
 #include "Output.h"
-
+static int test=0;
 
 //----------------------------------------------------------------------------//
 
@@ -110,7 +110,6 @@ void Bottom::buildChildren(){
     Output::beginSubLevel(name);
     outputProperties();
   }
-
   //Build the event's children.
   cout << "Building event: --------B : "<< name << endl;
   string method = XMLTC(methodFlagElement);
@@ -234,44 +233,56 @@ void Bottom::buildSound(SoundAndNoteWrapper* _soundNoteWrapper) {
   newSound->setParam(LOUDNESS, loudSones);
   if (utilities->getOutputParticel())Output::addProperty("Loudness", loudSones, "sones");
 
-  //Set the number of partials.
   int numPartials = computeNumPartials( baseFrequency ,_soundNoteWrapper->element );
-  if (utilities->getOutputParticel())Output::beginSubLevel("Partials");
-  if (utilities->getOutputParticel())
-	Output::addProperty("Deviation",
-		computeDeviation(_soundNoteWrapper->element), "normalized");
-
-  //For each partial, create and add to sound.
-  for (int i = 0; i < numPartials; i++) {
-    currPartialNum = i; //added by ming 20130425
-
-    //Create the next partial object.
-    Partial partial;
-
-    //Set the partial number of the partial based on the current index.
-    partial.setParam(PARTIAL_NUM, i);
-
-    //Compute the deviation for partials above the fundamental.
-    double deviation = 0;
-    if(i != 0)
-      deviation = computeDeviation(_soundNoteWrapper->element );
-
-    //Set the frequencies for each partial.
-    float actualFrequency = setPartialFreq(
-      partial, deviation, baseFrequency, i);
-
-    //Report the actual frequency.
-    stringstream ss; if(i != 0) ss << "Partial " << i; else ss << "Fundamental";
-    if (utilities->getOutputParticel())
-	Output::addProperty(ss.str(), actualFrequency, "Hz");
-
-    //Set the spectrum for this partial.
-    setPartialSpectrum(partial, i, _soundNoteWrapper->element);
-
-    //Add the partial to the sound.
-    newSound->add(partial);
-
+  if (test){
+    //if testing distance-loudness mode
+    float frequency = 512;
+    float loudness = 256;
+    float distance;
+    cout << "Please enter distance:" << endl;
+    cin >> distance;
+    generatePartials(newSound,frequency,loudness, distance,2);
   }
+  else{
+      //Set the number of partials.
+
+      if (utilities->getOutputParticel())Output::beginSubLevel("Partials");
+      if (utilities->getOutputParticel())
+    	Output::addProperty("Deviation",
+    		computeDeviation(_soundNoteWrapper->element), "normalized");
+
+      //For each partial, create and add to sound.
+      for (int i = 0; i < numPartials; i++) {
+        currPartialNum = i; //added by ming 20130425
+
+        //Create the next partial object.
+        Partial partial;
+
+        //Set the partial number of the partial based on the current index.
+        partial.setParam(PARTIAL_NUM, i);
+
+        //Compute the deviation for partials above the fundamental.
+        double deviation = 0;
+        if(i != 0)
+          deviation = computeDeviation(_soundNoteWrapper->element );
+
+        //Set the frequencies for each partial.
+        float actualFrequency = setPartialFreq(
+          partial, deviation, baseFrequency, i);
+
+        //Report the actual frequency.
+        stringstream ss; if(i != 0) ss << "Partial " << i; else ss << "Fundamental";
+        if (utilities->getOutputParticel())
+    	Output::addProperty(ss.str(), actualFrequency, "Hz");
+
+        //Set the spectrum for this partial.
+        setPartialSpectrum(partial, i, _soundNoteWrapper->element);
+
+        //Add the partial to the sound.
+        newSound->add(partial);
+
+      }
+   }
 
   if (utilities->getOutputParticel())Output::endSubLevel();
 
@@ -1233,4 +1244,126 @@ vector<string> Bottom::applyNoteModifiers( DOMElement* _playingMethods) {
   } while ( currentTechnique != NULL);
 
   return modNames;
+}
+
+//----------------------------------------------------------------------------//
+
+void Bottom::generatePartials(Sound* newsound, float frequency, float loudness, float distance, int envNumb){
+  float strength = loudness*distance/256*2;   //strength is normalized between 0 and 2
+  cout<<"strength"<<strength<<endl;
+
+  if ((frequency < 233) || frequency > 932){
+    cout << "Error in genratePartials: frequency out of range" << endl;
+  }
+  //calculate scale for Partials
+  double scaleTable[3][3][20] = {
+    { //Bb3,p,m,f     233 hz
+      {0.886, 0.014, 1, 0.072, 0.367, 0.193, 0.183, 0.036, 0.058, 0.010, 0.028,
+        0.021, 0.011, 0.016, 0.003, 0.003, 0.002, 0.002, 0.002, 0.002},
+      {0.756, 0.014, 1, 0.037, 0.521, 0.217, 0.234, 0.123, 0.306, 0.066, 0.142,
+      0.040, 0.053, 0.044, 0.053, 0.039, 0.033, 0.043, 0.004, 0.012},
+      {0.832, 0.019, 1.000, 0.043, 0.481, 0.226, 0.145, 0.119, 0.384, 0.091,
+        0.182, 0.048, 0.080, 0.094, 0.077, 0.053, 0.044, 0.057, 0.009, 0.021}
+      },
+    {//Bb4,p,m,f     466 hz
+      {1.000, 0.115, 0.834, 0.079, 0.233, 0.031, 0.027, 0.015, 0.005, 0.004,
+      0.008, 0.002, 0.001, 0.0017, 0.001, 0.001, 0.001, 0.001, 0.0006, 0.001},
+      {0.938, 0.072, 1.000, 0.318, 0.096, 0.096, 0.036, 0.109, 0.023, 0.010,
+      0.007, 0.007, 0.002, 0.010, 0.002, 0.0015, 0.002, 0.002, 0.002, 0.0015},
+      {0.939, 0.036, 1.000, 0.252, 0.220, 0.078, 0.057, 0.045, 0.027, 0.016,
+      0.013, 0.007, 0.003, 0.008, 0.004, 0.001, 0.002, 0.001, 0.0022, 0.0018}
+    },
+    {//Bb5,p,m,f     932 hz
+      {1.000, 0.269, 0.227, 0.040, 0.004, 0.006, 0.003, 0.0007, 0.002, 0.0007,
+      0.0007, 0.003, 0.0007, 0.001, 0.0014, 0.0005, 0.0007, 0.0005, 0.0007, 0.0005},
+      {1.00, 0.507, 0.132, 0.160, 0.030, 0.002, 0.001, 0.0008, 0.0016, 0.003, 0.002,
+      0.001, 0.001, 0.001, 0.0005, 0.0005, 0.001, 0.0005, 0.001, 0.00064},
+      {1.00, 0.354, 0.198, 0.102, 0.054, 0.012, 0.005, 0.002, 0.005, 0.003, 0.003,
+      0.002, 0.001, 0.002, 0.004, 0.0015, 0.002, 0.002, 0.003, 0.0013}
+    }
+  };
+  //Set the number of partials.
+  int numPartials = 20;
+  int currPartialNum;
+  //For each partial, create and add to sound.
+  for (int i = 0; i < numPartials; i++) {
+    currPartialNum = i; //added by ming 20130425
+
+    //Create the next partial object.
+    Partial partial;
+
+    //Set the partial number of the partial based on the current index.
+    partial.setParam(PARTIAL_NUM, i);
+
+    //Set the frequencies for each partial.
+    float actualFrequency = setPartialFreq(
+      partial, 0, frequency, i);
+
+    //Report the actual frequency.
+    stringstream ss; if(i != 0) ss << "Partial " << i; else ss << "Fundamental";
+    if (utilities->getOutputParticel())
+  Output::addProperty(ss.str(), actualFrequency, "Hz");
+
+    //Set the spectrum for this partial.
+    //interpolate the scale from scale table
+    double scale;
+    if (frequency <= 466){
+      if (strength <= 1){
+        double scale_strength1 = calculateFreqPartial(233,scaleTable[0][0][i],466,scaleTable[1][0][i],frequency);
+        double scale_strength2 = calculateFreqPartial(233,scaleTable[0][1][i],466,scaleTable[1][1][i],frequency);
+        scale = strength * scale_strength1 + (1 - strength) * scale_strength2;
+      }
+      else{
+        double scale_strength1 = calculateFreqPartial(233,scaleTable[0][1][i],466,scaleTable[1][1][i],frequency);
+        double scale_strength2 = calculateFreqPartial(233,scaleTable[0][2][i],466,scaleTable[1][2][i],frequency);
+        scale = (2 - strength) * scale_strength1 + (strength - 1) * scale_strength2;
+      }
+    }
+    else{
+      if (strength <= 1){
+        double scale_strength1 = calculateFreqPartial(466,scaleTable[1][0][i],932,scaleTable[2][0][i],frequency);
+        double scale_strength2 = calculateFreqPartial(466,scaleTable[1][1][i],932,scaleTable[2][1][i],frequency);
+        scale = strength * scale_strength1 + (1 - strength) * scale_strength2;
+      }
+      else{
+        double scale_strength1 = calculateFreqPartial(466,scaleTable[1][1][i],932,scaleTable[2][1][i],frequency);
+        double scale_strength2 = calculateFreqPartial(466,scaleTable[1][2][i],932,scaleTable[2][2][i],frequency);
+        scale = (2 - strength) * scale_strength1 + (strength - 1) * scale_strength2;
+      }
+    }
+    cout<<"scale"<<scale<<endl;
+    Envelope* waveShape = utilities->getEnvelopeshape(envNumb,scale);
+    partial.setParam(WAVE_SHAPE, *waveShape );
+    delete waveShape;
+    //Add the partial to the sound.
+    newsound->add(partial);
+  }
+}
+
+//----------------------------------------------------------------------------//
+
+double Bottom::calculateFreqPartial(double x1, double y1, double x2, double y2, double x){
+  //the curve between two points (x1,y1) and (x2,y2) is modeled by y=a*2^(b*(x-x1))
+  //assuming y2>y1
+  if ((x > x2) || (x < x1)){
+    cout << "Bottom::error in caluclateFreqPartials" << endl;
+    return 0;
+  }
+  double a, b, y;
+  if (y2 >= y1){
+    a = y1;
+    b = (log2(y2 / y1)) / (x2 - x1);
+    y = a * pow(2, b * (x-x1) );
+  }
+  else{
+    //the downward curve is supposed to be symmetric (with respect to the
+    //horizontal line y1) to the above case. Model the curve as if y2>y1 and
+    //take the symmetric result
+    double y2_temp = y1 + (y1 - y2);
+    a = y1;
+    b = (log2(y2_temp / y1)) / (x2 - x1);
+    double y_temp = a * pow(2, b * (x-x1) );
+    y = y1 - (y_temp - y1);
+  }
+  return y;
 }

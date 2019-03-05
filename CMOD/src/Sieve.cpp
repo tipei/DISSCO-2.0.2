@@ -53,22 +53,22 @@ string Sieve::getFileName() {
 
 //---------------------------------------------------------------------------//
 
-void Sieve::BuildFromExpr(int minVal, int maxVal, 
-                          const char *eMethod, const char *wMethod, 
+void Sieve::BuildFromExpr(int minVal, int maxVal,
+                          const char *eMethod, const char *wMethod,
                           std::string expr, vector<int> wArgVect, vector<int> offsetVect) {
   ModParser mp(offsetVect);
-  mp.parseExpr(expr, minVal, maxVal);    
-  eList = mp.getElements();             
+  mp.parseExpr(expr, minVal, maxVal);
+  eList = mp.getElements();
   Sieve::Weights(mp.getMods(), wMethod, wArgVect, mp.getOffsets());
 }
 
-void Sieve::Build(int minVal, int maxVal, 
-                  const char *eMethod, const char *wMethod, 
+void Sieve::Build(int minVal, int maxVal,
+                  const char *eMethod, const char *wMethod,
                   vector<int> eArgVect, vector<int> wArgVect, vector<int> offsetVect) {
-                  
+
   Sieve::Elements(minVal, maxVal, eMethod, eArgVect, offsetVect);
   Sieve::Weights(eArgVect, wMethod, wArgVect, offsetVect);
-} 
+}
 
 
 //---------------------------------------------------------------------------//
@@ -153,8 +153,8 @@ int Sieve::ChooseL() {
 
 //---------------------------------------------------------------------------//
 
-void Sieve::Elements(int minVal, int maxVal, 
-                     const char *method, 
+void Sieve::Elements(int minVal, int maxVal,
+                     const char *method,
                      vector<int> eArgVect, std::vector<int> offsetVect) {
   if(strcmp(method, "MEANINGFUL") == 0) {		//only meaningful elem.
     Sieve::Meaningful(minVal, maxVal, eArgVect, offsetVect);
@@ -165,7 +165,7 @@ void Sieve::Elements(int minVal, int maxVal,
   } else if(strcmp(method, "FIBONACCI") == 0) {       	//Fibonacci sieve
     cerr << " see harmSieve" << endl;
     exit(1);
-  } else if(strcmp(method, "OVERTONES") == 0) {       	//overtone series 
+  } else if(strcmp(method, "OVERTONES") == 0) {       	//overtone series
     cerr << "utility::SieveElements - overtones not available yet" << endl;
     exit(1);
   } else if(strcmp(method, "MULT_PARAMS") == 0) {     	//multiple parameters
@@ -182,8 +182,8 @@ void Sieve::Elements(int minVal, int maxVal,
 //---------------------------------------------------------------------------//
 
 void Sieve::Weights(std::vector<int> eArgVect,
-		    const char *method, 
-                    std::vector<int> wArgVect, 
+		    const char *method,
+                    std::vector<int> wArgVect,
 		    std::vector<int> offsetVect) {
   if(strcmp(method, "PERIODIC") == 0) {
     wArgVect.resize(2);
@@ -244,7 +244,7 @@ void Sieve::Multiples(int minVal, int maxVal, vector<int> numMods, std::vector<i
   cout << endl;
 */
   for (int i = 0; i < numMods.size(); i++) {
-  
+
     if (minVal == 0 && offsetVect[i] >=0) { //put 0 in the list if minVal ==0 and at least one of the offset is 0
       eList.push_back(offsetVect[i]);
     }
@@ -262,14 +262,14 @@ void Sieve::Multiples(int minVal, int maxVal, vector<int> numMods, std::vector<i
       newElement += numMods[i]; // increment to the next multiple
     }
   }
-  
+
   eList.sort(); // sort into ascending order
 /*
   cout << "eList" << endl;
   for (list<int>::iterator it = eList.begin(); it != eList.end(); ++it) {
     cout << *it << ", ";
   }
-  cout << endl; 
+  cout << endl;
 */
   eList.unique();  //remove consecutive duplicate values
 }
@@ -280,9 +280,9 @@ void Sieve::Fake(int minVal, int maxVal) {
   skip = 0;
   eList.clear();
 
-  for (int i = minVal; i <= maxVal; i++) { 
+  for (int i = minVal; i <= maxVal; i++) {
     eList.push_back(i);
-  } 
+  }
 
 }
 
@@ -304,7 +304,7 @@ void Sieve::PeriodicWeights(const vector<int>& wArgVect) {
 
 //---------------------------------------------------------------------------//
 
-void Sieve::HierarchicWeights(const std::vector<int>& eArgVect, 
+void Sieve::HierarchicWeights(const std::vector<int>& eArgVect,
 				std::vector<int> wArgVect,
 				std::vector<int> offsetVect) {
   int whichMod;
@@ -415,5 +415,3 @@ void Sieve::NormalizeWList() {
     iter++;
   }
 }
-
-

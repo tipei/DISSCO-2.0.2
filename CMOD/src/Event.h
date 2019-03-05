@@ -264,7 +264,7 @@ protected:
     *  This function is overloaded in Bottom
     **/
 
-    virtual void buildChildren(); 
+    virtual void buildChildren();
 
     /**
     * Added by Rishabh. Experimental.

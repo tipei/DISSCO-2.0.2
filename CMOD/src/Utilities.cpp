@@ -2013,3 +2013,14 @@ Envelope* Utilities::makeEnvelope(DOMElement* _functionElement, void* _object){
   return madeEnv;
 
 }
+
+//get the envelope shape in env lib corresponding to env_num
+Envelope* Utilities::getEnvelopeshape(int env_num, double scale){
+    Envelope* env = envelopeLibrary->getEnvelope(env_num);
+    if (env == NULL){
+      cout << "Error in getEnvelopeShape: env_num exceeds size of EnvLibrary" << endl;
+      return NULL;
+    }
+    env->scale(scale);
+    return env;
+  }

@@ -56,16 +56,16 @@ class Sieve {
 
 
     /**
-    *  Constructor for (almost) empty object.  Creates an empty list of 
-    *  integers (elist) and an empty list of doubles (wList).  Sets size = 0 
-    *  and skip = 0.  Sets the related file name SIEVE/... 
+    *  Constructor for (almost) empty object.  Creates an empty list of
+    *  integers (elist) and an empty list of doubles (wList).  Sets size = 0
+    *  and skip = 0.  Sets the related file name SIEVE/...
     *  \param name of related file for this sieve.
     **/
     Sieve(std::string aFile);
 
 
     /**
-    *  Destructor 
+    *  Destructor
     **/
     ~Sieve();
 
@@ -74,7 +74,7 @@ class Sieve {
     *  \return name of the Sieve file
     **/
     std::string getFileName();
-    
+
     /** UNDER CONSTRUCTION
     *  Build constructs the sieve: an expression specifying a list of integers
     *  \param minVal smallest value allowed on list
@@ -82,7 +82,7 @@ class Sieve {
     *  \param eMethod method for selecting elements of sieve
     *  \param wMethod method for selecting weights
     *  \param expr string to parse into a list
-    *  \param wArgVector data for selecting weights 
+    *  \param wArgVector data for selecting weights
     **/
     void BuildFromExpr(int minVal, int maxVal,
                        const char *eMethod, const char *wMethod,
@@ -95,15 +95,15 @@ class Sieve {
     *  \param eMethod method for selecting elements of sieve
     *  \param wMethod method for selecting weights
     *  \param eArgVector data for selecting elements of sieve
-    *  \param wArgVector data for selecting weights 
+    *  \param wArgVector data for selecting weights
     *  \param offsetVector offset of the elements
     **/
-    void Build(int minVal, int maxVal, 
-               const char *eMethod, const char *wMethod, 
+    void Build(int minVal, int maxVal,
+               const char *eMethod, const char *wMethod,
                std::vector<int> eArgVect, std::vector<int> wArgVect, std::vector<int> offsetVect);
 
     /**
-    *  FillInVectors calls CumulWeights to normalize and and add the result in 
+    *  FillInVectors calls CumulWeights to normalize and and add the result in
     *  a cumulative way resulting in probabilities from 0 to 1 and then copies
     *  them into the vectors
     *  \param intVect a vector of ints
@@ -117,7 +117,7 @@ class Sieve {
     int GetNumItems();
 
     /**
-    *  Modify adds the values provided by a modulating envelope to the 
+    *  Modify adds the values provided by a modulating envelope to the
     *  probability values of the sieve, adds the result in a cumulative way
     *  resulting in probabilities from 0 to 1 and chooses an element of the
     *  sieve by using ChooseL
@@ -146,8 +146,8 @@ class Sieve {
     *  \param eArgVect vector containing the elements of the sieve
     *  \param offsetVector offset of the elements
     **/
-    void Elements(int minVal, int maxVal, 
-                  const char *method, 
+    void Elements(int minVal, int maxVal,
+                  const char *method,
                   std::vector<int> eArgVect,std::vector<int> offsetVect);
 
     /**
@@ -156,8 +156,8 @@ class Sieve {
     *  \param method method of assigning weights
     *  \param wArgVect vector of ints contains info about weights
     **/
-    void Weights(std::vector<int> eArgVect, 
-		 const char *method, 
+    void Weights(std::vector<int> eArgVect,
+		 const char *method,
                  std::vector<int> wArgVect,
 		 std::vector<int> offsetVect);
 
@@ -169,7 +169,7 @@ class Sieve {
     *  \param eArgVect list of available values
     *  \param offsetVector offset of elements
     **/
-    void Meaningful(int minVal, int maxVal, std::vector<int> eArgVect, std::vector<int> offsetVect); 
+    void Meaningful(int minVal, int maxVal, std::vector<int> eArgVect, std::vector<int> offsetVect);
 
     /**
     *  Multiples makes a linkList of multiples of given moduli numbers
@@ -179,11 +179,11 @@ class Sieve {
     *  \param numMods vector containing the moduli to be used
     *  \param offsetVector offset of elements
     **/
-    void Multiples(int minVal, int maxVal, 
+    void Multiples(int minVal, int maxVal,
                    std::vector<int> numMods, std::vector<int> offsetVect);
 
     /**
-    *  Fake.  Lists all elemets within a given range. 
+    *  Fake.  Lists all elemets within a given range.
     *  \param minVal smalles element allowed by sieve
     *  \param maxVal larges element allowed by sieve
     **/
@@ -205,7 +205,7 @@ class Sieve {
     *  equivalence class and stores them in the wList linkList.
     *  \param wArgVector vector of ints contains info about weights
     **/
-    void HierarchicWeights(const std::vector<int>& eArgVect, 
+    void HierarchicWeights(const std::vector<int>& eArgVect,
 			   std::vector<int> wArgVect,
 			   std::vector<int> offestVect);
 
@@ -219,10 +219,10 @@ class Sieve {
     /**
     *  AddEnvelope uses a function/envelope which  defines a distribution
     *  within a range after a sieve was already constructed.  It normalizes
-    *  the wList containing the weights, and, for each *  of its locations, 
+    *  the wList containing the weights, and, for each *  of its locations,
     *  finds a value on the (input) distribution function.
     *  Then, if VARIABLE is chosen, modifies that distribution through the
-    *  comparison with a prefered value at that moment.  The wList is 
+    *  comparison with a prefered value at that moment.  The wList is
     *  updated by adding the new probability to the existing weight of
     *  each sieve location.  Used only with the wList of probabilities.
     *  \param env an envelope describing a distribution
@@ -243,7 +243,7 @@ class Sieve {
     *   ====  Not used; use Utility::CumulArray if needed  ====
     **/
 //  void CumulArray(int size);
-    
+
     void NormalizeWList();
 
 };

@@ -153,6 +153,13 @@ public:
    */
   int getSamplingRate(){return samplingRate;}
 
+  /**
+  * Gets the envelope shape in env_lib corresponding
+  * to env_num and scale it
+  * \return envelope pointer
+  */
+  Envelope* getEnvelopeshape(int env_num, double scale);
+
   //Number to name mapping for modification. Experimental.
 
   std::map<int, string> topEventnames;

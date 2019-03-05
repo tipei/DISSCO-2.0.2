@@ -1,0 +1,23 @@
+location=`cd $1;pwd`
+if [ -e "$location/T" ]
+then
+echo "Path $location is a DISSCO project."
+else
+echo ""
+echo "Error: Project path is not valid."
+echo "Could not find: $location/T"
+echo ""
+echo "Specify relative or absolute path to the DISSCO project:"
+echo "./go ../myproject"
+echo ""
+exit
+fi
+
+echo "Mixing..."
+sox --norm -m $location/SoundFiles/*multi*.aiff $location/SoundFiles/nodemix.aiff
+
+echo "Done"
+
+echo "Opening in Audacity..."
+audacity $location/SoundFiles/nodemix.aiff &
+
