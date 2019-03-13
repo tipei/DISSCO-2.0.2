@@ -69,7 +69,6 @@ OBJECTS := \
 	$(OBJDIR)/Sieve.o \
 	$(OBJDIR)/Tempo.o \
 	$(OBJDIR)/Modifier.o \
-	$(OBJDIR)/piece-experimental.o \
 	$(OBJDIR)/tables.o \
 	$(OBJDIR)/Event.o \
 	$(OBJDIR)/ModParser.o \
@@ -161,9 +160,6 @@ $(OBJDIR)/Tempo.o: CMOD/src/Tempo.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 $(OBJDIR)/Modifier.o: CMOD/src/Modifier.cpp
-	@echo $(notdir $<)
-	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-$(OBJDIR)/piece-experimental.o: CMOD/src/piece-experimental.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 $(OBJDIR)/tables.o: CMOD/src/tables.cpp
