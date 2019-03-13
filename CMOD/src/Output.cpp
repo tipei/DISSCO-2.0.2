@@ -1,17 +1,17 @@
 /*
 CMOD (composition module)
 Copyright (C) 2005  Sever Tipei (s-tipei@uiuc.edu)
-                                                                                
+
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
-                                                                                
+
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
-                                                                                
+
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -88,25 +88,25 @@ string OutputNode::getXML(void) {
   s += "<";
   s += sanitize(nodeName);
   s += ">\n";
-  
+
   for(int i = 0; i < propertyNames.size(); i++) {
     s += "<";
     s += sanitize(propertyNames[i]);
     s += ">";
-    
+
     s += propertyValues[i];
-    
+
     s += "</";
     s += sanitize(propertyNames[i]);
-    s += ">\n";      
+    s += ">\n";
   }
-  
+
   for(int i = 0; i < subNodes.size(); i++) {
     if(subNodes[i]->isBuildPhase())
       continue;
-    s += subNodes[i]->getXML();     
+    s += subNodes[i]->getXML();
   }
-  
+
   s += "</";
   s += sanitize(nodeName);
   s += ">\n";
@@ -117,12 +117,12 @@ string OutputNode::getXML(void) {
 //----------------------------------------------------------------------------//
 // move data in subNodes to fomusdata, each bottom event corresponding to one element in the vector
 
-void OutputNode::getFOMUS(vector<Tempo>& tempos, vector<string>& fomusdata) {  
+void OutputNode::getFOMUS(vector<Tempo>& tempos, vector<string>& fomusdata) {
   if(!isBottom()) {
     for(int i = 0; i < subNodes.size(); i++) {
       if(subNodes[i]->isBuildPhase())
         continue;
-      subNodes[i]->getFOMUS(tempos, fomusdata);  //recursion until reach bottom event   
+      subNodes[i]->getFOMUS(tempos, fomusdata);  //recursion until reach bottom event
     }
     return;
   }
@@ -199,13 +199,13 @@ string Output::getLevelIndentation(bool isProperty, bool isEndLevel) {
       indentation = indentation + "+-";
   return indentation;
 }
-  
+
 
 //----------------------------------------------------------------------------//
 
 string Output::getPropertyIndentation(void) {
   return getLevelIndentation(true, false) + ". ";
-} 
+}
 
 
 //----------------------------------------------------------------------------//
@@ -214,7 +214,7 @@ void Output::initialize(string particelFilename) {
   top = 0;
   particelFile = 0;
   level = -1;
-  
+
   if(particelFilename != "") {
     particelFile = new ofstream();
     particelFile->open(particelFilename.c_str());
@@ -236,7 +236,7 @@ void Output::free(void)
 OutputNode* Output::getCurrentLevelNode(void) {
   if(!top)
     return 0;
-    
+
   OutputNode* currentNode = top;
   for(int i = 1; i <= level; i++)
     currentNode = currentNode->subNodes.back();
@@ -252,9 +252,9 @@ void Output::beginSubLevel(string name) {
   else
     getCurrentLevelNode()->subNodes.push_back(new OutputNode(name));
   level++;
-  
+
   //Immediately write level to particel.
-  writeLineToParticel(getLevelIndentation(false, false) + 
+  writeLineToParticel(getLevelIndentation(false, false) +
     getCurrentLevelNode()->nodeName);
 }
 
@@ -268,7 +268,7 @@ void Output::addProperty(string name, string value, string units) {
       << endl;
   else
     current->addProperty(name, value, units);
-  
+
   //Immediately write property to particel.
   string stringToWrite = getPropertyIndentation() + name + ": " + value;
   if(units != "")
@@ -281,7 +281,7 @@ void Output::addProperty(string name, string value, string units) {
 
 void Output::endSubLevel(void) {
   //Before closing level immediately write to particel.
-  writeLineToParticel(getLevelIndentation(false, true) + "End " + 
+  writeLineToParticel(getLevelIndentation(false, true) + "End " +
     getCurrentLevelNode()->nodeName);
   level--;
 }
@@ -315,7 +315,7 @@ void Output::exportToFOMUS(string filenamePrefix) {
     string lyFile = ss_stem.str() + ".ly";
     string pdfFile = ss_stem.str() + ".pdf";
     string svgFile = ss_stem.str() + ".svg";
-    
+
     string currentFOMUSData = fomusData[0];
     /*For all of the FOMUS data that has equivalent tempo, merge them to the
     same FOMUS file.*/
@@ -333,20 +333,20 @@ void Output::exportToFOMUS(string filenamePrefix) {
     }
     tempos.erase(tempos.begin());
     fomusData.erase(fomusData.begin());
-    
+
     if(currentFOMUSData.size() > 0) {
       string FOMUSHeader;
       stringstream tempoTime;
       int min = (int)(ttime / 60.f);
       float sec = (ttime - min * 60.f);
-      
+
       tempoTime << t.getTempoBeat().toPrettyString() << "=" <<
         t.getTempoBeatsPerMinute().toPrettyString();
       tempoTime << " at " << min << ":";
       if(sec < 10.f)
         tempoTime << "0";
       tempoTime << sec;
-      
+
       Ratio r = t.getTimeSignature();
       FOMUSHeader.append("//Header\n");
       FOMUSHeader.append("title \"");
@@ -360,14 +360,14 @@ void Output::exportToFOMUS(string filenamePrefix) {
       FOMUSHeader.append(rd.toPrettyString());
       FOMUSHeader.append(" )|\n");
       FOMUSHeader.append("\n//Notes\n");
-      
+
       {
       ofstream fomusFile;
       fomusFile.open(fmsFile.c_str());
       fomusFile << FOMUSHeader;
       fomusFile << currentFOMUSData;
       }
-      
+
       {
       string fomusToLilypond = "fomus -i ";
       fomusToLilypond += fmsFile;
@@ -375,7 +375,7 @@ void Output::exportToFOMUS(string filenamePrefix) {
       fomusToLilypond += lyFile;
       system(fomusToLilypond.c_str());
       }
-      
+
       {
       string pdfToSVG = "pdf2svg ";
       pdfToSVG += pdfFile;
@@ -440,11 +440,11 @@ void output_score(string projectname){
   *fout << "\\remove \"Rest_engraver\"" << endl;
   *fout << "\\consists \"Completion_rest_engraver\"" << endl;
   *fout << "}" << endl;
- 
+
 
   *fout << "{" << endl;
- 
-  *fout << "\\time " << timesignature << endl; 
+
+  *fout << "\\time " << timesignature << endl;
 
 
         int prev=0;      //ATT !
@@ -459,7 +459,7 @@ void output_score(string projectname){
 
 	int dif= prev - cur->start_t;
   	if (dif > 0) {
-	  cout << "output_score - cur->start_t=" << cur->start_t 
+	  cout << "output_score - cur->start_t=" << cur->start_t
            << " cur->end_t=" << cur->end_t << " prev=" << prev
             << " dif=" << dif << endl;
         }
@@ -481,7 +481,7 @@ void output_score(string projectname){
 	   if (tuplet ==1 ){
 		tuplet = 0;
 		*fout << " }  " ;
-	   }	
+	   }
 	if (tuplet==1 && cur->start_t >= tuplet_s_t + beatEDUs){
 	   tuplet = 0;
 	   *fout << " } ";
@@ -495,7 +495,7 @@ void output_score(string projectname){
 		prev_time = cur->end_t;
 		it ++;
 		continue;
-	   }  
+	   }
 
 
 	//type and pitch
@@ -513,19 +513,19 @@ void output_score(string projectname){
 		chord = 1;
 		*fout << "<";
 		chord_type = cur->type_out;
-	   } 
-		
+	   }
+
 	if (chord == 1)
 		*fout << cur->pitch_out;
-	else {	
+	else {
 		*fout << cur->pitch_out << cur->type_out;
 		while (!cur->modifiers_out.empty()){
 			*fout << cur->modifiers_out.back();
 			cur->modifiers_out.pop_back();
 		}
 	}
-	//if (cur->split ==1) *fout << "~";      
-	
+	//if (cur->split ==1) *fout << "~";
+
 	//loudness
 	if (cur->loudness_out != loudness_prev && chord == 0){
 			*fout << cur->loudness_out;
@@ -544,12 +544,10 @@ void output_score(string projectname){
 
 
   /* output one last thing and close file stream*/
-  *fout << "\\bar \"|.\""; 
+  *fout << "\\bar \"|.\"";
   *fout << endl << "}" << endl;
   fout->close();
 
 }
 //=================================================================
 //=================================================================
- 
-

@@ -40,6 +40,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "TimeSpan.h"
 #include "Tempo.h"
 
+#include "Utilities.h"
+#include "Random.h"
+#include "Piece.h"
+#include "Patter.h"
+#include "../../LASS/src/ProbabilityEnvelope.h" // consider moving this into LASS.h
+#include <string>
 //----------------------------------------------------------------------------//
 class Bottom : public Event {
 
@@ -219,6 +225,28 @@ class Bottom : public Event {
      * \param partNum the number of the partial
      **/
     void setPartialSpectrum(Partial& part, int partNum, DOMElement* _element);
+
+    /**
+     *  Given frequency, loudness, distance and envelope, add partials to the
+     *  given sound
+     * \param newsound pointer to a sound
+     * \param frequency frequency of the sounds
+     * \param loudness loudness at the destination of the sounds
+     * \param envNum envelope's number in envelope library
+     **/
+    void generatePartials(Sound* newsound, float frequency, float loudness, float distance, int envNum);
+
+    /**
+     *  Helper function for interpolating partials between spetrums of different
+     *  frequencies where the curve is defined by 2^n. Retruns the amplitude at
+     *  x given two data points.
+     * \param x1 lower frequency
+     * \param y2 amplitude of the partial at x1
+     * \param x2 higher frequency
+     * \param y2 amplitude of the partial at y2
+     * \param x the frequency whose amplitude we are looking for
+     **/
+     double calculateFreqPartial(double x1, double y1, double x2, double y2, double x);
 
     /**
      *  Assigns values to the array of ampscales based on a randomly selected rule

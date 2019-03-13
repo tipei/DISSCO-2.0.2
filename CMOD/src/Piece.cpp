@@ -305,6 +305,7 @@ Piece::Piece(string _workingPath, string _projectTitle){
   EventType evType = (EventType)0;
   utilities->currChild = 0;
 
+  cout<<"MARKER";
   DOMElement* topEvEl = utilities->getEventElement(evType, evName);
   vector<DOMElement*> children = calculateAesthetic(topEvEl);
 

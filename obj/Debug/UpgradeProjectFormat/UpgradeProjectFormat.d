@@ -38,6 +38,7 @@ obj/Debug/UpgradeProjectFormat/UpgradeProjectFormat.o: \
  LASSIE/src/../../CMOD/src/../../LASS/src/Pan.h \
  LASSIE/src/../../CMOD/src/../../LASS/src/Score.h \
  LASSIE/src/../../CMOD/src/../../LASS/src/BiQuadFilter.h \
+ LASSIE/src/../../CMOD/src/../../LASS/src/MarkovModel.h \
  LASSIE/src/../../CMOD/src/../../LASS/src/Score.h \
  LASSIE/src/../../CMOD/src/Rational.h \
  LASSIE/src/../../CMOD/src/muParser/muParser.h \
@@ -56,8 +57,9 @@ obj/Debug/UpgradeProjectFormat/UpgradeProjectFormat.o: \
  LASSIE/src/../../CMOD/src/Event.h LASSIE/src/../../CMOD/src/Matrix.h \
  LASSIE/src/../../CMOD/src/Tempo.h LASSIE/src/../../CMOD/src/Note.h \
  LASSIE/src/../../CMOD/src/TimeSpan.h LASSIE/src/../../CMOD/src/tables.h \
- LASSIE/src/../../CMOD/src/Utilities.h LASSIE/src/../../CMOD/src/Piece.h \
- LASSIE/src/../../CMOD/src/CMOD.h LASSIE/src/../../CMOD/src/Random.h \
+ LASSIE/src/../../CMOD/src/Utilities.h LASSIE/src/../../CMOD/src/Random.h \
+ LASSIE/src/../../CMOD/src/Piece.h LASSIE/src/../../CMOD/src/CMOD.h \
+ LASSIE/src/../../CMOD/src/../../LASS/src/ProbabilityEnvelope.h \
  LASSIE/src/../../CMOD/src/EventParser.h \
  LASSIE/src/../../CMOD/src/parser/Parser.h \
  LASSIE/src/../../CMOD/src/Libraries.h \
@@ -143,6 +145,8 @@ LASSIE/src/../../CMOD/src/../../LASS/src/Score.h:
 
 LASSIE/src/../../CMOD/src/../../LASS/src/BiQuadFilter.h:
 
+LASSIE/src/../../CMOD/src/../../LASS/src/MarkovModel.h:
+
 LASSIE/src/../../CMOD/src/../../LASS/src/Score.h:
 
 LASSIE/src/../../CMOD/src/Rational.h:
@@ -193,11 +197,13 @@ LASSIE/src/../../CMOD/src/tables.h:
 
 LASSIE/src/../../CMOD/src/Utilities.h:
 
+LASSIE/src/../../CMOD/src/Random.h:
+
 LASSIE/src/../../CMOD/src/Piece.h:
 
 LASSIE/src/../../CMOD/src/CMOD.h:
 
-LASSIE/src/../../CMOD/src/Random.h:
+LASSIE/src/../../CMOD/src/../../LASS/src/ProbabilityEnvelope.h:
 
 LASSIE/src/../../CMOD/src/EventParser.h:
 

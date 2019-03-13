@@ -16,24 +16,40 @@ emptylassiestring [`][`]
 %x COMMENT STRING LASSIESTRING
 %%
 
+<<<<<<< HEAD
 [=] 				{ 
 						#ifdef PARSER_DEBUG
 						printf("saw equal\n"); 
+=======
+[=] 				{
+						#ifdef PARSER_DEBUG
+						printf("saw equal\n");
+>>>>>>> 078ea586e733e49a1a530fbaf3fdaa80c5b1f6e3
 						#endif
 						return EQUALTOK; }
 [<]					{ return LBRAC; }
 [>]					{ return RBRAC; }
 [,]					{ return COMMA; }
+<<<<<<< HEAD
 {float}				{ 
 						#ifdef PARSER_DEBUG
 						printf("Saw float\n"); 
+=======
+{float}				{
+						#ifdef PARSER_DEBUG
+						printf("Saw float\n");
+>>>>>>> 078ea586e733e49a1a530fbaf3fdaa80c5b1f6e3
 						#endif
                                                 yylval=(long int)strdup(yytext); return NUMBERTOK; }
 
 {emptystring} { yylval= (long int)strdup(""); return STRTOK; }
 {emptylassiestring} { yylval= (long int)strdup(""); return STRTOK; }
 ["]					BEGIN(STRING);
+<<<<<<< HEAD
 <STRING>[^"]*		{ 
+=======
+<STRING>[^"]*		{
+>>>>>>> 078ea586e733e49a1a530fbaf3fdaa80c5b1f6e3
 						#ifdef PARSER_DEBUG
 						printf("Saw a string %s\n", yytext);
 						#endif
@@ -41,7 +57,11 @@ emptylassiestring [`][`]
 <STRING>["]			BEGIN(INITIAL);
 
 [`]					BEGIN(LASSIESTRING);
+<<<<<<< HEAD
 <LASSIESTRING>[^`]*		{ 
+=======
+<LASSIESTRING>[^`]*		{
+>>>>>>> 078ea586e733e49a1a530fbaf3fdaa80c5b1f6e3
 						#ifdef PARSER_DEBUG
 						printf("Saw a lassiestring %s\n", yytext);
 						#endif
@@ -52,7 +72,11 @@ emptylassiestring [`][`]
 
 [;]					{
 						#ifdef PARSER_DEBUG
+<<<<<<< HEAD
 						printf("Line over\n"); 
+=======
+						printf("Line over\n");
+>>>>>>> 078ea586e733e49a1a530fbaf3fdaa80c5b1f6e3
 						#endif
 						return SEMITOK; }
 [:]                    	return SCOLON;
@@ -83,14 +107,24 @@ LASSIESOUNDSYNTHESIS |
 LASSIENUMCHANNELS |
 LASSIESAMPLERITE |
 LASSIESAMPLESIZE |
+<<<<<<< HEAD
 LASSIENUMTHREADS			{ yylval= (long int)strdup(yytext); return GLOBALKEYWORDTOK; 
+=======
+LASSIENUMTHREADS			{ yylval= (long int)strdup(yytext); return GLOBALKEYWORDTOK;
+>>>>>>> 078ea586e733e49a1a530fbaf3fdaa80c5b1f6e3
 				  /* Adding Tokens - keywords:
 				     To add another keyword insert it above this line.
 				     The format is "keyword |" which is a keyword followed by
 				     the '|' symbol.  Just follow the format above and you
+<<<<<<< HEAD
 				     should be fine.  Do NOT insert keywords after the 
 				     "  { yylval= ... GLOBALKEYWORDTOK}". This bracketed area must 
 				     come after the last keyword in the list. If you wish to remove 
+=======
+				     should be fine.  Do NOT insert keywords after the
+				     "  { yylval= ... GLOBALKEYWORDTOK}". This bracketed area must
+				     come after the last keyword in the list. If you wish to remove
+>>>>>>> 078ea586e733e49a1a530fbaf3fdaa80c5b1f6e3
 				     the last keyword, change it to some other keyword you are using.
 				  */ }
 
@@ -114,8 +148,13 @@ noteDynamicMark			|
 noteModifiers         		|
 envelopeBuilder        		|
 sieveBuilder         		|
+<<<<<<< HEAD
 patternBuilder    |   
 LASSIEeventType |  
+=======
+patternBuilder    |
+LASSIEeventType |
+>>>>>>> 078ea586e733e49a1a530fbaf3fdaa80c5b1f6e3
 LASSIEmaxChildDur |
 LASSIEEDUPerBeat |
 LASSIEeventName |
@@ -125,7 +164,11 @@ LASSIEtempoMethodFlag |
 LASSIEtempoPrefix |
 LASSIEtempoNoteValue |
 LASSIEtempoFractionEntry1 |
+<<<<<<< HEAD
 LASSIEtempoFractionEntry2 | 
+=======
+LASSIEtempoFractionEntry2 |
+>>>>>>> 078ea586e733e49a1a530fbaf3fdaa80c5b1f6e3
 LASSIEtempoValueEntry |
 LASSIEnumChildrenEntry1 |
 LASSIEnumChildrenEntry2 |
@@ -183,9 +226,15 @@ Randomizer			|
 RandomInt			|
 RandomSeed			|
 MathExpr |
+<<<<<<< HEAD
 Random				{ 
 						#ifdef PARSER_DEBUG
 						printf("saw %s\n", yytext); 
+=======
+Random				{
+						#ifdef PARSER_DEBUG
+						printf("saw %s\n", yytext);
+>>>>>>> 078ea586e733e49a1a530fbaf3fdaa80c5b1f6e3
 						#endif
 						yylval= (long int)strdup(yytext); return FUNCTOK;
 				  /* Adding Tokens - functions:
@@ -202,9 +251,15 @@ CURRENT_TYPE			|
 CURRENT_CHILD_NUM		|
 PREVIOUS_CHILD_DURATION |
 CURRENT_PARTIAL_NUM		|
+<<<<<<< HEAD
 CURRENT_DENSITY			{ 
 							#ifdef PARSER_DEBUG
 							printf("saw %s\n", yytext); 
+=======
+CURRENT_DENSITY			{
+							#ifdef PARSER_DEBUG
+							printf("saw %s\n", yytext);
+>>>>>>> 078ea586e733e49a1a530fbaf3fdaa80c5b1f6e3
 							#endif
 							yylval= (long int)strdup(yytext); return SFUNCTOK;
 				  /* These are "static functions" which take no parameters but are

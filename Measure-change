@@ -1,0 +1,58 @@
+Entry in Project Properties:
+Measure/Measurement
+LASSIE:
+ProjectViewController.h: 
+	Declared as std::string.
+ProjectViewController.cpp: 
+	Initialized in ProjectViewController object as 0.6.
+	Linked to entry in setProperties().
+	Written into .dissco file in save().
+UpgradeProjectFormat.cpp:
+	Written into .dissco file as XML format.
+ProjectProperitesDialog.ui:
+	Set up measureEntry as GtkHBox.
+
+CMOD:
+Piece.h:
+	Declared as string.
+Piece.cpp:
+	Parsed from XML file.
+Parser.l:
+	Added after file list.
+
+
+
+
+New Object:
+Measurement
+LASSIE:
+ProjectViewController.h:
+	Declared as meaWindow.
+ProjectViewController.cpp:
+	Insert buttonMea.
+	Set event EventMea.
+PalleteViewController.cpp:
+ObjectWindow.cpp:
+	Set title to "Measurements".
+	Get linked list Measurement.
+IEvent.h:
+	Build class MeasureExtraInfo.
+	Declared string measurement.
+	Public function setMea and getMea.
+IEvent.cpp:
+EventAttributesViewController.h:
+	SwitchToMeaAttributes().
+	measureFunButtonCLicked().
+EventAttributesViewController.cpp: 
+	Link measure to button and entry.
+LASSIE.h:
+	functionReturnMEA.
+Attributes.ui:
+FileNewObject.ui:
+CMOD:
+library.h:
+	Declare eventMea.
+
+
+
+

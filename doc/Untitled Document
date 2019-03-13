@@ -1,0 +1,1568 @@
+  	sp	(signal plot)     
+		latest modification May 9, 1998
+  									      
+  	sp plots monaural or stereo sample file data in either waveform or  
+  	envelope mode. The user has control over the time interval of data    
+  	displayed and the range of the vertical scale. Only one channel is    
+  	shown at a time. Graphic output occurs on the workstation screen via  
+  	an ecapsulated Postscript viewing application (e.g., ghostview under 
+	X windows). The g_raph graphics library is used to produce the output   
+  	graphic display. The types of sound files handled are 1) NeXT sound   
+  	file with 16-bit linear format (.snd), 2) 16-bit linear format        
+  	without header (.sh), 3) 32-bit float format without header (.fp).    
+	4) WAVE sound file with 16-bit linear format (.wav), 5) Sun sound 
+	file with 16-bit linear format (.au).
+  									      
+        To run:                                                               
+        sp [-y<SIGMAX>] [-v<YMAX>] [-s<SR>] [-c<NCHANS>] [-e] [-r]            
+           [-m<MAXPTS>] <samp_file>  					      
+  									      
+  	<SIGMAX> is the max. abs y value of the data values to be plotted     
+  	  where default is 20000,                                             
+  	<YMAX> is sames as <SIGMAX> except that unipolar plot is invoked      
+  	<SR> is the sample rate in samples/sec. with default of 22050,	      
+  	<NCHANS> is the number of channels with default of 1,		      
+  	-e puts sp into envelope mode,                                        
+  	-r puts sp into research mode					      
+  	-m<MAXPTS> gives the max. no. pts. plotted (1024 default)             
+  	<samp_file> holds the values of a signal waveform                     
+  									      
+  	To compile use:  cc -o sp sigplot.c -lm g_raph.lib                    
+  									      
+        Initially, the user is prompted for a pair of time values, over       
+  	which the signal is to be plotted (float values in seconds).          
+  									      
+      After each graph is completed the following commands are operational:   
+
+  	<return> alone causes the next graph to continue from the first.
+        - <return> causes the previous graph frame to appear.
+        't' followed by <return> results in a request for new pair of times.
+        'v' <return> allows the user to specify a new vertical range.
+  	'm' <return> sets new value of max pts for subsequent plots.
+        'c' <return> toggles the channel No. for stereo sample files.
+  	'e' <return> toggles the envelope/signal mode.
+  	's' <return> computes an FFT of the current window size for values of 
+            time and channel. 
+  	'sr' <return> computes an FFT ratio of the two channels for the current 
+	    window size for the given time. (left/right)
+        'h' <return> toggles the help menu (on/off).
+        'q' <return> erases plot and quits program.
+
+******************************************************************************
+J. Beauchamp 05/09/98
+
+                               sextract
+
+        Sound file extraction program.
+        Programmer: James Beauchamp     10/7/95
+
+        Usage:
+
+        sextract [-tAT] [-dMD] [-rTD] [-cNOC] -s[OSR] <infile>.EXT
+
+        where   AT =  amplitude threshold               default: 100
+                MD  = minimum duration                  default: .5 sec
+                TD  = transition duration               default: .1 sec
+                NOC = number of output channels         default: 1
+                OSR = output sample rate                default: 22050
+		EXT = snd or wav
+
+	Purpose:
+
+	sextract searches a soundfile for distinct individual sounds and
+	puts them in separate sound files. Output files are called z<n>.snd
+	or z<n>.wav, where <n> = 1, 2, ...  This is useful if one is 
+	interested in analysis of a large group of sounds which have been 
+	recorded in a single session.
+
+	Theory of operation:
+
+	The extraction of sounds is based on parameters AT, MD, and TD, which 
+	have the defaults given, but which can be changed. Also, the input 
+	signal's amplitude is based on computing the peak amplitude over a .03 
+	sec (30 msec) time window. When the amplitude of the signal exceeds AT, 
+	the extraction mechanism is alerted. Note that the input signal is 
+	buffered by amount TD all of the time. If the minimum time between the 
+	end of the previous extracted sound and the start of the current one is 
+	greater than TD, the current sound becomes a candidate for extraction. 
+	However, it also has to have a duration which is larger than MD, the 
+	minimum duration allowed. 
+
+	Thus, all sounds whose durations are less than MD are rejected. Also,
+	all sounds which are not separated by at least TD seconds from the 
+	previous sound are rejected. In addition, the time interval TD before
+	the sound first exceeds the threshold TD is also included in the
+	sound's attack, in order to avoid cutting off the attack. If this isn't
+	working right, simply repeat the operation using a larger value of
+	TD and possibly, a lower value of threshold. (Eyeballing some amplitude
+	envelope curves with the command 'sp' (signal plot) can help estimate
+	these parameters.) 
+
+	When the input signal amplitude drops below the threshold (AT), it 
+	becomes a candidate for ending. However, it has to stay below for at
+	least TD seconds. The time when it drops below AT plus DT is considered
+	to be the termination time of the sound.
+
+	
+
+		    PVAN, GOPVAN, GOPVAN1, MAKEHEADER
+
+NAMES: pvan, gopvan, gopvan1, makeheader
+
+USE:  perform pv analysis of sound file (.fp, .sh., .snd, .au, or .wav format)
+
+DESCRIPTION:
+These programs combine to perform phase vocoder analysis of an input sound
+sample file and produce an output file suitable for examination,
+modification, and resynthesis using the graphics program monan. Result is a
+time-variant harmonic analysis of the input sound file, where amplitude
+(magnitude) and frequency deviation (from mean harmonic values) are stored
+for sequential time frames. .fp and .sh files are headerless files
+consisting of floats or short ints, respectively. A .snd file is a file of
+big-endian short int samples with a standard NeXT header. A .au file has
+exactly the same format. A .wav file is a file of little-endian order short
+int samples with a WAVE header.
+
+gopvan is a shell script (which calls pvan and makeheader) which first
+prompts the user for salient information about the input file and analysis
+parameters, and then launches pvan as a background job. gopvan1 is similar
+except it uses an already existing header file (created by a previous
+gopvan job).
+
+gopvan1 works the same way as gopvan except that it assumes that the header
+file has already been created from a previous analysis attempt. This is
+useful if, for example, the user wishes to change the analysis frequency in
+order to reduce the error between the sound's actual fundamental and the
+analysis frequency (as revealed by pvan's listing of f1 vs. time or by
+monan's fk command).
+
+pvan is the binary executable version of the analysis program, which can be
+run as follows:
+
+pvan <analysis freq> <header file> <sound file> <analysis file> >& 								<diagnostics listing file>
+
+The analysis output file consists of a header block and starting phase
+data, followed by magnitude/frequency data frames measured every half-cycle
+of the fundamental frequency of the input data file. The header information
+is stored in a separate file to facilitate running pvan, and this file may
+be kept for subsequent runs of the analysis. The number of harmonics saved
+in the file is equal to the signal sample rate divided by twice the
+analysis frequency.
+
+When using gopvan, the user supplies the following information as he is 
+prompted:
+
+- The name of the sound file name including the sound file extension.
+	I.e., if trumpet.snd or trumpet.wav is given, the header, analysis, 
+	and diagnostic list files will be trumpet.pv.head, trumpet.pv.an, 
+	and trumpet.pv.list, respectively.
+- The analysis (fundamental) frequency in Hz.
+- Data for the header (gopvan only) as follows:
+  - The name of the performer.   
+  - The type of instrument used (flute, etc).        
+  - The date of the recording (06/19/78, etc.).  
+  - The musical pitch played. (Bb4, G#3, etc.)
+  - The musical dynamic level.(mf, pp, etc.)
+  - Vibrato? (YES or NO).             
+  - Tone segment (all, middle, or end).
+  - Further comments on sound sample (history, instrument manufacturer, etc.)
+ 
+pvan, gopvan, gopvan1, makeheader	 2
+
+
+makeheader is a program, used within gopvan and gopvan1, which prompts the user
+for the musicological information listed above and outputs a headerfile. It can
+also be used standalone with command line arguments as follows:
+
+ makeheader <headfile> <performer> <instrument> <date> <pitch> <vibrato> \
+              <part> <comments>
+
+Note that any strings which contain spaces must be enclosed in quotes.
+
+THEORY OF OPERATION
+
+First, bandlimited interpolation is performed on the signal to adjust the 
+sample rate of the signal so that there are 2^M samples per fundamental
+period, which is the inverse of the given fundamental frequency (fa), where 
+M = log2(ceil(SR/f1)). The signal is then windowed by a Hamming window and an
+FFT is computed over a double period. Magnitude and phase for each FFT spectrum
+component is then computed, and the frequency for each component is taken as
+the difference between the phases of adjacent frames divided by 2*pi times the
+interframe time, which is a half-period. For the normal "simple" format only 
+the even spectral components are kept, which correspond to the harmonics of the
+signal. For each frame the magnitude and frequency for each of SR/(2*fa) -1 
+harmonics are written to the output file.
+
+RELATED FILES
+
+gopvan*       	shell script to launch job using makeheader and pvan
+gopvan1*	shell script to launch job using existing header file
+makeheader*    	prompt program to create analysis file header and header file
+pvan*    	pv analysis program
+monan*		analysis viewing/modification program
+
+DIAGNOSTICS
+
+Reports any file I/O errors and ends processing.          
+
+LIMITATIONS
+
+There is no way to examine the analysis output as the process is running.
+However, you can do
+
+	tail -f <list file>
+
+to check on progress. This gives a list of frame numbers, times and amplitudes
+and frequency deviations of the first harmonic.  The frequency deviations 
+should be small to give good results.  This file will end with "Analysis
+completed ... " when the analysis job is done.
+
+The program relies on the user to supply the analysis frequency. This could be
+the frequency corresponding to the pitch the sound is "known to have". 
+Alternatively, the fundamental frequency can be determined by other means, such
+as by using the command 'gomqff' to produce an '.ff' file which can be listed
+using the 'fd' (frequency dump) command.
+
+Revised: J.W. Beauchamp 05/09/98
+
+			Instructions for MQSYN2
+
+'mqsyn2' is used to synthesize a NeXT sound file from an MQ-format file
+as produced by the MQ analysis program ('mqan').  This version of the
+program allows you to change the time scale of the file from the beginning
+to the end of the file.
+
+Usage:
+
+ mqsyn2 infile.mq sndfile timefac1 timefac2 [empflag] [ampscale] [SR]
+
+   where	
+
+          'infile.mq' is the name of the MQ analysis file.
+	    'sndfile' is the name of the output sound file.
+	   'timefac1' is the beginning time scale factor.
+	   'timefac2' is the ending time scale factor.
+	   'empflag'  is 1 if the MQ file was emphasized, 0 if not.
+		     (default is 1; with current usage, it should always be 1).
+	   'ampscale' is an amplitude factor (default is 1.0).
+		 'SR' is the sample rate, which is normally taken from the 
+		        sound file header.  If SR = 0, SR is set to the
+			default value, 22050.
+
+The output sound file can be of type '.snd' (NeXT) or '.wav' (Intel).
+
+Optional parameters are indicated by the '[ ]'.  Normally you only need to
+use the first 5 arguments including the command name.
+
+    Example:
+
+	mqsyn2 tenor.mq tenor.accel.snd .5 2
+
+        The original sound starts out being synthesized at half its original 
+        speed and accelerates to twice its original speed.
+______________________________________________________________________________
+Revised: J.W. Beauchamp 04/14/97, 03/10/98
+
+			MQPLOT
+
+NAME:  mqplot
+ 
+USE: plot 2D and 3D spectrograms from an input *.mq file.
+
+DESCRIPTION:
+
+'mqplot' is used for black & white graphical display of MQ-format
+analysis files, as produced by the MQ analysis program ('mqan'). With
+the 2D spectrogram, frequency tracks are displayed in two dimensions 
+as frequency (vertical) vs. time (horizonal); amplitude is indicated
+by the darkness of the tracks. With the 3D spectrogram, tracks are
+plotted as amplitude (vertical) vs. frequency (angle) vs. time (angle).
+
+USAGE: 
+
+Make sure there is a *.mq file in your local area (or give it using a
+Unix path). Then, at the Unix command prompt type
+
+    mqdistr <file.mq> <minfreq> <maxfreq> <duration> [markflag] [start_time]
+
+    where <file.mq> is the name of the MQ analysis file.
+          <minfreq> is minimum value of the frequency axis.
+          <maxfreq> is the maximum value of the frequency axis.
+	 <duration> is the length of the time axis in frames.
+         [markflag] (optional, default 0) when markflag = 1 circles are plotted
+		     at the beginning and end of (birth/death) track chains.
+       [start_time] (optional, default 0) is the start time to begin plotting.
+
+If less than the maximum number of command arguments are typed, the program
+prompts for the value of the each missing argument unless the argument is 
+optional as indicated by the '[ ]' in the prototype given above.
+
+After these initial prompts, the program issues this prompt:
+
+2D or 3D plot (respond '2' or '3')?
+
+to which the user should either respond by typing '2' or '3' (with quotes
+omitted). 
+
+If the 2D plot is specified, there will be the additional prompt
+
+Give black amplitude threshold (default 50):
+
+This threshold controls the degree of darkness of the plot. If the user 
+responds with only Return, the threshold will be set to amplitude = 50. 
+However, if the user gives a number (it should be nonnegative and lower
+than the maximum amplitude), the lower the threshold number given, the 
+darker the plot will be. Using the default value is usually a good 
+starting point. However, if you want all lines to have maximum darkness,
+you should use a zero threshold.
+
+What should follow, if the graphing program is installed correctly, is
+a graph of the 2D spectrogram over the specified frequency and time
+range.
+
+If the 3D plot is specified, there will be the additional prompt
+
+Enter max amplitude:
+
+to which the user should give an amplitude that is close to the maximum
+amplitude of the MQ data. A good guess would be '3000'. The value given
+sets the maximum value of the vertical (amplitude) axis. If the value
+is too low, the graphs may exceed the vertical space allowed by the
+graph window.
+
+COMMAND SUMMARY:
+
+After the initial plot, this prompt is given:
+
+Give command (h for help):
+
+The various one-letter commands are entered in a manner similar to those
+used in the program 'sp'.
+
+The mqplot commands are:
+
+ q or x     quit and exit program
+   2        2D plot   time, frequency (amplitude indicated by darkness)
+   3        3D plot   time, frequency, amplitude
+   A        change display angles (3D only)
+   a        change amplitude axis (3D only)
+   d        choose projection trace dots (3D only)
+ v or f     change frequency scale
+ n or b     change frame axis
+   T        change time axis
+   m        turn birth/death markers on or off
+   t        change display threshold
+   u        update display
+   h        display this list
+
+_______________________________________________________________________________
+James Beauchamp                                      March 15, 2012
+
+			Use of gomqhfan and gomqhfan1
+
+gomqhfan is a script which uses the MQ method to analyze a sound file to
+produce a harmonic analysis (.mq.an) file. It also incidentally produces .mq
+and .ff files (with monan analysis headers) and .mq.head (header alone) and
+.mqhf.list (listing) files. This script uses the MQ spectral peak-tracking
+analysis program (mqan) together with the fundamental frequency (FF) detector
+program (fcheck) and harmonic separator program (harmformat) to perform a
+harmonic analysis of an input sound file. The result is similar to that
+obtained using gopvan, but the advantage, at the cost of some robustness, is 
+that the FF of the input is allowed to vary over a considerable range.
+
+The input sound file can be of type '.snd' (NeXT), '.fp' (headerless floats),
+'.sh' (headerless ints), .wav, or '.au' (Sun).
+
+gomqhan prompts the user for several parameters which govern the analysis
+process and, in addition, several items of musicological information. The
+latter data are stored in a header file. gomqhfan1 assumes that the header file
+has already been created on a previous run and thus skips the musicological
+data gathering step. Therefore, the idea is to use gomqhfan for the first
+attempt at processing a file, and, unless some changes to the header data need
+to be made, to use gomqhfan1 for subsequent attempts.
+
+If the FF varies only a small amount (less than 2%), gopvan is probably a
+better solution, because it is more "robust". Non-robustness is indirectly
+caused by the four analysis parameter values that must be given: 1) the lowest
+expected spectral frequency in the sound, which sets the window size; 2) the
+lowest expected fundamental frequency; 3) the highest expected fundamental
+frequency; and 4) an "amplitude threshold" value. These can have an effect on
+the analysis result, and, depending on the signal itself, the best result is
+weakly or not-so-weakly dependent on the choice of these values. The frequency
+for item 1) is generally the same as 2), but is given independently for the
+sake of flexibility. The frequency resolution of the analysis is approximately
+1/8 of this frequency. The best choices for the lowest and highest FFs are
+usually just below the lowest and just above the highest FFs actually in the
+signal, respectively, assuming that these values are approximately known.
+However, keep in mind that the wider the range of frequencies which is given,
+the longer it takes to accomplish the FF detection and the more possibility 
+there may be for FF detection errors to occur. So the more accurately you know
+the range of fundamentals in advance, the better off you are.
+
+The amplitude threshold, which is in decibels, should be chosen to be low
+enough to pick up the harmonics at their weakest points (e.g., the end of the
+sound), but not so low to as to pick up extraneous components. Thus, an 
+educated guess (e.g., 0) should be used initially, and if results do not seem 
+good enough, subsequent runs can be done with modified values in order to 
+improve the results.  Generally, the threshold should be between -20 and 10.
+
+Example of running gomqhfan: 
+
+% gomqhfan
+sound file name (without .snd extension) is: ctpt03
+minimum frequency to be analyzed is: 300
+search range minimum fund. freq.: 300
+search range maximum fund. freq.: 400
+amplitude threshold (in range of -20 to 10):-10
+harmonic acceptance interval (in range of .01 to .1):.03
+monan analysis frequency (fundamental): 350
+number of partials to retain: 31
+data needed for header: 
+Sample rate is 22050.000000
+Performer is: Ben Cox
+Instrument used: trumpet
+Date recorded: 1989
+Pitch played: F4
+Dynamic level played (ff,mf,...): ff
+Vibrato used (YES/NO): NO
+File contains [all,middle,end,...] of tone: all
+Enter comments (press <return><ctrl-D>  when done):
+ Bb trumpet, Bach Stradivarius 
+^D
+ type: tail -f ctpt03.mqhf.list  to check on job progress
+[1] 12014
+
+% tail -f ctpt03.mqhf.list
+
+If fcheck fails, it may be due to an improper choice of the minimum and
+maximum frequencies. If the .mq output file seems to be OK (see mqdistr), you
+can do the fcheck/harmformat steps using the script gohfan.
+
+A graph of musical pitch vs. time can be obtained from the .mq.an file 
+resulting from this process by using the program monan. This is done with 
+monan's command 'pt'.  (See monan.doc.wn for details.)
+_______________________________________________________________________________
+Revised: J. W. Beauchamp 11/24/95, 03/10/98 
+
+
+            INSTRUCTIONS FOR USE OF PROGRAM MQAN (GOMQAN)
+
+'mqan' performs a time-variant spectral analysis of a sound file using the 
+McAulay-Quatieri (MQ) output representation.  The results are stored in a
+.mq file which may be processed by programs to do spectral display, sound 
+synthesis, or processing into a harmonic file (with .an suffix) for 
+further processing by monan.
+
+'gomqan' is a script which makes mqan interactive. If you type 'gomqan' at 
+the terminal prompt, you will be prompted for the information necessary to 
+run an mqan job, which will then be run in the background. 'gomqan1' is 
+the same except that it assumes that a header file, which contains the 
+musicological data, has already been created by a previous gomqan job.
+
+Here is an example of using gomqan (data after colons is entered by the
+user):
+
+% gomqan
+Sound file name (including extension): smirnoff.snd
+amplitude threshold (in range of -20 to 10): -10
+minimum frequency to be analyzed is: 250    
+data needed for header: 
+Performer is: Joel Smirnoff
+Instrument used: violin
+Date recorded: 9/28/92
+Pitch played: E4-E6
+Dynamic level played (ff,mf,...): ff
+Vibrato used (YES/NO): no
+File contains [all,middle,end,...] of tone: all
+Enter comments (press <return><ctrl-D>  when done):
+ Joel Smirnoff, Julliard Quartet, recorded in the UIUC Computer Music Project
+^D
+
+This results in a background job. The generic version of it is:
+
+   mqan fmin headfile sndfile outfile.mq threshold(dB) >& list.file &
+
+   where
+         'fmin' is the minimum frequency expected to be in the signal,
+             which governs the size of the FFT window.
+	 'headfile' is the name of the musicological data header file 
+         'sndfile' is the name of the input sound file, which has the
+             suffix '.snd' (NeXT) or '.wav' (Microsoft). 
+         'outfile.mq' is the name of the output MQ-format file, which
+             contains the spectral data.
+         'threshold(dB)' is the input amplitude threshold in decibels.
+         'list.file is the name of the ascii list file documenting the  
+             progress of the mqan job.  
+
+'tail -f list.file' will give the current status of the mqan job.
+Use ^C to get from this back to the Unix prompt.
+			     
+The threshold value refers to the spectral amplitude dB level below which
+spectral peaks components will not be retained. For example, a threshold
+value of 10 eliminates any spectral components with amplitudes less than
+3.16. Generally, values between -20 to +10 are good to use. This is
+useful to eliminate weak components (components which are really artifacts 
+of the analysis process and some noise components) that are not needed to 
+characterize the signal.
+
+Spectral peaks are joined together as tracks from one frame to the next.
+For each frame there is no particular number of tracks, as tracks can be
+born or can die at any time. The tracks are used by programs such as 
+mqsyn2 (for resynthesis) and mqplot (for graphics). However, fcheck (for 
+pitch detection) and harmformat (for harmonic separation) only utilize 
+the spectral peak information. For each spectral peak in a given frame, 
+data is saved to the .mq output file consisting of the peak's high-pass-
+filtered spectral magnitude, the peak's frequency, and its phase, as well 
+as a peak link number that links the peak to the peak in the next frame 
+which corresponds to the same track. A special case is when the track 
+dies, in which case the peak's link number is zero.
+
+The input signal x[i] is emphasized (high-pass filtered) prior to the
+spectral analysis process using a simple IIR digital filter whose
+response is y[i] = x[i] - EMP*x[i-1]. The magnitude frequency response 
+of this filter is given by
+
+	|H(f)| = sqrt(1-2*EMP*cos(2pi*f/SR)+EMP^2). 
+
+|H(f)| goes from (1-EMP) in the low frequencies to (1+EMP) in the high
+frequencies. For EMP = .95 this is from 0.05 to 1.95 or about -26 dB to
++6 DB. This helps equalize the spectrum of many acoustic sources which
+tend to exhibit a high frequency roll-off of spectral energy. NOTE that
+programs that process .mq files, such as fcheck, harmformat, mqsyn2, and 
+mqplot, need to correct for this pre-emphasis.
+________________________________________________________________________
+Written by R.C. Maher 
+5/89 Revised: J.W. Beauchamp 11/24/95, 03/16/98, 03/12/13
+________________________________________________________________________
+
+
+            INSTRUCTIONS FOR USE OF PROGRAM MQAN (GOMQAN)
+
+'mqan' performs a time-variant spectral analysis of a sound file using the 
+McAulay-Quatieri (MQ) output representation.  The results are stored in a
+.mq file which may be processed by programs to do spectral display, sound 
+synthesis, or processing into a harmonic file (with .an suffix) for 
+further processing by monan.
+
+'gomqan' is a script which makes mqan interactive. If you type 'gomqan' at 
+the terminal prompt, you will be prompted for the information necessary to 
+run an mqan job, which will then be run in the background. 'gomqan1' is 
+the same except that it assumes that a header file, which contains the 
+musicological data, has already been created by a previous gomqan job.
+
+Here is an example of using gomqan (data after colons is entered by the
+user):
+
+% gomqan
+Sound file name (including extension): smirnoff.snd
+amplitude threshold (in range of -20 to 10): -10
+minimum frequency to be analyzed is: 250    
+data needed for header: 
+Performer is: Joel Smirnoff
+Instrument used: violin
+Date recorded: 9/28/92
+Pitch played: E4-E6
+Dynamic level played (ff,mf,...): ff
+Vibrato used (YES/NO): no
+File contains [all,middle,end,...] of tone: all
+Enter comments (press <return><ctrl-D>  when done):
+ Joel Smirnoff, Julliard Quartet, recorded in the UIUC Computer Music Project
+^D
+
+This results in a background job. The generic version of it is:
+
+   mqan fmin headfile sndfile outfile.mq threshold(dB) >& list.file &
+
+   where
+         'fmin' is the minimum frequency expected to be in the signal,
+             which governs the size of the FFT window.
+	 'headfile' is the name of the musicological data header file 
+         'sndfile' is the name of the input sound file, which has the
+             suffix '.snd' (NeXT) or '.wav' (Microsoft). 
+         'outfile.mq' is the name of the output MQ-format file, which
+             contains the spectral data.
+         'threshold(dB)' is the input amplitude threshold in decibels.
+         'list.file is the name of the ascii list file documenting the  
+             progress of the mqan job.  
+
+'tail -f list.file' will give the current status of the mqan job.
+Use ^C to get from this back to the Unix prompt.
+			     
+The threshold value refers to the spectral amplitude dB level below which
+spectral peaks components will not be retained. For example, a threshold
+value of 10 eliminates any spectral components with amplitudes less than
+3.16. Generally, values between -20 to +10 are good to use. This is
+useful to eliminate weak components (components which are really artifacts 
+of the analysis process and some noise components) that are not needed to 
+characterize the signal.
+
+Spectral peaks are joined together as tracks from one frame to the next.
+For each frame there is no particular number of tracks, as tracks can be
+born or can die at any time. The tracks are used by programs such as 
+mqsyn2 (for resynthesis) and mqplot (for graphics). However, fcheck (for 
+pitch detection) and harmformat (for harmonic separation) only utilize 
+the spectral peak information. For each spectral peak in a given frame, 
+data is saved to the .mq output file consisting of the peak's high-pass-
+filtered spectral magnitude, the peak's frequency, and its phase, as well 
+as a peak link number that links the peak to the peak in the next frame 
+which corresponds to the same track. A special case is when the track 
+dies, in which case the peak's link number is zero.
+
+The input signal x[i] is emphasized (high-pass filtered) prior to the
+spectral analysis process using a simple IIR digital filter whose
+response is y[i] = x[i] - EMP*x[i-1]. The magnitude frequency response 
+of this filter is given by
+
+	|H(f)| = sqrt(1-2*EMP*cos(2pi*f/SR)+EMP^2). 
+
+|H(f)| goes from (1-EMP) in the low frequencies to (1+EMP) in the high
+frequencies. For EMP = .95 this is from 0.05 to 1.95 or about -26 dB to
++6 DB. This helps equalize the spectrum of many acoustic sources which
+tend to exhibit a high frequency roll-off of spectral energy. NOTE that
+programs that process .mq files, such as fcheck, harmformat, mqsyn2, and 
+mqplot, need to correct for this pre-emphasis.
+________________________________________________________________________
+Written by R.C. Maher 
+5/89 Revised: J.W. Beauchamp 11/24/95, 03/16/98, 03/12/13
+________________________________________________________________________
+
+
+	Instructions for converting .mq analysis files to .an format.
+	Use of fcheck, harmformat, and gohfan, gomqhfan, and gomqhfan1.
+
+Conversion of MQ analysis files to .an format requires two steps: First, the
+fundamental frequency of the analyzed signal is determined using the 'fcheck'
+program. Next, the MQ and fundamental frequency data are used to extract 
+quasi-harmonic partials for conversion to .an format using the program 
+'harmformat'. The combination of these steps can be automated using the 
+script 'gohfan'. 
+
+The sequence, MQ-analysis, ff extraction, and harmonic format production, can 
+be automated using the scripts 'gomqhfan' and 'gomqhfan1'. The difference
+between the two is that the latter includes generation of a "header file",
+whereas the latter assumes this file has already been created.
+
+Procedure:
+
+The 'fcheck' program is designed for determining the pair of fundamental
+frequencies in a musical duet. For converting MQ to monan, the 'fcheck' program
+is used to identify a the fundamental frequency of a monophonic signal so some
+of the command line parameters do not apply.  The current version of this 
+program assumes that the MQ files has a header on it which supplies basic data
+about the original sound file as while as analysis data.
+
+   Usage:
+
+ fcheck file.mq frame0 minfl maxfl minfh maxfh n0 n1 minlev low.ffh high.ffh
+
+       where     file.mq   is the MQ spectrum peak file with header.
+		 frame0     is the starting frame number (usually zero).
+		 minfl and 
+		 maxfl      are the minimum and maximum frequencies (in Hz)
+			    of the lower voice for the fundamental frequency
+			    search.
+                 minfh and
+		 maxfh      are the minimum and maximum frequencies (in Hz)
+			    of the upper voice for the fundamental frequency
+			    search. (both 0 if monophonic)
+                 n0         is the number of harmonics to use in determining
+			    the frequency of the lower voice.
+                 n1         is the number of harmonics to use in determining
+			    the frequency of the upper voice. (0 if mono)
+                 minlev     is the minimum level (in amplitude dB) for
+			    MQ peaks used in calculating the frequency.
+                 low.ffh    is the output file containing the fundamental
+			    frequency estimates for the lower voice (with 
+			    header.
+                 high.ffh   is the output file containing the fundamental
+			    frequency estimates for the upper voice (with
+			    header).
+
+fcheck/harmformat						2
+
+  monophonic example:
+
+   fcheck file.mq 0 100 130 0 0 20 0 0 file.ffh /dev/null
+
+This will input the MQ file "file.mq", determine an estimated fundamental
+frequency in the range 100 to 130 Hz beginning with the first frame, use up to
+20 partials, and write to the frequency file "file.ffh". NOTE that the command
+line arguments referring to the upper voice are specified as zeros, and the
+upper voice output file is ignored (writes to /dev/null).
+
+Once the fcheck process is complete, harmformat is used to perform the
+quasi-harmonic extraction.
+
+    Usage: 
+
+	harmformat file.ffh file.mq file.mq.an dev emphasis
+
+	where   file.ffh 	is a float data file containing fund. freq. vs. 
+				time data (with header).
+ 		file.mq 	is a float data file containing spectral peak 
+				information (with header).
+ 				file.mq.an is the output file containing 
+				harmonic amplitude and frequency data vs. time.
+ 		dev 		is the fraction of departure from harmonicity 
+				allowed for a peak component to considered as a
+				harmonic. (typical value: .03)
+ 		emphasis 	emp=1 means that high frequency emphasis was 
+				applied in the MQ analysis and this must be 
+				corrected for.
+
+Here is a typical gomqhf interaction:
+
+% gohfan
+MQ file name (without extension) is: guitar
+search range minimum fund. freq: 90
+search range maximum fund. freq: 130
+monan analysis frequency (fundamental): 110
+Number of partials to retain: 80
+amplitude threshold for analysis is (in range of -20 to 10): -10
+harmonic acceptance interval (in range of .01 to .1): .03
+type: tail -f guitar.mqhf.list  to check on job progress
+[1] 12014
+
+% tail -f guitar.mqhf.list
+
+gohfan automatically picks up files guitar.mq and guitar.mq.head, creates
+files guitar.ff and guitar.mq.an, and redirects to the file guitar.mqhf.list.
+For fcheck, the number of harmonics used for pitch detection (n0) is set to 
+10 and n1 is set to 0 (monaural case). For harmformat, hai and emphflag are 
+defaulted to .03 and 1, respectively.
+
+Scripts 'gomqhfan' and 'gomqhfan1' combine the operations of  gomqan(1), 
+fcheck, and harmformat.  For descriptions of their use, see the file mqan.doc.
+_______________________________________________________________________________
+Rob Maher                                            May 29, 1989
+Revised: J. W. Beauchamp 11/24/95, 03/16/98
+
+
+
+
+                      G_RAPH USER'S MANUAL
+
+
+
+
+
+
+                               BY
+
+                        George J. Chaltas
+			Algis R. Korzonas
+			James W. Beauchamp
+
+
+
+
+
+
+
+
+
+
+
+
+           University of Illinois at Urbana-Champaign
+                     Computer Music Project
+                         School of Music
+
+
+
+
+
+                        Urbana, Illinois
+
+G_raph                         i                   User's Manual
+
+
+Preface
+
+The G_RAPH graphics package, originally written by George Chaltas is a set of
+functions written in C that work for most Tektronix emulator terminals or for
+display such as that used on the NeXT Computer (OS 2.x). Thus, it is a very
+portable package. It is currently runs on the NeXT 040 and several other Unix 
+computers.
+
+To use G_RAPH one needs to create a main program in the C language which calls
+the appropriate G_RAPH functions. Functions are available which set the
+"viewpoint" (the area of the screen being used), map the user's coordinates
+(called "world coordinates") into the viewport coordinates, draw lines
+(vectors), and generate text at particular screen positions.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+G_raph				ii			User's Manual
+
+
+
+
+                        Table of Contents
+
+
+
+1.  Overview...................................................1
+
+2.  Using G_raph...............................................1
+     2.1 Example Program.......................................2
+
+3.  Functions Available to Applications Programs...............3
+     3.1 Package Control.......................................3
+     3.2 Viewing...............................................4
+     3.3 Attributes............................................5
+     3.4 Drawing...............................................6
+     3.5 Text..................................................7
+     3.6 Input.................................................7
+     3.7 Errors................................................8
+
+4.  Installation...............................................9
+
+5.  Axis, Numbers, and Vertical Text Routines.................10
+
+5.1  Routine to draw an axis..................................10
+5.2  Routine to display a number (integer)....................11
+5.3  Routine to display a number (decimal)....................12
+5.4  Routine to display vertical text.........................13
+
+
+G_raph				1			User's Manual
+
+1.  Overview
+
+G_raph is a modest graphics package written in the C programming language. It
+provides markers, text, and lines in two dimensions, with windowing and
+viewports. Currently it only supports the Selanar Hi-Rez 100 display, which is
+a Tektronix 4014 emularot, and the Tektronix 4014. As the 4014 driver is
+implemented using the Selanar driver, the full resolution of the 4014 is not
+used. Note that some functions (g_button and g_set_mode) are not available on
+the 4014. Most functions will also work for other 4014 emulators, and should
+also work for 4010 emulators.
+
+G_raph is structured in two layers. The top layer is that which is accessible
+to applications programs, and the bottom layer is the device library. G_raph
+may easily be extended to handle more than one type of device. To do so one
+must provide a device library modeled on the one provided (stx.c), and modify
+the function g_initialize_display()(in control.c) to handle the new device.
+
+
+2.  Using G_raph
+
+To use G_raph, one must include the header file <g_raph.h> in one's program.
+The program must be compiled using one of the following:
+
+cc -o program program.c g_raph.a
+
+cc -o program.o g_raph.a
+
+All the usual compiler options may be used as desired. Here it is assumed that
+g_raph.a is in your current area. If not, then you need to give the entire
+path of the location of g_raph.a. If g_raph.a is stored as libg.a in
+/usr/lib, then -lg can be substituted for g_raph.a. See Installation. 
+
+G_raph 				2 			User's Manual
+
+
+2.1  Example Program
+
+The following is a sample program:
+
+
+     #include "g_raph.h"  /* you may need this include file */
+     main()
+     {
+          /*Variable declarations go here*/
+
+          /*Initialize the package*/
+          g_initialize_graph();
+          g_initialize_display("selanar");
+
+          /*Graphics commands may now be issued as desired*/
+          /*For example:*/
+
+               /*clear the screen*/
+               g_new_frame();
+
+               /*set the window*/
+               g_set_window(0.0, 10.0, 0.0, 10.0);
+
+               /*draw a box around the window edge*/
+               g_move_abs(9.9, 0.0);
+               g_draw_abs(0.0, 10.0);
+               g_draw_abs(10.0, 10.0);
+               g_draw_abs(10.0, 0.0);
+               g_draw_abs(0.0, 0.0);
+
+               /*move to the middle of the screen*/
+               g_move_abs(5.0, 5.0);
+
+               /*say hello*/
+               g_text("Hello there!);
+
+               /*Update the display*/
+               g_make_picture_current();
+	       g_new_frame();
+
+          /*Clean up afterwards*/
+          g_terminate_display("selanar");
+          g_terminate_graph();
+}
+
+G_raph                          3                       User's Manual
+
+
+
+3.  Functions Available to Applications Programs
+
+3.1 Package Control
+
+The source code for the control functions are in control.c.
+
+g_initialize_graph()
+
+Initialize the graphics package. This must be the first function called. No
+other functions may be called before this.
+
+g_init_view()
+
+Initialize the viewport, window, and ndc.
+
+g_terminate_graph()
+
+Clean up after the graphics package. This should be the last function called.
+If a display is still active this will call g_terminate_display().
+
+g_intitialize_display(display)
+
+     char*display;
+
+Initialize the device named in the string display. Currently the only valid
+parameters are "selanar" and "tek4014". Put the device in graphics mode, and
+set all device dependent parameters including the default viewport. This must
+be called before any graphics parameters are changed or any graphics output is
+attempted. Only one display device can be initialized at a time. It must be
+terminated before another can be initialized.
+
+g_terminate_display(display)
+
+     char*display;
+
+Terminate use of the device named in the string display. Put the device in
+non-graphics mode if it is a terminal. The string parameter display must match
+that which was used in the call to g_initialize_display().
+
+g_make_picture_current()
+
+Execute all pending graphics commands. Force the device to update the display.
+Until this is called some graphics commands may be stored in a buffer awaiting
+execution. This should be called whenever one wants to be sure that the picture
+reflects all graphics commands issued up to the time this functions is called.
+
+g_new_frame()
+
+Clear the screen.
+
+G_raph                          4                       User's Manual
+
+
+3.2 Viewing
+
+The source code for these functions is in view.c. Several other functions are
+also in this file, but are internal to G_raph and not meant to be called by
+user programs.
+
+g_inquire_ndc(minx, maxx, miny, maxy)
+
+     double*minx, *maxx, *miny, *maxy;
+
+Report the range of Normalized Device Coordinates for the current display
+device. Normalized Device Coordinates by default are set to run from 0.0 to 1.0
+across the smallest dimension of the display, and from 0.0 to proportionally
+more than one across the larger dimension. For "Selanar" the default is
+miny=0.0, maxy=1.0, minx=0.0, maxx=1.333.
+
+g_set_viewport(minx, maxx, miny, maxy)
+
+     double minx, maxx, miny, maxy;
+
+Set the viewport to run from minx to maxx horizontally and miny to maxy
+vertically. The parameters must be withing the range of Normalized Device
+Coordinates for the current display device. Nothing will be drawn outside the
+viewport. Minz must be less than maxx, and miny must be less than maxy. The
+default viewport is the largest square possible on the device, centered on the
+display.
+
+g_inquire_viewport(minx, maxx, miny, maxy)
+
+     double *minx, *maxx, *mainy, *maxy;
+
+Report the current viewport. The values returned are in Normalized device
+coordinates.
+
+g_set_window(minx,maxx,miny,maxy)
+
+     double minx, maxx, miny, maxy;
+
+Set the window which maps onto the viewport. The parameters are in world
+coordinates. World coordinates are used to specify all drawing and moving
+commands. Points outside the window will not appear in the viewport. Lines with
+either or both endpoints outside the window will be clipped. Markers and text
+outside the window will not be displayed. Text strings must fit entirely within
+the window or they will not be displayed. The point (minx, miny) corresponds to
+the lower left corner of the viewport, and the point (maxx, maxy) corresponds
+to the upper right corner of the viewport. Minx may not equal maxx, and miny
+may not equal maxy. The default window is (0.0, 0.0) at the lower corner and
+(1.0, 1.0) at the upper right corner.
+
+g_inquire_window(minx,maxx,miny,maxy)
+
+     double*minx,*maxx,*miny,*maxy;
+
+Report the current window. The parameters are in world coordinates. 
+ 
+G_raph 				5 			User's Manual
+
+
+3.3 Attributes
+
+The source code for the attribute functions is in attributes.c
+
+g_set_linestyle(style)
+
+     int style;
+
+Set the linestyle to be used for drawing lines. The available syles are defined
+in "graph.h" as SOLID, DOTTED, DOTDASH, SHORTDASH and LONGDASH.
+
+g_inquire_linestyle(style)
+
+     int*style;
+
+Set the reference parameter style to the current linestyle.
+
+g_set_mode(mode)
+
+     int mode;
+
+Set the drawing mode to be used for all drawing. There are three modes, defined
+in "graph.h": OR turns on pixels (makes them visible), CLEAR turns off pixels
+and XOR switches them (i.e. pixels that were off are turned on and pixels that
+were on are turned off). This can be used on graphics text too, but on the
+Selanar the XOR mode produces poor looking text since some of the vectors used
+to draw it overlap.
+
+g_inquire_mode(mode)
+
+     int*mode;
+
+Set the reference parameter mode to the current drawing mode.
+
+g_set_marker(mark)
+
+     int*mark;
+
+Set the marker type. There are three types, DOT, CROSS and CIRCLE. CROSS is the
+default marker. DOT presently does not work correctly on the Selanar.
+
+g_inquire_marker(mark)
+
+     int*mark;
+
+Set the reference parameter mark to the current marker type. 
+
+
+g_set_gray(grayscale)		/* added tjm 3/96 */
+	float grayscale;
+
+ Set current grayscale  0 = black 1 = white. Use all numbers from 0 -1.
+ 
+g_set_color(red,green,blue)		/* added tjm 4/96 */
+	float red,green,blue;
+
+ Set current color.  red, green, blue from 0 to 1.0
+ 
+
+
+
+ 
+G_raph 				6 			User's Manual
+
+
+3.4 Drawing
+
+The source code for drawing functions is in draw.c.
+
+All parameters passed to and from drawing commands are in world coordinates.
+All are of type double or *double. Only that part of a drawing that lies inside
+the current window will appear on the display.
+
+g_move_abs(s,y)
+
+     double x,y;
+
+Move the current graphics position to the point (x,y).
+
+g_move_rel(dx,dy)
+
+     double dx,dy;
+
+Move the current graphics position by (dx, dy), For example, if the current
+position is (O, 10) and (dx, dy)=(5,5), the new current position will be
+(5.15).
+
+g_draw_abs(x,y)
+
+     double x,y;
+
+Draw a line in the current mode and linestyle from the current position to
+(x,y).
+
+g_draw_rel(dx,dy)
+
+     double dx,dy;
+
+Draw a line in the current mode and linestyle from the current position to the
+point offset by (dx, dy) from the current position.
+
+g_marker_abs(x,y)
+
+     double x,y;
+
+Move as with g_move_abs(), and draw the current style of marker at that point.
+
+g_marker_rel(dx,dy)
+
+     double dx,dy;
+
+Move as with g_move_rel(), and draw the current style of marker at that point.
+
+g_inquire_current_position(x,y)
+
+     double*x,*y;
+
+Set the reference parameters x and y to the x and y components of the current
+position. 
+
+
+g_addline(x, y)
+	double x, y;
+
+ Draw from current position to (x, y) -- world coords. tjm 4/96
+ No stroke postscript command is issued. So this command can be used for
+ constructing a large polygon to be filled with one color. 
+
+g_new_polygon()		/* added tjm 4/96 */
+
+  new postscript path. Used for making filled polygons. Start a new polygon.
+ Use g_addline to draw the polygon.
+
+g_stroke()		/* added tjm 4/96 */
+
+ draw line along constructed path. A postscript command. g_addline constructs
+  path
+
+g_fill()		/* added tjm 4/96 */
+/*
+ * paint polygon created by g_addline. Preset color or grayscale is used.
+ */
+
+To create a filled polygon:
+g_newpolygon()
+g_moveto(x,y);
+g_addline(x,y); /* several addlines to make polygon*/
+g_addline(x,y); /* several addlines to make polygon*/
+g_addline(x,y); /* several addlines to make polygon*/
+g_set_gray(0.1);
+g_stroke();  /* draw polygon w/ dark line*/
+g_set_color(1.0, 0.0, 0.0);  /* RED*/
+g_fill();  /*paint it red*/
+
+
+
+
+ 
+G_raph 				7 			User's Manual
+
+3.5 Text
+
+The source code for text functions is in text.c.
+
+g_text(message)
+
+     char*message;
+
+Write the text string in message on the display, using the current drawing mode
+and text size. The lower left corner of the string will be at the current
+position, and the current position will then be moved to the lower right corner
+of the string. If the string will not fit within the window, it is not drawn.
+
+g_set_text_size(count)
+
+     int count;
+
+Set the text size so that at least count characters fit across the display
+screen. The largest available character size that will fit is chosen. If count
+is so large that it is impossible to fit that many characters across the
+screen, the smallest available size will be used instead. The smallest size
+available on the Selanar is 133 characters across the screen. The default is
+81. Other values are 121 and 74.
+
+
+3.6 Input
+
+The source code for input functions is in control.c.
+
+At present no correctly functioning graphics input is available. The function
+g_button() does work after a fashion, but leaves garbage on the screen due to
+problems with the device library for the Selanar. G_raph does not affect input
+from the device keyboard -- it goes to stdin as it normally would, and programs
+may use all the usual C functions for input.
+
+g_button(button,xy)
+
+     int*button;double*x,*y;
+
+Turn on the graphics input cursor (locator), and allow the user to move it.
+When a button is pushed, set the reference parameter button to the number of
+the button, and the reference parameters x and y to the location in Normalized
+Device Coordinates where the cursor was when the button was pushed. The buttons
+are the ASCII numerals 0 through 9. On the Selanar, the cursor may be moved
+using the same keys used for Rogue, or using the same keys used as PLATO arrow
+keys. Upper case letters move five pixels, lower case letters move one pixel.
+
+          q  w  e                       y  k  u
+          a     d                       h     l
+          z  x  c                       b  j  n
+
+G_raph                          8                       User's Manual
+
+
+3.7 Errors
+
+The source code for the error reporting functions is in error.c.
+
+All functions except g_log_error() return 0 if no errors are detected.
+Otherwise they return a positive integer error code. In addition, when an error
+is detected, G_raph attempts to display an error message on the screen without
+screwing up the display device or the current picture. On the Selanar, this is
+done in regular alphanumeric text.
+
+char*g_log_error(buff,errnum)
+
+     char*buff;int errnum;
+
+Copy the error message specified by errnum into the character array pointed to
+by buff. The array must be at least 80 characters long. The function
+g_log_error returns the pointer to buff, so that it may be used wherever a
+string may be used.
+
+G_raph                          9                       User's Manual
+
+
+4. Installation
+
+The library g_raph.a could be stored as libg in in /usr/lib, and the 
+include file g_raph.h in /usr/include.  However, this can only be done
+by a Unix superuser.  If this is done, then the user need not have his
+own copies and the graphics library can be referred to as -lg.
+
+G_raph                          10                      User's Manual
+
+
+ 5.        Axis, Numbers, and Vertical Text Routines
+                      (Algis R. Korzonas)
+
+The following section describes four functions that have been added to the
+g_raph graphics package to allow the user to draw axes, numbers, and vertical
+text when using a Tektronix 4014 terminal or a terminal capable of Tektronix
+4014 emulation such as the Selanar Hi-Res 100. The functions are used exactly
+like the standard g_raph functions (note: g_raph.h must be included in the file
+using the functions, and the graphics library must be linked in with the
+program -- see page 2 of the g_raph users manual. Also, the graphics package
+and graphics device must the initialized before calling any of these four
+routines -- see page 3 of the g_raph users manual).
+
+5.1  Routine to draw an axis
+
+g_axis(xst,yst,len,ttl,txtsiz,numsiz,tht,mnv,valinc,numticks,ddigits)
+
+Purpose: 
+
+     Draws, numbers, and titles an axis.
+
+Arguments:
+     xst (double)   - x-coordinate of the origin in world coord.
+     yst (double)   - y-coordinate of the origin in world coord.
+     len (double)   - length of the axis in world coordinates
+     ttl (string)   - the title of the axis
+     txtsiz(integer)- the size of the text
+     numsiz(integer)- the size of the numbering
+                         large (default):  txtsiz (or numsiz) = 1
+                         medium:           txtsiz (or numsiz) = 2
+                         small:            txtsiz (or numsiz) = 3
+                         very small:       txtsiz (or numsiz) = 4
+tht (integer)       - the angle of the axis wrt horizontal
+                         vertical:  90
+                         horizontal: 0
+mnv (double)        - the minimum value along the axis
+valinc (double)     - the increment of the numbering
+numticks (integer)  - the number of ticks along the axis
+ddigits (integer)   - the number of digits to the right of the   
+                 decimal  point to be drawn (0 for no decimal    
+                 point)
+
+Example:
+g_axis(10,10,80,"time in seconds",2,4,0,-10.0,10.0,11,0);
+
+When used in a program, the line above draws a horizontal axis, 80 unites (in
+world coordinates) long, beginning at (10,10) in world coordinates, labels the
+axis "time in seconds" (without the quotation marks) with medium sized text,
+and finally labels the 11 ticks along the axis "-10 -8 -6 ... 6 8 10" in very
+small numbering.
+
+G_raph                          11                      User's Manual
+
+
+5.2  Routine to display a number (integer)
+
+g_num(decdig,z,size)
+
+Purpose:
+     Draws numbers.
+
+Usage:
+
+The number will be drawn using the specified text size and current drawing
+mode. The lower left corner of the first digit will begin at the current
+position, and the current position will be the lower right corner of the last
+digit after the number is drawn. If all the digits do not fit in the window,
+the number will not be drawn. The numbering size is reset to the default after
+the number is drawn.
+
+Arguments:
+     decdig (integer)         - the number of digits to be drawn
+                                to the right of the decimal point
+                                (z will be rounded or padded with
+                                zeros as needed).  
+                                Note:  0 <=decdig <= 10
+z (double)                    - the number to be drawn.
+size (integer)                - the size of the numbering
+                                   large (default):  size = 1
+                                   medium:           size = 2
+                                   small:            size = 3
+                                   very small:       size = 4
+
+
+G_raph                          12                      User's Manual
+
+5.3  Routine to display a number (decimal).
+
+g_numj(decdig,z,size,maxdig)
+
+Purpose:
+     Draws numbers.
+
+Usage:
+
+The number will be drawn using the specified text size and current drawing
+mode. The lower left corner of the first digit will begin at the current
+position, and the current position will be the lower right corner of the last
+digit after the number is drawn. If all the digits do not fit in the window,
+the number will not be drawn. The numbering size is reset to the default after
+the number is drawn. g_numj should be used instead of g_num when the user
+wishes to right justify or center the number. If maxdig is set to the number of
+digits to be drawn (including the decimal point and sign), then the number
+drawn will be right justified. If maxdig is set to half of the number of digits
+to be drawn, then the number drawn will be centered.
+
+Arguments:
+     decdig (integer)              - the number of digits to be  
+                                drawn to the right of the        
+                           decimal point (z will be              
+                      rounded or padded with zeros               
+                      as needed).
+                                     Note:  0 <= decdig <= 10
+z (double)                         - the number to be drawn
+size (integer)                     - the size of the numbering
+                                        large (default): size = 1
+                                        medium:          size = 2
+                                        small:           size = 3
+                                        very small:      size = 4
+maxdig (integer)                   - the maximum number of digits
+                                     to be drawn
+
+
+G_raph                          13                      User's Manual
+
+
+5.4 Routine to display vertical text.
+
+g_vertext(s,txtsiz)
+
+Purpose:
+     Draws text vertically top to bottom.
+
+Usage:
+The text will be drawn using the specified text size and the current drawing
+mode. The lower left corner of the first character will at the current position
+and the current position will be the lower right corner of the last character
+after the string is drawn. Each character is drawn individually, so all
+characters that fit in the window will be drawn.
+
+Arguments:  
+     s (string)                    - the text to be drawn.
+txtsiz (integer)                   - the size of the text to be  
+                                drawn
+                                        large (default): size = 1
+                                        medium:          size = 2
+                                        small:           size = 3
+                                        very small:      size = 4
+                                   (the current text size is
+                                   changed to the one specified,
+                                   the string is drawn, and then
+                                   the current text size is
+                                   changed to the default size).
+
+		sndan commands
+
+	addsyn, addsyn1, addsyn2, addsyn3  Descriptions
+
+*******************************************************************************
+addsyn (goaddsyn)
+
+Time-variant additive synthesis from analysis file data using linear 
+interpolation of original data points.  For synthesis the fundamental 
+frequency, no. of harmonics, and duration are read from the input analysis 
+file header.
+
+ 	execution:  addsyn an_file snd_file[.EXT]
+ 	or  	    addsyn an_file snd_file[.EXT] >& list.file &
+ 
+where an_file is an analysis file produced by gopvan, gomqhfan, or AnView;
+EXT for the snd_file is one of five types, .snd (NeXT sound file), 
+.sh (headerless file of short samples), .fp (headerless file of float samples),
+.wav (wave file of short samples), or .au (Sun sound file).
+In any case, the sound file is single channel.
+
+Application: Test completeness of the analysis.
+
+*******************************************************************************
+addsyn1 (goaddsyn1)
+
+Same as addsyn except that the user supplies five parameters for synthesis,
+either interactively or by means of a one-line text file. Thus the synthesized
+sound file can have a different sample rate, fundamental frequency, number of
+harmonics, duration, and amplitude scale factor than the original sound sound.
+
+If a parameter text file is used, it should consist of
+
+	<SR> <f1> <nhar> <ampfac> <dur>
+
+where 
+	SR = sample rate 
+	f1 = fundamental frequency
+	nhar = no. of harmonics 
+	ampfac = amplitude scale factor
+	dur = duration
+
+for the output sound file.
+
+	execution:  addsyn1 an_file snd_file
+	or  	    addsyn1 an_file snd_file < dat_file >& list.file &
+
+Application: Uniform stretch or compression of sound file with independent 
+control of pitch.
+
+Caveat: Temporal behavior of periodic or random variations is distorted.
+	Attack stretching can be particularly noticeable.
+
+*******************************************************************************
+addsyn2 (goaddsyn2)
+
+Same as addsyn1 except that the user supplies nine parameters for synthesis
+either interactively or via a one-line text file. This allows the
+synthesized sound file to have a different sample rate, fundamental frequency, 
+number of harmonics, amplitude factor, and duration than the original file.
+However, addsyn2 uses three time intervals with different stretch factors.
+These can be used to control the durations of the "attack", "steady state", and
+"decay" portions of the sound differently.
+
+If a parameter text file is used, it should consist of
+
+	<SR> <f1> <nhar> <ampfac> <tfac1> <t1> <tfac2> <t2> <tfac3> 
+where
+	SR = sample rate 
+	f1 = fundamental frequency 
+	nhar = no. of harmonics
+	ampfac = amplitude scale factor
+	tfac1, tfac2, and tfac3 are time scaling factors applied to original
+	time intervals 0,t1; t1,t2; and t2,tL; respectively, where tL is the
+	duration of the original sound.
+
+	execution:  addsyn2 an_file syn_file
+ 	or  	    addsyn2 an_file syn_file < dat_file >& list.file &
+
+Application: Attack and decay can be kept the same while stretching or 
+compressing the "steady-state" in order to achieve different durations.
+
+Caveat: Temporal behavior of periodic or random variations is distorted.
+
+*******************************************************************************
+addsyn3 (goaddsyn3)
+
+Same as addsyn1 except that the user supplies seven parameters for synthesis
+either interactively or via a one-line text file. This allows the
+synthesized sound file to have a different sample rate, fundamental frequency, 
+number of harmonics, amplitude factor, and duration than the original file.
+However, addsyn3 keeps the intervals (0,t1) and (t2,tL) exactly as they are
+while interpolating the interval (t1,t2) to achieve the new, shorter duration.
+
+If a parameter text file is used, it should consist of
+
+	<SR> <f1> <nhar> <ampfac> <t1> <t2> <dur>
+where
+	SR = sample rate 
+	f1 = fundamental frequency 
+	nhar = no. of harmonics
+	ampfac = amplitude scale factor
+	(0,t1) is a time interval (the "attack") at the beginning of the sound.
+	(t2,tL) is a time interval (the "decay") at the end of the sound.
+	dur is the new duration.
+
+	execution:  addsyn3 an_file syn_file
+ 	or  	    addsyn3 an_file syn_file < dat_file >& list.file &
+
+Restrictions: t1 + (tL-t2) < dur < tL. Violation will abort the job. In other
+words the new duration must be shorter than the old, but not shorter than the
+sum of the declared attack and decay times.
+
+Method: Before synthesis the individual harmonic amplitudes and frequencies
+are interpolated on the interval (t1,t2). This is done by blending the original
+interval (t1,t2') with the interval (t2 -(t2'-t1),t2) using blend functions
+(1-w(x)) and w(x) = 3*x^2 - x*x^3, where x = (t-t1)/(t2'-t1). t2' is given by
+t2' = t2 - (tL - dur). The blending function insures that the local behaviors
+at original times t1 and t2 are preserved.  Note that original intervals
+(0,t1) and (t2,tL) are exactly the same as new intervals (0,t1) and (t2',dur).
+
+Application: Duration can be shortened while maintaining the quality of the
+attack and decay exactly and the basic behavior of the "steady-state".
+
+Caveat: If there are any periodic variations in the harmonic envelopes, 
+cancellations can occur, particularly half way between t=t1 and t=t2'.
+
+*******************************************************************************
+J. Beauchamp  03/10/98
+
+

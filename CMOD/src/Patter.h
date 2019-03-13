@@ -23,11 +23,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //    patter.h
 //
 //    This class generates a pattern of values using a user defined origin
-//    and a sequence of intervals and it delivers one value at a time.  
-//    Same input may be used to generate various related paterns produced 
-//    through mod m equivalences, symmetrical set forms (R, I, RI), and 
-//    distortions.  It uses input from user defined files describing the 
-//    type of object and its parameters (box, sound, etc.) as well as the 
+//    and a sequence of intervals and it delivers one value at a time.
+//    Same input may be used to generate various related paterns produced
+//    through mod m equivalences, symmetrical set forms (R, I, RI), and
+//    distortions.  It uses input from user defined files describing the
+//    type of object and its parameters (box, sound, etc.) as well as the
 //    pattern itself (PAT file).
 //    \author Sever Tipei     July 14, 2005, July 2007
 //
@@ -59,7 +59,7 @@ class Patter {
 
 
   public:
-        
+
     /**
      *  Constructor for empty object.  This will be used by eventfactory system
      *  for evaluating patter objects.
@@ -101,20 +101,20 @@ class Patter {
     int GetNextValue(std::string method, int newOrigin = 0);
 
     /**
-     *  Creates a patty array by starting with the origin and adding to each 
+     *  Creates a patty array by starting with the origin and adding to each
      *  location the next member of the interval array interArray
      **/
     void SimplePat();
 
     /**
-     *  Coordinates various methos of expanding and/or modifying the pattern: 
+     *  Coordinates various methos of expanding and/or modifying the pattern:
      *  equivalence classes, transpositions, symmetric forms (I, R, RI),
      *  distortions (augmentation, diminution, etc,), etc.
      *    ====  presently args refer only to method EQUIVALENCE  ====
-     *  \param method (EQUIVALENCE, SYMMETRIES, DISTORT) 
-     *  \param modulo 
-     *  \param low 
-     *  \param high 
+     *  \param method (EQUIVALENCE, SYMMETRIES, DISTORT)
+     *  \param modulo
+     *  \param low
+     *  \param high
      **/
     void Expand(std::string method, int modulo, int low, int high);
 
@@ -158,4 +158,3 @@ class Patter {
 //----------------------------------------------------------------------------//
 };
 #endif
-

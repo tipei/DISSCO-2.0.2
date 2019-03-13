@@ -1,17 +1,14 @@
 /*
 CMOD (composition module)
 Copyright (C) 2005  Sever Tipei (s-tipei@uiuc.edu)
-
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
-
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
-
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -38,7 +35,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define UTILITIES_H
 #include "Libraries.h"
 #include "Patter.h"
-
 #define EQUAL_TEMP 0.5
 #define FUNDAMENTAL 0.1
 #define CONTINUUM 0.4
@@ -153,32 +149,39 @@ public:
    */
   int getSamplingRate(){return samplingRate;}
 
-  //Number to name mapping for modification. Experimental.
-
-  std::map<int, string> topEventnames;
-  std::map<int, string> highEventnames;
-  std::map<int, string> midEventnames;
-  std::map<int, string> lowEventnames;
-  std::map<int, string> bottomEventnames;
-  std::map<int, string> spectrumEventnames;
-  std::map<int, string> envelopeEventnames;
-  std::map<int, string> sieveEventnames;
-  std::map<int, string> spatializationEventnames;
-  std::map<int, string> patternEventnames;
-  std::map<int, string> reverbEventnames;
-  std::map<int, string> filterEventnames;
-  std::map<int, string> notesEventnames;
+  /**
+  * Gets the envelope shape in env_lib corresponding
+  * to env_num and scale it
+  * \return envelope pointer
+  */
+  Envelope* getEnvelopeshape(int env_num, double scale);
 
   //Name to Aesthetic value mapping. Experimental.
 
-  std::map<string, double> eventValues;
-  std::map<string, double> topEventValues;
-  std::map<string, double> highEventValues;
-  std::map<string, double> midEventValues;
-  std::map<string, double> lowEventValues;
-  std::map<string, double> bottomEventValues;
+    std::map<string, double> eventValues;
+    std::map<string, double> topEventValues;
+    std::map<string, double> highEventValues;
+    std::map<string, double> midEventValues;
+    std::map<string, double> lowEventValues;
+    std::map<string, double> bottomEventValues;
 
   int currChild;
+
+  //Number to name mapping for modification. Experimental.
+
+ std::map<int, string> topEventnames;
+ std::map<int, string> highEventnames;
+ std::map<int, string> midEventnames;
+ std::map<int, string> lowEventnames;
+ std::map<int, string> bottomEventnames;
+ std::map<int, string> spectrumEventnames;
+ std::map<int, string> envelopeEventnames;
+ std::map<int, string> sieveEventnames;
+ std::map<int, string> spatializationEventnames;
+ std::map<int, string> patternEventnames;
+ std::map<int, string> reverbEventnames;
+ std::map<int, string> filterEventnames;
+std::map<int, string> notesEventnames;
 
 
   //----------------------------- Other tasks --------------------------------//
@@ -219,6 +222,7 @@ public:
    */
   static std::vector<std::string> listElementToStringVector(DOMElement* _listElement);
 
+
 private:
 
 
@@ -229,6 +233,7 @@ private:
   Envelope* readEnvFile (DOMElement* _functionElement, void* _object);
   Envelope* makeEnvelope (DOMElement* _functionElement, void* _object);
 
+  EnvelopeLibrary* envelopeLibrary;
 
   // --- Helper for getting Pattern --- //
 
@@ -323,6 +328,7 @@ private:
   string function_GetPattern(DOMElement* _functionElement, void* _object);
   string function_Randomizer(DOMElement* _functionElement, void* _object);
   string function_Inverse(DOMElement* _functionElement, void* _object);
+  string function_Markov(DOMElement* _functionElement, void* _object);
   string function_LN(DOMElement* _functionElement, void* _object);
   string function_RandomDensity(DOMElement* _functionElement, void* _object);
 
@@ -414,7 +420,8 @@ private:
   std::map<string,DOMElement*> notesElements;
 
   // Storage of LASS Parsed/generated Envelopes
-  EnvelopeLibrary* envelopeLibrary;
+
+  vector< MarkovModel<float> > markovModelLibrary;
 
   // Piece Configurations
   bool soundSynthesis;

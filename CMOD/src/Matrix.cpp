@@ -1,17 +1,17 @@
 /*
 CMOD (composition module)
 Copyright (C) 2005  Sever Tipei (s-tipei@uiuc.edu)
-                                                                                
+
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
-                                                                                
+
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
-                                                                                
+
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -32,12 +32,12 @@ extern EnvelopeLibrary envlib;
 
 //----------------------------------------------------------------------------//
 
-Matrix::Matrix(int numTypes, int numAttacks, int numDurations, 
-               vector<int> numTypesInLayers, int maxVal, 
-               Tempo tempo, bool sieveAligned) 
+Matrix::Matrix(int numTypes, int numAttacks, int numDurations,
+               vector<int> numTypesInLayers, int maxVal,
+               Tempo tempo, bool sieveAligned)
                : sieveAligned(sieveAligned)
                , tempo(tempo) {
-  
+
   matr.clear();
   matr.resize(numTypes);
   for (int type = 0; type < numTypes; type++) {
@@ -98,7 +98,7 @@ void Matrix::setAttacks(Sieve* attackSieve, vector<Envelope*> attackEnvs) {
   vector<double> attProbs;
 
   attackSieve->FillInVectors(attTimes, attProbs);
-  
+
   bool hasEnv = attackEnvs.size() >= matr.size();
 
   // add the results into the matrix
@@ -109,12 +109,12 @@ void Matrix::setAttacks(Sieve* attackSieve, vector<Envelope*> attackEnvs) {
       // do for each attack
       double attackSieveValue = attProbs[attNum];
 
-//    cout << "Matrix::setAttacks - attNum=" << attNum << " attackSieveValue=" 
+//    cout << "Matrix::setAttacks - attNum=" << attNum << " attackSieveValue="
 //         << attackSieveValue << endl;
 
       if (attNum < 0 || attNum >= matr[type].size()) {
         cerr << "Matrix::setAttacks -- error - getValue out of bounds;" << endl;
-        cerr << "  attNum=" << attNum << ", matr[type].size()=" 
+        cerr << "  attNum=" << attNum << ", matr[type].size()="
              << matr[type].size() << endl;
       }
 
@@ -129,8 +129,8 @@ void Matrix::setAttacks(Sieve* attackSieve, vector<Envelope*> attackEnvs) {
         }
         matr[type][attNum][durNum].stime = attackStime;
 /*
-        cout << "Matrix::setAttacks - matr[" << type << "][" << attNum << "][" 
-             << durNum << "].attdurprob=" << matr[type][attNum][durNum].attdurprob 
+        cout << "Matrix::setAttacks - matr[" << type << "][" << attNum << "]["
+             << durNum << "].attdurprob=" << matr[type][attNum][durNum].attdurprob
              << endl;
 */
       }
@@ -152,7 +152,7 @@ void Matrix::setDurations(Sieve* durSieve, int maxVal, vector<Envelope*> durEnvs
   int maxStartTime = matr[0][matr[0].size()-1][0].stime;
 
   bool hasEnv = durEnvs.size() >= matr.size();
-  //int oldType = 0;			
+  //int oldType = 0;
 
   // add the results into the matrix
   for (int type = 0; type < matr.size(); type++) {
@@ -166,7 +166,7 @@ void Matrix::setDurations(Sieve* durSieve, int maxVal, vector<Envelope*> durEnvs
 
         if (durNum < 0 || durNum > matr[type][attNum].size()) {
           cerr << "Matrix::setDurations -- error - getValue out of bounds;" << endl;
-          cerr << "  durNum=" << durNum << ", matr[type][attNum].size()=" 
+          cerr << "  durNum=" << durNum << ", matr[type][attNum].size()="
               << matr[type][attNum].size() << endl;
         }
 /*
@@ -184,9 +184,9 @@ void Matrix::setDurations(Sieve* durSieve, int maxVal, vector<Envelope*> durEnvs
 /*
 	cout << endl;
 	cout << "durEnd=" << durEnd << " maxVal=" << maxVal << endl;
-        cout << "  matr[" << type << "][" << attNum 
-      	     << "][" << durNum << "].stime=" << matr[type][attNum][durNum].stime 
-	     << " matr[" << type << "][" << attNum << "][" << durNum 
+        cout << "  matr[" << type << "][" << attNum
+      	     << "][" << durNum << "].stime=" << matr[type][attNum][durNum].stime
+	     << " matr[" << type << "][" << attNum << "][" << durNum
 	     << "].attdurprob=" << matr[type][attNum][durNum].attdurprob << endl;
 */
         if ((   sieveAligned
@@ -195,26 +195,26 @@ void Matrix::setDurations(Sieve* durSieve, int maxVal, vector<Envelope*> durEnvs
              || durEnd > maxVal) {
           matr[type][attNum][durNum].attdurprob = 0;
 /*
-          cout << "sieveAligned - type=" << type << " attNum=" << attNum 
+          cout << "sieveAligned - type=" << type << " attNum=" << attNum
                << " durNum=" << durNum << " maxVal=" << maxVal << endl;
           int sever; cin >> sever;
 */
         } else {
-          matr[type][attNum][durNum].attdurprob *= durSieveVal; 
+          matr[type][attNum][durNum].attdurprob *= durSieveVal;
           if (hasEnv) {
             double durEnvVal = durEnvs[type]->getValue(durNum, matr[type][attNum].size());
 
 //      cout << "Matrix::setDurations - durEnvVal=" << durEnvVal << endl;
 //	int sever; cin >> sever;
-            matr[type][attNum][durNum].attdurprob *= durEnvVal; 
+            matr[type][attNum][durNum].attdurprob *= durEnvVal;
           }
 //        cout << "DUREND " << durEnd << endl;
-        } 
+        }
 /*
           cout << "  stime=" << matr[type][attNum][durNum].stime << " dur=" <<
 	   matr[type][attNum][durNum].dur << endl;
-	  cout << "    durSieveVal=" << durSieveVal 
-	   << " matr[" << type << "][" << attNum << "][" << durNum 
+	  cout << "    durSieveVal=" << durSieveVal
+	   << " matr[" << type << "][" << attNum << "][" << durNum
 	   << "].attdurprob=" << matr[type][attNum][durNum].attdurprob << endl;
 */
       }
@@ -238,7 +238,7 @@ MatPoint Matrix::chooseSweep(int remain) {
   // recompute the type prob vector
   recomputeTypeProbs(chosenPt.type, remain);
 
-  return chosenPt; 
+  return chosenPt;
 }
 
 MatPoint Matrix::chooseContinuum() {
@@ -249,7 +249,7 @@ MatPoint Matrix::chooseContinuum() {
 //---------------------------------------------------------------------------//
 MatPoint Matrix::chooseDiscrete(int remain) {
   MatPoint chosenPt = choose();
-  
+
   // remove conflicts in the matrix (set probs to 0)
   removeConflicts(chosenPt);
 
@@ -292,12 +292,12 @@ MatPoint Matrix::choose() {
 
           //printing stuff
 /*
-          cout << endl << "MATRIX ---- PICKED: matr[" << type << "][" 
-              << attNum << "][" << durNum << "]  =  start:" 
-              << chosenPt.stime << ", dur:" << chosenPt.dur << ", type:" 
+          cout << endl << "MATRIX ---- PICKED: matr[" << type << "]["
+              << attNum << "][" << durNum << "]  =  start:"
+              << chosenPt.stime << ", dur:" << chosenPt.dur << ", type:"
               << chosenPt.type << ", randNum=" << randNum << endl;
 	  cout << "  chosenPt.normprob=" << chosenPt.normprob << ", prevPt.normprob="
-	       << prevPt.normprob << ", %prob:" 
+	       << prevPt.normprob << ", %prob:"
 	       << (chosenPt.normprob-prevPt.normprob) << endl;
 	  cout << "  " << endl;
 //        printMatrix(true);
@@ -320,8 +320,8 @@ bool Matrix::normalizeMatrix() {
   // get the sum of the matrix
   for (int type = 0; type < matr.size(); type++) {
 /*
-    cout << "		Matrix::normalizeMatrix - type=" << type 
-         << " matr.size=" << matr.size() 
+    cout << "		Matrix::normalizeMatrix - type=" << type
+         << " matr.size=" << matr.size()
          << " matr[" << type << "].size=" << matr[type].size() << endl;
 */
 
@@ -332,15 +332,15 @@ bool Matrix::normalizeMatrix() {
       for (int durNum = 0; durNum < matr[type][attNum].size(); durNum++) {
 
         // do for each dur
-        matr[type][attNum][durNum].normprob = 
+        matr[type][attNum][durNum].normprob =
                 matr[type][attNum][durNum].attdurprob * typeProb[type];
         matrSum += matr[type][attNum][durNum].normprob;
 
 /*
  /	if(type == 0) {
-	  cout << "Matrix::normalizeMatrix - typeProb[" << type << "]=" 
+	  cout << "Matrix::normalizeMatrix - typeProb[" << type << "]="
 		<< typeProb[type] << endl;
-	  cout << " matr[" << type << "][" << attNum << "][" << durNum 
+	  cout << " matr[" << type << "][" << attNum << "][" << durNum
 		<< "].normprob= " << matr[type][attNum][durNum].normprob << endl;
 	  cout << "      matrSum=" << matrSum << endl;
   	}
@@ -387,7 +387,7 @@ void Matrix::recomputeTypeProbs(int chosenType, int remaining) {
   if (remaining != 0) {
     for (int i = 0; i < typeProb.size(); i++) {
       if (i == chosenType) {
-        typeProb[i] = round(typeProb[i] * (remaining + 1) - 1) / remaining; 
+        typeProb[i] = round(typeProb[i] * (remaining + 1) - 1) / remaining;
       } else {
         typeProb[i] = (typeProb[i] * (remaining + 1)) / remaining;
       }
@@ -406,16 +406,16 @@ void Matrix::removeConflicts(MatPoint chosenPt) {
     // only remove conflicts if this type is in the same layer
     //   as the chosen type
     if ( chosenLayer == typeLayers[type] ) {
-  
+
       for (int attNum = 0; attNum < matr[type].size(); attNum++) {
         // do for each attack
-  
+
         for (int durNum = 0; durNum < matr[type][attNum].size(); durNum++) {
           // do for each dur
-  
+
           int currStart = matr[type][attNum][durNum].stime;
           int currEnd = currStart + matr[type][attNum][durNum].dur;
-  
+
           if (chosenStart >= currStart && chosenStart < currEnd) {
             // start time is in this window --- set prob to 0
             matr[type][attNum][durNum].attdurprob = 0;
@@ -443,16 +443,16 @@ void Matrix::removeSweepConflicts(MatPoint chosenPt) {
     // only remove conflicts if this type is in the same layer
     //   as the chosen type
     if ( chosenLayer == typeLayers[type] ) {
-  
+
       for (int attNum = 0; attNum < matr[type].size(); attNum++) {
         // do for each attack
-  
+
         for (int durNum = 0; durNum < matr[type][attNum].size(); durNum++) {
           // do for each dur
-  
+
           int currStart = matr[type][attNum][durNum].stime;
           int currEnd = currStart + matr[type][attNum][durNum].dur;
-  
+
           if (chosenEnd > currStart) {
             matr[type][attNum][durNum].attdurprob = 0;
           } else{
@@ -469,10 +469,10 @@ void Matrix::removeSweepConflicts(MatPoint chosenPt) {
 
 void Matrix::printMatrix(bool normalized) {
   if (normalized) {
-    cout << "$$$$$$$$$$$$$$$$$    NORMALIZED MATRIX      " 
+    cout << "$$$$$$$$$$$$$$$$$    NORMALIZED MATRIX      "
          << "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$" << endl;
   } else {
-    cout << "&&&&&&&&&&&&&&&&&    UN-NORMALIZED MATRIX   " 
+    cout << "&&&&&&&&&&&&&&&&&    UN-NORMALIZED MATRIX   "
          << "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&" << endl;
   }
 
@@ -503,15 +503,12 @@ void Matrix::printMatrix(bool normalized) {
   }
 
   if (normalized) {
-    cout << "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&" 
+    cout << "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"
          << "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&" << endl;
   } else {
-    cout << "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$" 
+    cout << "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$"
          << "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$" << endl;
   }
 
 
 }
-
-
-

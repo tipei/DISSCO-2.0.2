@@ -1,17 +1,14 @@
 /*
 CMOD (composition module)
 Copyright (C) 2005  Sever Tipei (s-tipei@uiuc.edu)
-
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
-
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
-
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -30,14 +27,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //  CMOD Events add the Sound/Note objects they produce to LASS Score through
 //  The Utilities.
 //
-//
+//  Maintained by Fanbo Xiang 2018
 //----------------------------------------------------------------------------//
 #include "Utilities.h"
 #include "Random.h"
 #include "Event.h"
 #include "Piece.h"
 #include "Patter.h"
-#include "../../LASS/src/ProbabilityEnvelope.h"
+#include "../../LASS/src/ProbabilityEnvelope.h" // consider moving this into LASS.h
 #include <string>
 
 Utilities::Utilities(DOMElement* root,
@@ -64,6 +61,7 @@ Utilities::Utilities(DOMElement* root,
     score = NULL;
   }
 
+
   // Construct Envelope library
   DOMElement* envelopeLibraryElement = root->GFEC()->GNES()->GNES();
   string envLibContent = XMLTranscode(envelopeLibraryElement);
@@ -77,153 +75,182 @@ Utilities::Utilities(DOMElement* root,
   string deleteCommand = "rm " + fileString;
   system(deleteCommand.c_str());
 
+  // Construct Markov Model Library
+  DOMElement* markovModelLibraryElement = envelopeLibraryElement->GNES();
+  char* text = XMLString::transcode(markovModelLibraryElement->getTagName());
+  string tagName = text;
+  XMLString::release(&text);
+  if (tagName != "MarkovModelLibrary") {
+    cout << "Project is outdated, please save the project in the latest version of DISSCO" << endl;
+    exit(1);
+  }
+  string data = XMLTC(markovModelLibraryElement);
+  std::stringstream ss(data);
+  int size;
+  ss >> size;
+  markovModelLibrary.resize(size);
+  string modelText, line;
+  getline(ss, line, '\n');
+  for (int i = 0; i < size; i++) {
+    getline(ss, line, '\n');
+    modelText = line + '\n';
+    getline(ss, line, '\n');
+    modelText += line + '\n';
+    getline(ss, line, '\n');
+    modelText += line + '\n';
+    getline(ss, line, '\n');
+    modelText += line;
+    markovModelLibrary[i].from_str(modelText);
+    markovModelLibrary[i].normalize();
+  }
+
 
   //events and other objects
 
-  DOMElement* eventElements = envelopeLibraryElement->GNES();
+  DOMElement* eventElements = markovModelLibraryElement->GNES();
   DOMElement* thisEventElement = eventElements->GFEC();
-
   //Counters to assign numbers to the events. Experimental
 
-  int topCounter = 0;
-  int highCounter = 0;
-  int midCounter = 0;
-  int lowCounter = 0;
-  int bottomCounter = 0;
-  int spectrumCounter = 0;
-  int envelopeCounter = 0;
-  int sieveCounter = 0;
-  int spatializationCounter = 0;
-  int patternCounter = 0;
-  int reverbCounter = 0;
-  int filterCounter = 0;
-  int notesCounter = 0;
+   int topCounter = 0;
+   int highCounter = 0;
+   int midCounter = 0;
+   int lowCounter = 0;
+   int bottomCounter = 0;
+   int spectrumCounter = 0;
+   int envelopeCounter = 0;
+   int sieveCounter = 0;
+   int spatializationCounter = 0;
+   int patternCounter = 0;
+   int reverbCounter = 0;
+   int filterCounter = 0;
+   int notesCounter = 0;
 
-  //put the pointer of events and objects into the proper map
-  while(thisEventElement){
-    int type = atoi(XMLTranscode(thisEventElement->GFEC()).c_str());
-    string eventName=  XMLTranscode(thisEventElement->GFEC()->GNES());
+   //put the pointer of events and objects into the proper map
+   while(thisEventElement){
+     int type = atoi(XMLTranscode(thisEventElement->GFEC()).c_str());
+     string eventName=  XMLTranscode(thisEventElement->GFEC()->GNES());
 
-    switch (type){
-      case 0:
-        topEventElements.insert(
-              pair<string, DOMElement*>(eventName, thisEventElement));
+     switch (type){
+       case 0:
+         topEventElements.insert(
+               pair<string, DOMElement*>(eventName, thisEventElement));
 
-        topEventnames.insert(
-              pair<int, string>(topCounter, eventName));
+         topEventnames.insert(
+               pair<int, string>(topCounter, eventName));
 
-        eventValues.insert(
-              pair<string, double>(eventName, 0.0));
+         eventValues.insert(
+               pair<string, double>(eventName, 0.0));
 
-        break;
-      case 1:
-        highEventElements.insert(
-              pair<string, DOMElement*>(eventName, thisEventElement));
+         break;
+       case 1:
+         highEventElements.insert(
+               pair<string, DOMElement*>(eventName, thisEventElement));
 
-        highEventnames.insert(
-              pair<int, string>(highCounter, eventName));
+         highEventnames.insert(
+               pair<int, string>(highCounter, eventName));
 
-        eventValues.insert(
-              pair<string, double>(eventName, 0.0));
+         eventValues.insert(
+               pair<string, double>(eventName, 0.0));
 
-        break;
-      case 2:
-        midEventElements.insert(
-              pair<string, DOMElement*>(eventName, thisEventElement));
+         break;
+       case 2:
+         midEventElements.insert(
+               pair<string, DOMElement*>(eventName, thisEventElement));
 
-              midEventnames.insert(
-                    pair<int, string>(midCounter, eventName));
+               midEventnames.insert(
+                     pair<int, string>(midCounter, eventName));
 
-                    eventValues.insert(
-                          pair<string, double>(eventName, 0.0));
+                     eventValues.insert(
+                           pair<string, double>(eventName, 0.0));
 
-        break;
-      case 3:
-        lowEventElements.insert(
-              pair<string, DOMElement*>(eventName, thisEventElement));
+         break;
+       case 3:
+         lowEventElements.insert(
+               pair<string, DOMElement*>(eventName, thisEventElement));
 
-              lowEventnames.insert(
-                    pair<int, string>(lowCounter, eventName));
+               lowEventnames.insert(
+                     pair<int, string>(lowCounter, eventName));
 
-                    eventValues.insert(
-                          pair<string, double>(eventName, 0.0));
+                     eventValues.insert(
+                           pair<string, double>(eventName, 0.0));
 
-        break;
-      case 4:
-        bottomEventElements.insert(
-              pair<string, DOMElement*>(eventName, thisEventElement));
+         break;
+       case 4:
+         bottomEventElements.insert(
+               pair<string, DOMElement*>(eventName, thisEventElement));
 
-              bottomEventnames.insert(
-                    pair<int, string>(bottomCounter, eventName));
+               bottomEventnames.insert(
+                     pair<int, string>(bottomCounter, eventName));
 
-                    eventValues.insert(
-                          pair<string, double>(eventName, 0.0));
+                     eventValues.insert(
+                           pair<string, double>(eventName, 0.0));
 
-        break;
-      case 5:
-        spectrumElements.insert(
-              pair<string, DOMElement*>(eventName, thisEventElement));
+         break;
+       case 5:
+         spectrumElements.insert(
+               pair<string, DOMElement*>(eventName, thisEventElement));
 
-              spectrumEventnames.insert(
-                    pair<int, string>(spectrumCounter, eventName));
+               spectrumEventnames.insert(
+                     pair<int, string>(spectrumCounter, eventName));
 
-                    eventValues.insert(
-                          pair<string, double>(eventName, 0.0));
+                     eventValues.insert(
+                           pair<string, double>(eventName, 0.0));
 
-        break;
-      case 6:
-        envelopeElements.insert(
-              pair<string, DOMElement*>(eventName, thisEventElement));
+         break;
+       case 6:
+         envelopeElements.insert(
+               pair<string, DOMElement*>(eventName, thisEventElement));
 
-              envelopeEventnames.insert(
-                    pair<int, string>(envelopeCounter, eventName));
-        break;
-      case 7:
-        sieveElements.insert(
-              pair<string, DOMElement*>(eventName, thisEventElement));
+               envelopeEventnames.insert(
+                     pair<int, string>(envelopeCounter, eventName));
+         break;
+       case 7:
+         sieveElements.insert(
+               pair<string, DOMElement*>(eventName, thisEventElement));
 
-              sieveEventnames.insert(
-                    pair<int, string>(sieveCounter, eventName));
-        break;
-      case 8:
-        spatializationElements.insert(
-              pair<string, DOMElement*>(eventName, thisEventElement));
+               sieveEventnames.insert(
+                     pair<int, string>(sieveCounter, eventName));
+         break;
+       case 8:
+         spatializationElements.insert(
+               pair<string, DOMElement*>(eventName, thisEventElement));
 
-              spatializationEventnames.insert(
-                    pair<int, string>(spatializationCounter, eventName));
-        break;
-      case 9:
-        patternElements.insert(
-              pair<string, DOMElement*>(eventName, thisEventElement));
+               spatializationEventnames.insert(
+                     pair<int, string>(spatializationCounter, eventName));
+         break;
+       case 9:
+         patternElements.insert(
+               pair<string, DOMElement*>(eventName, thisEventElement));
 
-              patternEventnames.insert(
-                    pair<int, string>(patternCounter, eventName));
-        break;
-      case 10:
-        reverbElements.insert(
-              pair<string, DOMElement*>(eventName, thisEventElement));
+               patternEventnames.insert(
+                     pair<int, string>(patternCounter, eventName));
+         break;
+       case 10:
+         reverbElements.insert(
+               pair<string, DOMElement*>(eventName, thisEventElement));
 
-              reverbEventnames.insert(
-                    pair<int, string>(reverbCounter, eventName));
-        break;
-      case 12:
-        notesElements.insert(
-              pair<string, DOMElement*>(eventName, thisEventElement));
+               reverbEventnames.insert(
+                     pair<int, string>(reverbCounter, eventName));
+         break;
+       case 12:
+         notesElements.insert(
+               pair<string, DOMElement*>(eventName, thisEventElement));
 
-              notesEventnames.insert(
-                    pair<int, string>(notesCounter, eventName));
-        break;
-      case 13:
-        filterElements.insert(
-              pair<string, DOMElement*>(eventName, thisEventElement));
+               notesEventnames.insert(
+                     pair<int, string>(notesCounter, eventName));
+         break;
+       case 13:
+         filterElements.insert(
+               pair<string, DOMElement*>(eventName, thisEventElement));
 
-              filterEventnames.insert(
-                    pair<int, string>(filterCounter, eventName));
-        break;
-    }
-    thisEventElement = thisEventElement->GNES();
-  }
-}
+               filterEventnames.insert(
+                     pair<int, string>(filterCounter, eventName));
+         break;
+     }
+     thisEventElement = thisEventElement->GNES();
+   }
+ }
+
 
 
 //----------------------------------------------------------------------------//
@@ -326,7 +353,6 @@ double Utilities::evaluate(std::string _input, void* _object){
   if (_input =="") return 0;
 
   string workingString = _input;
-
   // Test if there is any function in this string (look for <Fun>), if so,
   // replace the function with the evaluated number. Repeat until all the
   // functions are replaced by numbers.
@@ -380,6 +406,7 @@ bool Utilities::isSieveFunction(DOMElement* input)
 void* Utilities::evaluateObject(string _input,
                                 void* _object,
                                 EventType _returnType){
+
   //remove any spaces
   string input =  removeSpaces( _input);
 
@@ -565,6 +592,10 @@ string Utilities::evaluateFunction(string _functionString,void* _object){
   else if (functionName.compare("GetPattern")==0){
     resultString = function_GetPattern(root, _object);
   }
+  else if (functionName.compare("Markov") == 0) {
+    resultString = function_Markov(root, _object);
+  }
+
   else if (functionName.compare("Randomizer")==0){
     resultString = function_Randomizer(root, _object);
   }
@@ -603,11 +634,7 @@ string Utilities::evaluateFunction(string _functionString,void* _object){
   }
 
   else if (functionName.compare("CURRENT_CHILD_NUM")==0){
-    //resultString = static_function_CURRENT_CHILD_NUM( _object);
-    char buffer[50];
-    sprintf(buffer, "%d", currChild);
-    resultString = string(buffer);
-    currChild++;
+    resultString = static_function_CURRENT_CHILD_NUM( _object);
   }
 
   else if (functionName.compare("CURRENT_PARTIAL_NUM")==0){
@@ -790,6 +817,18 @@ string Utilities::function_Inverse(DOMElement* _functionElement, void* _object){
   return string(result);
 }
 
+
+string Utilities::function_Markov(DOMElement* _functionElement, void* _object) {
+  DOMElement* elementIter = _functionElement->GFEC()->GNES();
+  int entry = (int)evaluate(XMLTranscode(elementIter), _object);
+
+  float resultNum = markovModelLibrary[entry].nextSample(Random::Rand());
+  cout << "Markov picked " << resultNum << endl;
+  char result [50];
+  sprintf(result, "%f", resultNum);
+  return string(result);
+}
+
 //----------------------------------------------------------------------------//
 
 string Utilities::function_LN(DOMElement* _functionElement, void* _object){
@@ -805,22 +844,21 @@ string Utilities::function_LN(DOMElement* _functionElement, void* _object){
 
 //----------------------------------------------------------------------------//
 
-string Utilities::function_Fibonacci(DOMElement* _functionElement, void* _object){ /* not implemented in LASSIE
-    return_type = FVAL_NUMBER;
-  vector<FileValue*> args = EvaluateArgs(1, FVAL_NUMBER);
-  float arg1 = args[0]->getInt();
+string Utilities::function_Fibonacci(DOMElement* _functionElement, void* _object){
+  DOMElement* elementIter = _functionElement->GFEC()->GNES();
+  int entry = evaluate(XMLTranscode(elementIter ),_object);
 
   int numA = 1;
   int numB = 1;
-  for (int i = 3; i <= arg1; i++) {
+  for (int i = 3; i <= entry; i++) {
     int swap = numB;
     numB += numA;
     numA = swap;
   }
-  n = numB;
-  */
-  cout<<"Utilities: function_Fibonacci is not implemented in LASSIE"<<endl;
-  return "0";
+  int resultNum = numB;
+  char result [50];
+  sprintf(result, "%i",  resultNum);
+  return string(result);
 }
 
 //----------------------------------------------------------------------------//
@@ -1048,15 +1086,6 @@ Sieve* Utilities::sieve_ValuePick(DOMElement* _functionElement, void* _object){
   int minVal = (int)floor( envLow->getScaledValueNew(checkpoint, 1) * absRange + 0.5);
   int maxVal = (int)floor( envHigh->getScaledValueNew(checkpoint, 1) * absRange + 0.5);
 
-/*
-   float lowVal = envLow->getScaledValueNew(checkpoint, 1);
-   float highVal = envHigh->getScaledValueNew(checkpoint, 1);
-   cout << "Utilities::ValuePick - checkpoint=" << checkpoint << " envLow="
-        << lowVal  << " envHigh=" << highVal << endl;
-   cout << "	 absRange=" << absRange << " minVal=" << minVal << " maxVal="
-        << maxVal << endl;
-*/
-
   Sieve si;
   if (eMethod == "MODS") {
       si.BuildFromExpr(minVal, maxVal,
@@ -1109,7 +1138,6 @@ string Utilities::function_MakeList(DOMElement* _functionElement, void* _object)
 /*
   char result [50];
   sprintf(result, "%f",  evaluate( list[index], _object));
-
   return string(result);
 */
     vector<int> intList;
@@ -1119,7 +1147,7 @@ string Utilities::function_MakeList(DOMElement* _functionElement, void* _object)
       if (num <= bound) {
         intList.push_back(num);
       } else {
-	return "intList";
+  return "intList";
       }
     }
 
@@ -1256,7 +1284,7 @@ string Utilities::function_RandomDensity(DOMElement* _functionElement, void* _ob
   // sample from the count table
   double rand = Random::Rand(0, 1);
   double resultNumber = env.sample(rand) * (highBound - lowBound) + lowBound;
-  cout << "lowbound: " << lowBound << ", highbound: " << highBound << ", result: " << resultNumber << endl;
+  // cout << "lowbound: " << lowBound << ", highbound: " << highBound << ", result: " << resultNumber << endl;
 
   char result [50];
   sprintf(result, "%lf", resultNumber);
@@ -2012,4 +2040,15 @@ Envelope* Utilities::makeEnvelope(DOMElement* _functionElement, void* _object){
 
   return madeEnv;
 
+}
+
+//get the envelope shape in env lib corresponding to env_num
+Envelope* Utilities::getEnvelopeshape(int env_num, double scale){
+    Envelope* env = envelopeLibrary->getEnvelope(env_num);
+    if (env == NULL){
+      cout << "Error in getEnvelopeShape: env_num exceeds size of EnvLibrary" << endl;
+      return NULL;
+    }
+    env->scale(scale);
+    return env;
 }

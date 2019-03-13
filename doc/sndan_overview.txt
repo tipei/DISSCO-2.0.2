@@ -1,0 +1,91 @@
+                SNDAN: SIGNAL ANALYSIS, GRAPHICS, PROCESSING, 
+			AND SYNTHESIS ROUTINES FOR UNIX
+
+Several programs are available for spectrum analysis, modification, and
+resynthesis. One group of programs converts signal files into "analysis
+files", which contain data for partial amplitudes, frequencies, and phases.
+Another group is used to view data, either in signal or analysis form. A
+third group includes programs to modify the analysis data. The fourth type
+is used to synthesize signal files from analysis files.
+
+Signal files can be of four types, headerless float, headerless short int,
+NeXT with short ints or floats, and WAVE with short ints. These have
+extensions .fp, .sh, .snd, and .wav, respectively. An *.fp file consists of
+a sequence of 32-bit floating point numbers (IEEE standard). A *.sh file
+consists of a sequence of 16-bit binary integer numbers. A *.snd file
+consists of a NeXT standard header followed by a series of 16-bit integers
+or 32-bit floats. A *.wav file consists of a WAVE header followed by a
+series of 16-bit integers. .fp, .sh, and .snd files are assumed to be in
+big-endian byte order, whereas .wav files are in little-endian order. Any
+of the files can have 1 or 2 channels (samples alternate between channels 1
+and 2), although currently most programs can only handle monaural sound
+files. Stereo files can be converted to monaural using programs 'fixsnd' or
+'fixwav' (left channel of 44100 stereo file to 22050 monaural file) or
+'fixsndR' or 'fixwavR' (right channel of stereo file to monauarl file).
+
+Signal files can be graphed using the program sp. It allows control of both
+the time and amplitude scales of the graph. Graphs can be directly printed
+or saved as .esp files and pasted into documents.
+
+The program sextract can be used to extract individual sounds from a sound
+file containing a sequence of these sounds and put them in separate sound
+files.
+
+Spectral analysis can be performed by either pvan (phase vocoder analysis)
+or mqan (spectral tracking analysis). Two types of analysis files are
+currently used. One (with extension .an) is restricted to harmonic
+partials. All frequencies are assumed to be approximately harmonically
+related to a fundamental, which is also the frequency of analysis. The
+other (with extension .mq) can have frequencies of any relationship.
+Another difference is that *.an files have a fixed number of partials
+(harmonics), whereas with *.mq files, the number of partials varies with
+time throughout the sound's duration. In both cases, each component has an
+amplitude and frequency for each analysis frame; the .mq representation
+includes a phase value for each frame. *.an representations are most
+appropriate for sounds with fixed definite pitch. *.mq is better for sounds
+with indefinite pitch, inharmonic partials, and/or variable pitch.
+
+The program pvan directly produces an .an file from a signal file. It is
+based on the well-known phase vocoder algorithm, except our version is
+pitch-synchronous. That is to say, pvan aligns its window with the
+specified fundamental frequency of the sound to be analyzed. gopvan is a
+script which allows the user to enter information for pvan interactively
+and then runs the pvan job in the background. In a similar fashion, mqan
+(gomqan) directly produces a .mq file. It is based on the spectral tracking
+algorithm of McAulay and Quatieri. Moreover, the tracks in .mq files can be
+reduced to harmonics for .an files by a two-step procedure. The first step
+is to process the .mq file using the program fcheck to determine its
+fundamental frequency contour. The second step is to to process the
+frequency contour and .mq data with the program harmformat to produce a
+final .an file. The steps, mqan, fcheck, and harmformat are combined within
+the script gomqhfan. The two methods of producing an .an file give similar
+results, but there are advantages to each. pvan is more robust, but only
+works well for sounds with a nearly constant pitch (i.e., less than +-2%
+frequency variation). mqan -> fcheck -> harmformat is less robust, but it
+is capable of handling wide pitch variations. Several script files are
+available for the user to interactively give analysis parameters and to
+automate the analysis processes. Examples are gomqan and gomqhfan.
+
+Several graphics programs are available for viewing signals and spectral
+data. On the NeXT and other computers, the data is shown using a Postscript
+viewer (e.g., Preview on the NeXT or ghostview under X Windows). Whereas sp
+is a program for viewing the waveform of a signal, monan is a program which
+views spectral data of .an files, and mqdispp and mqdistr are programs for
+viewing spectral data of .mq files. In any case, the graphs are based on
+.eps files which are generated and these can be directly printed or pasted
+into documents.
+
+Modification of .an file data can be accomplished using monan. Synthesis of
+.an files (using additive synthesis) can be done with addsyn, addsyn1,
+addsyn2, adsyn3, monan, or by using the as.t instrument of Music 4C (a
+separate package). Synthesis of .mq files (using additive synthesis) can be
+done using the program mqsyn2.
+
+Note that monan combines the activities of parameter viewing, modification,
+and additive synthesis. AnView, a NeXT GUI application, combines these same
+activities plus the activities of pvan and mqan.
+
+For more details on how monan, pvan, mqan, sp and other programs work, see
+the individual documentations for these programs.
+___________________________________________________________________________
+James Beauchamp 05/09/98
