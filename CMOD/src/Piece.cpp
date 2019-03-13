@@ -220,7 +220,7 @@ void Piece::Print() {
 
 
 Piece::Piece(string _workingPath, string _projectTitle){
-  for(int i = 0; i < 3; i++){
+  for(int i = 0; i < 1; i++){
 
   path = _workingPath;
   projectName = _projectTitle;
@@ -300,12 +300,11 @@ Piece::Piece(string _workingPath, string _projectTitle){
     Print();
   }
 
-  //Modify the XML file - Eperimental
+  /*//Modify the XML file - Eperimental
   string evName = utilities->topEventnames.at(0);
   EventType evType = (EventType)0;
   utilities->currChild = 0;
 
-  cout<<"MARKER";
   DOMElement* topEvEl = utilities->getEventElement(evType, evName);
   vector<DOMElement*> children = calculateAesthetic(topEvEl);
 
@@ -338,7 +337,7 @@ Piece::Piece(string _workingPath, string _projectTitle){
 
   //pieceAesthetic /= numUniqueEvents;
   //cout<<"Piece aesthetic: "<<pieceAesthetic<<endl;
-
+*/
   //Create the Top event and recursively build its children.
   DOMElement* topElement = utilities->getEventElement(eventTop, fileList);
   utilities->currChild = 0;
