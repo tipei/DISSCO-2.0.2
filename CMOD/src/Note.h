@@ -2,14 +2,6 @@
 CMOD (composition module)
 Copyright (C) 2005  Sever Tipei (s-tipei@uiuc.edu)
 
-
-   Update:
-   This class is not yet implemented in the XML version of CMOD.
-
-                                            --Ming-ching Chiu May 06 2013
-
-
-
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
@@ -43,6 +35,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 static int sBeat;
 static int eBeat;
+
+//static Sieve attackSieve;
+//static Sieve durSieve;
 
 /**
  *  Constructor
@@ -172,12 +167,13 @@ class Note {
  //   bool is_attach_mark(string mod_name);
 
     /**
-     *   Spells note attributes: start time, duration in fractions equivalent
-     *   to Traditional notation note values and marking bar lines.
-     *   Adds pitch, dynamics and playing techniques.
-     *   \param
+     *  Gets the start time and duration of a sound,
+uses validateSound
+       and inserts each sound in a vector (insert_soundsOnly)
+     *   \param startEDU, stime in EDUs
+     *   \param durationEDU, duration of the sound in EDUs
     **/
-    void notateDurations( string aName, string startEDU, string durationEDU);
+    void collectSounds( string startEDU, string durationEDU);
 
   /**
     * When a note's duration is longer than barEDU, this function splits
@@ -202,8 +198,8 @@ class Note {
        \param none
        \output: none
      **/
-    void notate();
-
+    int notate(int in_tuple, int tuple_end);
+    int notate_rest(int in_tuple, int tuple_end);
 
   /**
     * Some duration need two notes to notate, such notation is marked
@@ -217,21 +213,19 @@ class Note {
 
 
    /**
-    *            not in use ?
-    *
-    * Sorts the note into a vector and keep the vector in time
-    *  increasing order
+    * Inserts the notes after processing including rests into a vector
+    *  and keep the vector in time increasing order
     *  \input: Note * n - pointer to a note
     **/
-  static void sort_notes(Note * n);
+  static void insert_soundsAndRests(Note * n);
 
   /**
-  * Sorts individual note into a vector and keeps the vector in time
-  *  increasing order (for original notes). This function is similar to prev
-  *  one but sorts notes into another vector.
+  * Insertsindividual note into a vector and keeps the vector in time
+  *  increasing order (for sounds only. This function is similar to prev
+  *  one but inserts notes into another vector.
   *  \param Note * n - pointer to a note
   **/
-  static void sort_notes_orig(Note * n);
+  static void insert_soundsOnly(Note * n);
 
 
   /**
@@ -240,7 +234,7 @@ class Note {
    *  Then each note is converted to a corresponding notation
    *								-shenyi
    **/
-  static void make_valid();
+  static void addRests();
 
   /**
    *
@@ -248,15 +242,51 @@ class Note {
    *  \param &time2  current start time
    *  \param loud    previous loudness
    **/
-  static void verify_rests(int &time1, int & time2, string loud);
+  static void validate_rests(int &time1, int & time2, string loud);
 
   /**
-   * Checks if time is valid, if it is not, change it to closest
-   *  valid value
-   *  \input: int &time - (reference) time to be verified
+   * Checks if start time and end time are valid, if not, change them
+   *  to the closest valid values.
+   *  \param int &stime - (reference) start time to be verified
+   *  \param int &endTime - (reference) endTime to be verified
    **/
-   void verify_valid(int &stime, int &endTime);
+   void validateSound(int &stime, int &endTime);
 
+  /**
+   *
+   **/
+   void validateSoundsAndRests ();
+
+  /**
+   * Creates a rest
+   *  \parm stime
+   *  \parm endTime
+   *  \parm loud
+   **/
+  static Note * createRest (int stime, int endTime, string loud, int & next_st);
+
+  /**
+   * Checks if a value (stime, endTime, duration) matches a valid time
+   *  point or duration (available in standard Western notation)
+   *  \param value
+   **/
+  int checkValue(int & value);
+
+  /**
+   * Checks and adjusts if necessary a duration so that it can be
+   *  expressed in standard Western notation.
+   *  \param stime
+   *  \param endtime
+   **/
+   void checkDuration (int & stime, int & endTime);
+
+  /**
+   * Finds the closest valid time to an existing invalid time
+   *  \param remain
+   *  \param dur
+   *  \param beatNum
+   **/
+   int closestVal(int remain, int dur, int beatNum);
 
   /**
     *      not in use
@@ -293,6 +323,12 @@ class Note {
      **/
     string new_convert_dur_to_type(int dur);
 
+
+    void verify_rests(int &time1, int &time2, string loud);
+
+
+
+
 };
 
 //extern string convert_dur_to_type(int dur);
@@ -302,10 +338,10 @@ extern int beatEDUs;
 extern string timesignature;
 
 //a vector holds the pointers to all the notes after processing
-extern vector<Note*> all_notes;
+extern vector<Note*> soundsAndRests;
 
-//a vector holds the pointers to all the original notes
-extern vector<Note*> all_notes_orig;
+//a vector holds the pointers to all the sounds (no rests)
+extern vector<Note*> soundsOnly;
 
 //helper functions
 extern int str_to_int(string s);
