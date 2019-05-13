@@ -1,0 +1,8 @@
+Gen_spectrum is a new function inserted into spectral envelopes which allows user to generate spectrum based on distance. If the generate_spectrum entry in .dissco is not empty, bottom.cpp automatically turns to generate spectrum instead of using partials provided.The spectral envelopes acting as data points come from spectral envelope of a clarinet under different frequency and dynamics. 
+The changes in CMOD lies in bottom.cpp. The DOMElement for partials are all pushed back for the inserted gen_spectrum. If Gen_Spectrum entry is not empty, buildSound would generate spectrum based on interpolation of data points; else, go to usual routine of adding partials.
+In LASSIE, a function called Generate_Spectrum is added and an entry in Spectrum folder is added. Files changed includes FunctionGenerator, EventAttributesViewController, IEvent and two UI files. To add a entry in LASSIE, the following has to be done: 
+1.Widgets and corresponding functions has to be added(this could be done following existing examples).
+2.The new changes should be reflected in the corresponding UI file.
+3.Add the new entries to the XML file in IEvent following XML format.
+4.Properly handle the building event from XML files. If the reading/building function from .dissco to DOMElement is not updated, the program would run into segfault whenever openning the updated file. The old .dissco files that do not have the inserted new entry should also be considered, some if statements may be helpful.
+5.Add view or new windows if needed.
