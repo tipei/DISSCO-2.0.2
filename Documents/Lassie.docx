@@ -1,0 +1,147 @@
+﻿LASSIE structure
+
+Overview:
+Lassie uses Gtk library to create a user interface and write all acquired data into a .dissco file which is written in XML format. Folder UI contains all .ui files that describes the details of the interface, including arrangement of labels, entries, alignments, buttons, .etc. All .ui files are linked to their corresponding .cpp files via Gtk builders, while the objects(entries, buttons) are connected (by get_widget) to local gtk objects that are defined and manipulated in local functions.
+Some classes represent real windows such as FunctionGenerator, MainWindow and ObjectWindow, while others serve to organize the picture behind the screen, such as Ievent and SharedPointers. Basically, mainWindow.cpp is the root of the whole organization, where ProjectViewController organize the details and views of a project, taking care of events, windows and operations. It gathers all information and write it into the aforementioned .dissco file. UpgradeProjectFormat, used to upgrade project from old format to XML format, has its own main function and is usually unused.
+
+Main.cpp: 
+Main function of the module.
+creates Gtk function
+creates a MainWindow object
+runs MainWindow
+
+MainWindow:
+Root of project structure, all other structures resides on it. Mainly deals with menu options and uses ProjectViewController and EnvelopeLibraryWindow.
+Linked with SynthesizeDialog.ui.
+Derived from Gtk::Window.
+calls Gtk::UIManager; Gtk::ActionGroup (see how ActionGroup is used to create files, etc.)
+establishes XML UI block
+UIManager reads an XML text to layout the menu
+creates and manages files: 
+creates NewProject, ex. menuFileOpen()
+#include ProjectViewController, FileOperations, HelpOperations. EnvelopeLibraryWindow
+uses yyparser
+
+IEvent:     
+The class that stores information regarding to all events, using different extraInfo classes for different types of events. However, it does not directly deal with the interface; EventAttributesViewController does the job.
+How GTK+ handles input.
+Useful ?? gtk.gdk.Event — an object representing an event from the windowing system
+(GdkDragContext   ??)
+creates event classes/objects for every entry: EventDiscretePackage, EventLayer, EventExtraInfo, EventBottomModifier, Envelope, Pattern, Spatialization, etc.
+set and get methods
+writes to the XML file with correct syntax after user fills in data for each widget
+marked as TODO: void Ievent::makeSuperColliderCode()
+
+ObjectWindow:   
+Takes care of the object folders and object window.
+Linked to ObjectWindow.ui.
+Derived from Gtk::Window.
+gtk.Object is the base class for all widgets, and for a few non-widget objects such as gtk.Adjustment. gtk.Object predates GObject; non-widgets that derive from gtk.Object rather than GObject do so for backward compatibility reasons.
+needs: MainWindow, ProjectViewController and IEvent classes
+#include PaletteViewController.h as well in .cpp
+class ObjectWindow: public Gtk::Window
+detects errors
+manages window, widgets appearance
+gets the information for each object (IEvent ?): Top, High,... Spectrum,... Note, Filter.
+GetPalette() for each type (Top, High, Bottom, Spa, Filter, etc.)
+activeProject->getPalette()->getObjectsLinkedList("Top")
+activates/removes projects
+changes sizes
+
+ProjectViewController:
+Keeps comprehensive information of a project and take care of project operations such as save and show.
+Derived from Gtk::VBox.
+Both the TreeView and the ComboBox widgets are built on the Model/View/Controller design. The Model (an implementation of Gtk.TreeModel, usually Gtk.TreeStore or Gtk.ListStore) stores the data; the View (e.g. Gtk.TreeView, Gtk.ComboBox, or Gtk.ComboBoxText) gets change notifications and displays the content of the model. The Controller, finally, changes the state of the model (via some methods in the model's implementation - such as append() or remove()) and notifies the view of these changes (via signals like "changed").
+uses yyparser
+creates new IEvent() object/class 
+creates new ObjectWindows for each type of event, siv, pattern, reverb, filter, note, etc.
+shows contents of the above by creating new IEvents
+creates and handles ObjectWindows
+pointer to PaletteViewController paletteView.
+IEvent* top
+
+PaletteViewController:  
+Communicates between the project and the interface.
+Connected to PaletteInsertTypeMismatch.ui, FileNewObject.ui, CheckObjectNameExists.ui, ProjectPropertiesDialog.ui, NoteModifiersConfiguration.ui. 
+Derived from Gtk::Vbox.
+A ToolPalette allows you to add ToolItems to a palette-like container with various categories and drag and drop support. 
+#includes: IEvent, ProjectViewController, ObjectWindow, MainWindow, EventAttributesController, SharePointers. 
+loads the GtkBuilder
+ more detailed access to buttons, cursor, rows, columns, etc. (?) 
+delete, duplicate, inserts windows
+right click
+drag and drop functionality
+refreshes windows
+
+EventAttributesViewController:
+Responsible for putting current shown event onto the screen using information defined in IEvent.
+Linked to Attributes.ui, BottomSubAttributes.ui, SoundAttributes.ui, Modifier.ui.
+Derived from Gtk::Frame.   
+#include IEvent, ProjectViewController. PaletteViewController, MainWindow, FunctionGenerator, SharedPointers.
+Hbox, VBox (?)
+creates buttons for all places of input (one-by-one) inside widgets
+connects childEventDef buttons to proper functions, alignments, 
+detail handling of every detail
+
+EnvelopeLibraryEntry:
+Use EnvLibEntryNode and EnvLibEntrySeg to record the information of an envelope entry. Data is stored in double linked list.
+
+EnvelopeLibraryWindow:
+Connect the data from EnvelopLibraryEntry to the interface.
+Connected to EnvelopeLibraryWindow.ui.
+Derived from Gtk::Window.
+
+EnvLibDrawingArea:
+Use cairo to show envelope curves on the screen and allow user to modify it.
+Derived from Gtk::DrawingArea.
+
+FunctionGenerator:
+Handles all function interfaces from Insert Function button and also defines several subalignments.
+Connected to FunctionGenerator.ui, FunGenSelectSubAlignment.ui, FunGenStochosSubAlignment.ui, FunGenMakeEnvelopeSubAlignment.ui, FunGenSPAPartialAlignment.ui.
+Derived from Gtk::Dialog.
+
+FileOperations:
+Serve as helper functions regarding file operations.
+
+
+
+
+
+
+
+
+
+
+
+UI directory:   
+
+A Gtk::UIManager constructs a user interface (menus and toolbars) from one or more UI definitions, which reference actions from one or more action groups.
+
+Stores the user interface configuration for a program; saved in an XML format and contains definitions of Qt widgets with slots and signals;
+The QWidget class provides the basic capability to render to the screen, and to handle user input events. All UI elements that Qt provides are either subclasses of QWidget, or are used in connection with a QWidget subclass. Creating custom widgets is done by subclassing QWidget or a suitable subclass and reimplementing the virtual event handlers.
+Window and Dialog Widgets 
+Application Main Window 
+Dialog Windows 
+Keyboard Focus in Widgets 
+
+Attributes.ui:    
+FileNewObject.ui:
+etc.
+
+
+
+
+
+
+
+	https://developer.gnome.org/gnome-devel-demos/stable/gmenu.py.html.en
+
+ComboBox (one column)A widget used to choose from a list of items
+ComboBox (two columns)A widget used to choose from a list of items
+
+
+                                    https://developer.gnome.org/gnome-devel-demos/stable/model-view-controller.py.html.en
+
+Both the TreeView and the ComboBox widgets are built on the Model/View/Controller design. The Model (an implementation of Gtk.TreeModel, usually Gtk.TreeStore or Gtk.ListStore) stores the data; the View (e.g. Gtk.TreeView, Gtk.ComboBox, or Gtk.ComboBoxText) gets change notifications and displays the content of the model. The Controller, finally, changes the state of the model (via some methods in the model's implementation - such as append() or remove()) and notifies the view of these changes (via signals like "changed").
+
+                                     What is the difference between Object and IEvent ?
