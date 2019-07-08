@@ -179,30 +179,14 @@ class Note {
     **/
     void notateDurations( string aName, string startEDU, string durationEDU);
 
-  /**
-    * When a note's duration is longer than barEDU, this function splits
-    *  the middle part of the note (exclude the starting bar and ending bar)
-    *: \param int bar_diff - difference between starting bar and ending bar
-    *  \output: string contains notation of middle part of the note
-    **/
-    string split_bars(int bar_diff);
 
-    /**
-     *      not in use ?
-     *
-     * Converts duration (in EDU) to a string representing the type of the
-     * note(s)
-     * \param dur - duration of the note
-     * \output: string
-     **/
-    string convert_dur_to_type(int dur);
 
     /**
      * Main function that set up all variables for output score
        \param none
        \output: none
      **/
-    void notate();
+    int notate(int tuplet);
 
 
   /**
@@ -233,6 +217,7 @@ class Note {
   **/
   static void sort_notes_orig(Note * n);
 
+  void loudness_and_modifiers();
 
   /**
    * Checks if the gap between two notes(dur of a rest sign) is valid. If not,
@@ -248,7 +233,7 @@ class Note {
    *  \param &time2  current start time
    *  \param loud    previous loudness
    **/
-  static void verify_rests(int &time1, int & time2, string loud);
+  static void adjust_notes ();
 
   /**
    * Checks if time is valid, if it is not, change it to closest
@@ -257,41 +242,25 @@ class Note {
    **/
    void verify_valid(int &stime, int &endTime);
 
+   //// ---- functions added by haorong at June 12 ---- ////
 
-  /**
-    *      not in use
-    **/
-    string split_internal(int dur);
-
-  /**
-   *            not in use
-   **/
-   bool need_split(int dur, int beatEDUs);
-
-   /**
-    *           not in use
-    **/
-    string split_head(int x);
-
-   /**
-    *           not in use
-    **/
-    string split_tail();
-
-   /**
-    *           not in use
-    **/
-    void split_within_bar();
-
-   /**
-    *           not in use
-    **/
-    void split_across_bar(int bar_diff);
+    void note_in_tuplet(int tup_type, int dur);
 
     /**
-     *          not in use
+     * insert new note in to all_notes_bar in order.
      **/
-    string new_convert_dur_to_type(int dur);
+    static void insert_note(Note* n);
+
+    /**
+      * close every vector in all_notes_bar with bar;
+      **/
+    static void add_bars();
+
+    static void add_rests();
+
+    static void free_all_notes();
+    // ----------------------------------------------- ////
+
 
 };
 
@@ -307,8 +276,16 @@ extern vector<Note*> all_notes;
 //a vector holds the pointers to all the original notes
 extern vector<Note*> all_notes_orig;
 
+//a 2D vector holds the notes divided by bars(added by haorong at June 12)
+extern vector<vector<Note*>*> all_notes_bar;
+
+
+
 //helper functions
 extern int str_to_int(string s);
+extern string int_to_str(int n);
+extern int power(int base, int p);
+extern int check_pow(int dur);
 
 /**
  * Checks if input rational number is a power of 2
@@ -317,10 +294,17 @@ extern int str_to_int(string s);
 **/
 bool is_valid(Rational<int> temp);
 
- /*
-  extern string restsign_dur_to_type(int start_time, int end_time, int dur,
-   int tuplet, int tuplet_s_t);
-  */
+// print all the elements in all_notes vector
+void print_all_notes();
 
+// determine which type of tuplet will fit the input duration
+// eg: if it belongs to a triplet return value will be 3
+// -1 is return for invalid input
+int determine_tuplet(int dur);
+
+// generate the string for notes inside the tuplet
+// sample output: r4~ r16
+// string note_in_tuplet(int tup_type, int dur, string pitch);
+// string note_in_tuplet(int tup_type, Note* n);
 
 #endif /* NOTE_H */

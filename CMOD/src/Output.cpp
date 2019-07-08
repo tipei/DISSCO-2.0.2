@@ -401,10 +401,10 @@ void Output::exportToFOMUS(string filenamePrefix) {
 void output_score(string projectname){
 
   /* no notes to be written */
-  if (all_notes_orig.empty()) {
-    cout << "	empty" << endl;
-     return;
-  }
+  // if (all_notes_orig.empty()) {
+  //   cout << "	empty" << endl;
+  //    return;
+  // }
 
   /* some variables */
   ofstream * fout; 		//output filestream
@@ -417,8 +417,8 @@ void output_score(string projectname){
   int dur_rest;
   string rest;
   string chord_type;
-  int tuplet = 0; 		//tuplet flag
-  int chord = 0; 		//chord flag
+  int tuplet = -1; 		//tuplet flag
+  int chord = 99; 		//chord flag
   Rational<int> temp; 		// temporary variable for print
   int t;
 
@@ -455,99 +455,18 @@ void output_score(string projectname){
 
   /* iterate through the vector of all notes pointers */
   while (it!=all_notes.end()){
-	cur = *it;
-
-	int dif= prev - cur->start_t;
-  	if (dif > 0) {
-	  cout << "output_score - cur->start_t=" << cur->start_t
-           << " cur->end_t=" << cur->end_t << " prev=" << prev
-            << " dif=" << dif << endl;
-        }
-        prev=cur->end_t;
-
-	if ((it+1)!= all_notes.end())
-	   next = *(it + 1);
-	else next = NULL;
-/*
-	if (cur->split == 1){
-	   *fout << cur->type_out;
-	   if (cur->tuplet == 1) tuplet = 1;
-	   prev_time = cur->end_t;
-	   it ++;
-	   continue;
-	} */
-	//check for right bracket
-	if (cur->tuplet == 0 )
-	   if (tuplet ==1 ){
-		tuplet = 0;
-		*fout << " }  " ;
-	   }
-	if (tuplet==1 && cur->start_t >= tuplet_s_t + beatEDUs){
-	   tuplet = 0;
-	   *fout << " } ";
-	}
-
-	// check for chord
-	if (chord == 1 && next!=NULL)
-	   if (next->start_t != cur->start_t){
-		chord = 0;
-		*fout << cur->pitch_out << ">" << chord_type << " ";
-		prev_time = cur->end_t;
-		it ++;
-		continue;
-	   }
-
-
-	//type and pitch
-	if (cur->tuplet == 1)
-		if (tuplet == 0){
-			tuplet = 1;
-			tuplet_s_t = cur->start_t;
-			*fout << "\\tuplet ";
-			*fout << cur->tuplet_name << " { ";
-		}
-
-	//check for chords
-	if (chord == 0 && next!=NULL)
-   	   if (next->start_t == cur->start_t){
-		chord = 1;
-		*fout << "<";
-		chord_type = cur->type_out;
-	   }
-
-	if (chord == 1)
-		*fout << cur->pitch_out;
-	else {
-		*fout << cur->pitch_out << cur->type_out;
-		while (!cur->modifiers_out.empty()){
-			*fout << cur->modifiers_out.back();
-			cur->modifiers_out.pop_back();
-		}
-	}
-	//if (cur->split ==1) *fout << "~";
-
-	//loudness
-	if (cur->loudness_out != loudness_prev && chord == 0){
-			*fout << cur->loudness_out;
-			loudness_prev = cur->loudness_out;
-	}
-	if (cur->split ==1) *fout << "~";
-
-	//if (chord ==1 ) chord_out = cur->type_out;
-	*fout << " ";
-	prev_time = cur->end_t;
-	it ++;
+  	cur = *it;
+    *fout << cur->type_out;
+    it++;
   }
 
-  if (chord == 1) *fout << "> " << chord_type;
-  if (tuplet == 1) *fout << "}";
 
 
   /* output one last thing and close file stream*/
   *fout << "\\bar \"|.\"";
   *fout << endl << "}" << endl;
   fout->close();
-
+  Note::free_all_notes();
 }
 //=================================================================
 //=================================================================
