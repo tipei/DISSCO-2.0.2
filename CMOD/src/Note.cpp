@@ -282,7 +282,7 @@ void Note::sort_notes(Note * n){
   }
   // insert the note
   all_notes.insert(it, n);
-  //cout << "Note::sort_notes - final: cur->start_t=" << cur->start_t << endl;
+
 
   return;
 }
@@ -312,9 +312,16 @@ void Note::loudness_and_modifiers(){
 
 
 //---------------------------------------------------------------------------//
-// tuplet will be an integer range from 0 to beatEDUs, indicates the amount of sound
-// needed to fill the previous tuplet.
-// edited by Haorong
+// tuplet will be an integer range from 0 to beatEDUs, indicates the amount of sound needed to fill the previous tuplet.
+// the function divide into 3 parts:
+// 1. complete the previous beat (if not finished)
+// 2. notate the notes in complete beats during this sound
+// 3. notate the beginning of the uncomplete beat for this sound
+
+// eg: if a sound start from 24 end at 135
+//    prev op    part 1        part 2      part 3     next op
+//  |_______|------------|----------------|------|_______________|
+//  0       24           60               120    135            180
 int Note::notate(int tuplet_dur){
   // the first part of notate function is to satisfy the demand from the previous tuplet.
   int dur = this -> end_t - this -> start_t;
@@ -433,7 +440,7 @@ int Note::notate(int tuplet_dur){
 
 //---------------------------------------------------------------------------//
 
-// this is the function to rearrange the notes and have them ready for score output
+// this is the function to rearrange the notes and have them ready for lilypond syntex
 // added by Haorong
 void Note::adjust_notes(){
   //TODO: need to be rewrite
@@ -489,11 +496,11 @@ void Note::adjust_notes(){
 // edited by Haorong
 void Note::make_valid(){
 
-  //adding bar lines
+  // adding bar lines
   add_bars();
-  //adding rests
+  // adding rests
   add_rests();
-  //finalize notes
+  // adjusting the duration of notes and notate them
   adjust_notes();
 
   return;
@@ -502,6 +509,8 @@ void Note::make_valid(){
 
 //---------------------------------------------------------------------------//
 
+// this function is to check if the input sound has valid start time and end time
+// TODO: this function needs improvenment, it only works for 60 beatEDUs now.
 void Note::verify_valid(int &stime, int &endTime) {
     int start_time = stime % beatEDUs;
     int end_time = endTime % beatEDUs;
@@ -551,6 +560,9 @@ int determine_tuplet(int dur){
   return -1;
 }
 
+
+// this function is used to find the closest power of 2 which is less that value
+// eg: if value == 7, return 4, if value == 9 return 8
 int check_lower(int value){
   int two = 1;
   while(two <= value){
@@ -559,6 +571,9 @@ int check_lower(int value){
   return two/2;
 }
 //---------------------------------------------------------------------------//
+
+// helper function which convert the string to integer
+// eg: "123" ---> 123
 int str_to_int( string s)
 {
   int temp = 0;
@@ -570,12 +585,16 @@ int str_to_int( string s)
 }
 
 //----------------------------------------------------------------------------//
+
+// helper function which convert the integer to string
+// eg: 123 ---> "123"
 string int_to_str(int n){
   stringstream ss;
   ss << n;
   return ss.str();
 }
 
+// helper functions which calculate base^p
 int power(int base, int p){
   int output = 1;
   for(int i = 0; i < p; i++){
@@ -585,6 +604,8 @@ int power(int base, int p){
 }
 //----------------------------------------------------------------------------//
 
+// helper function which calculates log2(dur)
+// returning -1 is dur is not a power of 2
 int check_pow(int dur){
   if(dur % 2 != 0){
     return -1;
@@ -602,6 +623,7 @@ int check_pow(int dur){
 }
 //----------------------------------------------------------------------------//
 
+// helper function which initiate the tuplet_types according to the tuplet_limit
 void Note::construct_tuplet_names(int uplimit){
   for(int i = 0; i < uplimit; i++){
     int l = check_lower(i);
@@ -651,6 +673,9 @@ void Note::notateDurations( string aName, string startEDU, string durationEDU)
   return;
 }
 
+//----------------------------------------------------------------------------//
+// this function is used to insert Note into the vector all_notes_bar,
+// it will determine the position of the Note, and split Note if it goes across the bar
 void Note::insert_note(Note* n){
   if (n -> end_t == n -> start_t){
     // discard 0 duration sound
@@ -707,7 +732,7 @@ void Note::insert_note(Note* n){
   return;
 }
 
-
+// this the function used for adding bars in the vector all_notes_bar
 void Note::add_bars(){
   cout <<  "adding bars!" << endl;
   vector<vector<Note*>*>::iterator it;
@@ -723,21 +748,24 @@ void Note::add_bars(){
       i++;
   }
 }
+
+// this function is used for adding rests between notes,
+// the rest is unprocessed so it could have invalid duration
 void Note::add_rests(){
   cout << "add rests!" << endl;
   size_t vecSize = all_notes_bar.size();
-  //cout << "vector size" << vecSize << endl;
+
   for(size_t i = 0; i < vecSize; i++){
     vector<Note*>::iterator it;
     Note * prev = *(all_notes_bar[i]->begin());
     sort_notes(prev);
     Note * cur;
-    //prev->notate();
 
     for (it = all_notes_bar[i]->begin()+1; it!=all_notes_bar[i]->end(); it++){
         cur = *it;
         int gap = cur -> start_t - prev -> end_t;
-        if(gap >= 10){
+        // a rest will be placed only if gap is more than half of the smallest non-zero valid duration
+        if(gap > (beatEDUs / (tuplet_limit - 1) / 2)){
             Note* n = new Note();
             n -> start_t = prev -> end_t;
             n -> end_t = cur -> start_t;
@@ -768,13 +796,13 @@ void Note::free_all_notes(){
   all_notes.clear();
 }
 
+// helper function to print vector all_notes
 void print_all_notes(){ //helper function added by Haorong
   vector<Note*>::iterator it;
   for (it = all_notes.begin(); it!=all_notes.end(); it++){
       Note* cur = *it;
       cout << " pitch: " << cur -> pitch_out << " start time: " << cur -> start_t
         << " end_time: "<< cur -> end_t << " dur: " << cur -> end_t - cur -> start_t << endl;
-      // cout << " pitch: " << cur -> pitch_out << " dur: " << cur -> end_t - cur -> start_t << endl;
   }
 }
 

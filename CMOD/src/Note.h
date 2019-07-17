@@ -275,9 +275,6 @@ extern string timesignature;
 //a vector holds the pointers to all the notes after processing
 extern vector<Note*> all_notes;
 
-//a vector holds the pointers to all the original notes (currently not in use)
-//extern vector<Note*> all_notes_orig;
-
 //a 2D vector holds the notes divided by bars(added by haorong at June 12)
 extern vector<vector<Note*>*> all_notes_bar;
 
