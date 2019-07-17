@@ -56,10 +56,13 @@ vector<Note*> all_notes;
 // 2D vector storing notes, every row is a single bar.
 vector<vector<Note*>*> all_notes_bar;
 // string array for tuplet names
-string tuplet_types[7] = {"invalid", "invalid", "invalid", "\\tuplet 3/2{","invalid", "\\tuplet 5/4 {", "\\tuplet 6/4 {"};//added by haorong
-
+// string tuplet_types[8] = {"invalid", "invalid", "invalid", "\\tuplet 3/2{","invalid", "\\tuplet 5/4 {", "\\tuplet 6/4 {", "\\tuplet 7/4 {"};//added by haorong
+vector<string> tuplet_types;
 // the note which represent one beat
 static int unit_note;
+
+// mark the highest tuplet type we will have (exclusive) eg: if we want up to 6-tuplet, tuplet_limit will be 7
+static int tuplet_limit;
 //----------------------------------------------------------------------------//
 
 Note::Note(TimeSpan ts, Tempo tempo) : ts(ts), tempo(tempo),
@@ -143,7 +146,30 @@ int Note::HertzToPitch(float freqHz) {
 
 void Note::setLoudnessMark(int dynamicNum, vector<string> dynamicNames) {
   loudnessNum = dynamicNum;
-  loudnessMark = dynamicNames[loudnessNum];
+  loudnessMark = dynamicNames[loudnessNum];  // int dur[10] = {2, 4, 6, 8, 10, 16, 18, 32, 64, 80};
+  // int note = 23;
+  // int unit_note = 8;
+  // string pitch = "c";
+  // string output = "";
+  // while(note > 0){
+  //   int power = check_pow(unit_note);
+  //   while(power >= 0){
+  //     int beats = po(2, power);
+  //     if(note >= beats){
+  //       output += pitch + int_to_str(unit_note/beats);
+  //       note -= beats;
+  //       if(note >= beats/2){
+  //         output += ".";
+  //         note -= beats/2;
+  //       }
+  //       output += " ";
+  //       break;
+  //     }
+  //     power--;
+  //   }
+  // }
+  // cout << output << endl;
+  // return 0;
   Output::addProperty("Dynamic", loudnessMark);
   Output::addProperty("Dynamic Level", loudnessNum);
 }
@@ -286,7 +312,7 @@ void Note::loudness_and_modifiers(){
 
 
 //---------------------------------------------------------------------------//
-// tuplet will be an integer range from 0 to 60, indicates the amount of sound
+// tuplet will be an integer range from 0 to beatEDUs, indicates the amount of sound
 // needed to fill the previous tuplet.
 // edited by Haorong
 int Note::notate(int tuplet_dur){
@@ -361,6 +387,10 @@ int Note::notate(int tuplet_dur){
     if( mainDur > 0 ||remaind > 0){
       this -> type_out += "~ ";
     } else {
+      if(this -> split == 1){
+        this -> type_out += "~";
+        this -> split = 0;
+      }
       this -> type_out += " ";
       // this -> loudness_and_modifiers();
     }
@@ -392,6 +422,11 @@ int Note::notate(int tuplet_dur){
     // this -> loudness_and_modifiers();
 
   }
+
+  // if(this -> split == 1){
+  //   this -> type_out += "~ ";
+  //   this -> split = 0;
+  // }
 
   return tuplet_dur;
 }
@@ -470,7 +505,7 @@ void Note::make_valid(){
 void Note::verify_valid(int &stime, int &endTime) {
     int start_time = stime % beatEDUs;
     int end_time = endTime % beatEDUs;
-    cout << "start time: " << start_time << " end time: " << end_time << endl;
+    //cout << "start time: " << start_time << " end time: " << end_time << endl;
     // find the distance between start time and the closest valid time spot
     int min_diff = valid_time[0] - start_time;
     for(int i = 0; i < 13; i++){
@@ -504,8 +539,25 @@ void Note::verify_valid(int &stime, int &endTime) {
 //---------------------------------------------------------------------------//
 
 
+// this function is used to determine the type of the tuplet we need
+// added by Haorong
+int determine_tuplet(int dur){
+  for(int i = 2; i < tuplet_limit; i++){
+    if(dur % (beatEDUs/i) == 0){
+      return i;
+    }
+  }
+  // invalid tuplet
+  return -1;
+}
 
-
+int check_lower(int value){
+  int two = 1;
+  while(two <= value){
+    two *= 2;
+  }
+  return two/2;
+}
 //---------------------------------------------------------------------------//
 int str_to_int( string s)
 {
@@ -550,6 +602,16 @@ int check_pow(int dur){
 }
 //----------------------------------------------------------------------------//
 
+void Note::construct_tuplet_names(int uplimit){
+  for(int i = 0; i < uplimit; i++){
+    int l = check_lower(i);
+    string t = "\\tuplet ";
+    t += int_to_str(i) + "/" + int_to_str(l) + "{ ";
+    tuplet_types.push_back(t);
+  }
+}
+//----------------------------------------------------------------------------//
+
 void Note::notateDurations( string aName, string startEDU, string durationEDU)
 {
   int stime, dur, endTime, bar, beat;
@@ -572,7 +634,13 @@ void Note::notateDurations( string aName, string startEDU, string durationEDU)
   barEDUs = str_to_int( barEDU_str);
   beatEDUs = str_to_int( beatEDU_str);
 
-  //check if start time and end time are valid
+  int i = 1;
+  while (beatEDUs % i == 0){
+    i++;
+  }
+  tuplet_limit = i;
+  construct_tuplet_names(tuplet_limit);
+  // check if start time and end time are valid
   verify_valid(stime, endTime);
   start_t = stime;
   end_t = endTime;
@@ -622,6 +690,7 @@ void Note::insert_note(Note* n){
     Note* second = new Note(*n);
     second -> start_t = (barNum+1) * barEDUs;
     n -> end_t = (barNum + 1) * barEDUs;
+    n -> split = 1;
 
     vector<Note*>::iterator it;
     for (it = all_notes_bar[barNum]->begin(); it!=all_notes_bar[barNum]->end(); it++){
@@ -709,17 +778,6 @@ void print_all_notes(){ //helper function added by Haorong
   }
 }
 
-// this function is used to determine the type of the tuplet we need
-// added by Haorong
-int determine_tuplet(int dur){
-  for(int i = 2; i < 7; i++){
-    if(dur % (beatEDUs/i) == 0){
-      return i;
-    }
-  }
-  // invalid tuplet
-  return -1;
-}
 
 // this is the part to notate inside the tuplet
 // added by Haorong
@@ -728,97 +786,35 @@ void Note::note_in_tuplet(int tup_type, int dur){
   string pitch = this -> pitch_out;
   int first = 1;
   // string output = "";
+
   int beat = dur / (beatEDUs / tup_type);
-  if(tup_type == 3){
-    while(beat > 0){
-      if(beat >= 2){
-        this -> type_out += pitch + int_to_str(unit_note);
-        beat -= 2;
-      } else if(beat >= 1){
-        this -> type_out += pitch + int_to_str(2*unit_note);
-        beat -= 1;
+  int unit_in_tuplet = unit_note * check_lower(tup_type);
+  int p = check_pow(unit_in_tuplet);
+  while (beat > 0){
+
+    int p = check_pow(unit_in_tuplet);
+    while(p >= 0){
+      int beats = power(2, p);
+      if(beat >= beats){
+        this -> type_out += this -> pitch_out + int_to_str(unit_in_tuplet/beats);
+        beat -= beats;
+        if(beat >= beats/2 && beats >= 2){
+          this -> type_out += ".";
+          beat -= beats/2;
+        }
+        break;
       }
-      if (beat > 0){
-        this -> type_out += "~ ";
-      } else {
-        this -> type_out += " ";
-      }
-      if(first == 1){
-        this -> loudness_and_modifiers();
-        first = 0;
-      }
+      p--;
     }
-  } else {
-    while(beat > 0){
-      if(beat >= 4){
-        this -> type_out += pitch + int_to_str(unit_note);
-        beat -= 4;
-      } else if(beat >= 3){
-        this -> type_out += pitch + int_to_str(2*unit_note) + ".";
-        beat -= 3;
-      } else if(beat >= 2){
-        this -> type_out += pitch + int_to_str(2*unit_note);
-        beat -= 2;
-      } else if(beat >= 1){
-        this -> type_out += pitch + int_to_str(4*unit_note);
-        beat -= 1;
-      }
-      if (beat > 0){
-        this -> type_out += "~ ";
-      } else {
-        this -> type_out += " ";
-      }
-      if(first == 1){
-        this -> loudness_and_modifiers();
-        first = 0;
-      }
+    if (beat > 0){
+      this -> type_out += "~ ";
+    } else {
+      this -> type_out += " ";
+    }
+    if(first == 1){
+      this -> loudness_and_modifiers();
+      first = 0;
     }
   }
+
 }
-
-
-//
-// string note_in_tuplet(int tup_type, int dur, string pitch){
-//   int first = 1;
-//   string output = "";
-//   int beat = dur / (beatEDUs / tup_type);
-//   if(tup_type == 3){
-//     while(beat > 0){
-//       if(beat >= 2){
-//         output += pitch + int_to_str(unit_note);
-//         beat -= 2;
-//       } else if(beat >= 1){
-//         output += pitch + int_to_str(2*unit_note);
-//         beat -= 1;
-//       }
-//
-//       if (beat > 0){
-//         output += "~ ";
-//       } else {
-//         output += " ";
-//       }
-//     }
-//   } else {
-//     while(beat > 0){
-//       if(beat >= 4){
-//         output += pitch + int_to_str(unit_note);
-//         beat -= 4;
-//       } else if(beat >= 3){
-//         output += pitch + int_to_str(2*unit_note) + ".";
-//         beat -= 3;
-//       } else if(beat >= 2){
-//         output += pitch + int_to_str(2*unit_note);
-//         beat -= 2;
-//       } else if(beat >= 1){
-//         output += pitch + int_to_str(4*unit_note);
-//         beat -= 1;
-//       }
-//       if (beat > 0){
-//         output += "~ ";
-//       } else {
-//         output += " ";
-//       }
-//     }
-//   }
-//   return output;
-// }

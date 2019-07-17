@@ -259,6 +259,8 @@ class Note {
     static void add_rests();
 
     static void free_all_notes();
+
+    static void construct_tuplet_names(int uplimit);
     // ----------------------------------------------- ////
 
 
@@ -273,8 +275,8 @@ extern string timesignature;
 //a vector holds the pointers to all the notes after processing
 extern vector<Note*> all_notes;
 
-//a vector holds the pointers to all the original notes
-extern vector<Note*> all_notes_orig;
+//a vector holds the pointers to all the original notes (currently not in use)
+//extern vector<Note*> all_notes_orig;
 
 //a 2D vector holds the notes divided by bars(added by haorong at June 12)
 extern vector<vector<Note*>*> all_notes_bar;
@@ -286,6 +288,7 @@ extern int str_to_int(string s);
 extern string int_to_str(int n);
 extern int power(int base, int p);
 extern int check_pow(int dur);
+
 
 /**
  * Checks if input rational number is a power of 2
@@ -301,6 +304,7 @@ void print_all_notes();
 // eg: if it belongs to a triplet return value will be 3
 // -1 is return for invalid input
 int determine_tuplet(int dur);
+int check_lower(int value);
 
 // generate the string for notes inside the tuplet
 // sample output: r4~ r16
