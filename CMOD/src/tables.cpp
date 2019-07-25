@@ -14,7 +14,8 @@ string types[SIZE] = {"16","16", "8","8.","4","8","4","!4 16"};
 
 string tuplet_names[SIZE] = {"6/5","5/4","5/4","5/4","5/4","3/2","3/2", "6/5"};
 
-int valid_time[13] = {0, 10, 12, 15, 20, 24, 30, 36, 40, 45, 48, 50, 60};
+// int valid_time[13] = {0, 10, 12, 15, 20, 24, 30, 36, 40, 45, 48, 50, 60};
+// int valid_time[19] = {0, 60, 70, 84, 105, 120, 140, 168, 180, 210, 240, 252, 280, 300, 315, 336, 350, 360, 420};
 
 string rest_signs[SIZE2] = {"r16","r16", "r8","r8 r16","r4","r8","r4", "r4 r16"};
 
@@ -26,5 +27,3 @@ string modifiers[40] = {"accent", "espressivo", "marcato", "portato", "staccatis
 "prall", "prallup", "pralldown", "upprall", "downprall", "prallprall", "lineprall", "prallmordent", "mordent", "upmordent", "downmordent", "trill", "turn", "reverseturn",
 "shortfermata", "fermata", "longfermata", "verylongfermata",
 "upbow", "downbow", "flageolet", "open", "halfopen", "lheel", "rheel", "ltoe", "rtoe", "snappizzicato", "stopped", "segno", "coda", "varcoda" };
-
-

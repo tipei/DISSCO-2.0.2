@@ -1,17 +1,17 @@
 /*
 CMOD (composition module)
 Copyright (C) 2005  Sever Tipei (s-tipei@uiuc.edu)
-                                                                                
+
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
-                                                                                
+
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
-                                                                                
+
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -21,7 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //----------------------------------------------------------------------------//
 //
 //   matrix.h
-// 
+//
 //   Builds a three-dimmensional matrix (types * stimes * durations) containing
 //   probabilities of occurrence of candidate events.  It normalizes the matrix,
 //   chooses an event, and modifies the Matrix after each choice.
@@ -30,7 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //   Used to build a two-dimenssional matrix (representing probabilities
 //   of occurrence) from input data and to modify it after each choice
 //   (decision).
-// 
+//
 //----------------------------------------------------------------------------//
 
 #ifndef MATRIX_H
@@ -61,6 +61,8 @@ class Matrix {
     bool sieveAligned;
     Tempo tempo;
     int sweepStart;
+    vector<int> short_attime;
+    int beatEDUs;
 
   public:
 
@@ -72,8 +74,8 @@ class Matrix {
     *  \param numTypesInLayers
     *  \param maxVal - limit for the last duration (endDur) allowed by the parent
     **/
-    Matrix(int numTypes, int numAttacks, int numDurations, 
-           vector<int> numTypesInLayers, int maxVal, 
+    Matrix(int numTypes, int numAttacks, int numDurations,
+           vector<int> numTypesInLayers, int maxVal,
            Tempo tempo, bool wellAligned=false);
 
     /**
@@ -99,17 +101,17 @@ class Matrix {
     *  \param vector<Envelope*> attackEnvs
     **/
     void setAttacks(Sieve* attackSieve, vector<Envelope*> attackEnvs = vector<Envelope*>());
-    
+
     /**
-     *  Uses the sieve defining possible durations and the envelopes 
-     *  corresponding to each type of each layer to set probabilities of 
+     *  Uses the sieve defining possible durations and the envelopes
+     *  corresponding to each type of each layer to set probabilities of
      *  occurrence for each duration at each layer.
      *  \param Sieve* durSieve
      *  \param vector<Envelope*> durEnvs
      *  \param maxVal - limit for the last duration (endDur) allowed by the parent
      **/
     void setDurations(Sieve* durSieve, int maxVal, vector<Envelope*> durEnvs = vector<Envelope*>());
-    
+
     /**
      *  Sets the probabilities of occurrence for each type
      *  \param vector<double> typeProbVect
@@ -118,7 +120,7 @@ class Matrix {
 
     /**
      *  Chooses a matrix location corresponding to an event of type, stime, and
-     *  duration by matching its probability to a random number with the help 
+     *  duration by matching its probability to a random number with the help
      *  of the MatPoint structure. It calls:
      *				normalizeMatrix
      *				removeConflicts
@@ -126,13 +128,13 @@ class Matrix {
      *  \param remain	- remaining number of children to build
      **/
     MatPoint chooseDiscrete(int remain);
-    
+
     /**
-     * Chooses a random matrix location. Does not modify the matrix. 
+     * Chooses a random matrix location. Does not modify the matrix.
      * For the continuum option when two sieves are used.
      **/
     MatPoint chooseContinuum();
-    
+
     /**
      * As above, but for sweep.
      * \param remain - remaining number of children to build
@@ -140,9 +142,11 @@ class Matrix {
     MatPoint chooseSweep(int remain);
 
     /**
-     *  Print.  Prints all the elements of the matrix.  
+     *  Print.  Prints all the elements of the matrix.
     **/
     void printMatrix(bool normalized);
+
+    int verify_valid(int endTime);
 
   private:
 
@@ -151,21 +155,21 @@ class Matrix {
    *  dividing each of them by their sum.
   **/
     bool normalizeMatrix();
- 
+
   /**
-   *  Eliminates possible future conflicts in the matrix by setting 
+   *  Eliminates possible future conflicts in the matrix by setting
    *  probabilities to 0 for locations already selected.
    *  \param chosenPt 	- already chosen location in the array
   **/
-    void removeConflicts(MatPoint chosenPt);
+    void removeConflicts(MatPoint &chosenPt);
 
   /**
-   *  Eliminates possible future conflicts in the matrix for sweep 
+   *  Eliminates possible future conflicts in the matrix for sweep
    *  by setting probabilities to 0 for locations that do not come
    *  after the chosen location.
    *  \param chosenPt - already chosen location in the array
   **/
-    void removeSweepConflicts(MatPoint chosenPt);
+    void removeSweepConflicts(MatPoint &chosenPt);
 
   /**
    *  Adjusts the probabilitie of all types to reflect the last choice and
@@ -177,7 +181,7 @@ class Matrix {
 
 
   /**
-   * Chooses a random element in the matrix 
+   * Chooses a random element in the matrix
   **/
     MatPoint choose();
 //-----------------------------------------------------------------------------
@@ -204,33 +208,33 @@ class Matrix {
 //    void SetVector(vector<float> newVector);
 
     /**
-    *  Loads e vector of nvelopes and finds the values corresponding to each 
+    *  Loads e vector of nvelopes and finds the values corresponding to each
     *  sieve location (attack point).
     *  NB. we deal here with sieve locations and not with actual time values.
     *    ====  first version does not need "probs" not used inside  ====
     *    ====  third version: all this should take place somewhere else  ====
-    *    ====  no need to overload  ==== 
+    *    ====  no need to overload  ====
     *  \param envList list of envelopes to be used
     **/
 //    void Envelopes(vector<Envelope*> envList);
 /*
     void Envelopes(vector<float> probs, vector<Envelope*> envList)
-    void Envelopes(vector<Collection<xy_point> > xyCollection, 
-                   vector<vector<string> > segmentTypes, 
+    void Envelopes(vector<Collection<xy_point> > xyCollection,
+                   vector<vector<string> > segmentTypes,
                    vector<vector<string> > segmentFixed);
 */
 
     /**
-    *  Multiplies the elements of an existing matrix with those of a vector 
-    *  of doubles.  Each matrix line is multiplied by the same vector elemet, 
+    *  Multiplies the elements of an existing matrix with those of a vector
+    *  of doubles.  Each matrix line is multiplied by the same vector elemet,
     *  one vector element per line.
-    **/ 
+    **/
 //    void IncludeVector();
 
     /**
-    *  Multiplies the elements of an existing matrix with those of an 
+    *  Multiplies the elements of an existing matrix with those of an
     *  array of doubles.  Each matrix line between a lower limit (from)
-    *  and an upper limit (to) is multiplied by the same array, each 
+    *  and an upper limit (to) is multiplied by the same array, each
     *  element of the array with an element of the matrix line.
     *  \param array of probabilities for each matrix column
     *  \param from lower limit for rows
@@ -261,8 +265,8 @@ class Matrix {
 //    void ChooseM(int &r, int &c);
 
     /**
-    *  Blocks the locations covered by the duration (durMatrix).  The edges 
-    *  are smoothed following a user define slope.  Rows < from and 
+    *  Blocks the locations covered by the duration (durMatrix).  The edges
+    *  are smoothed following a user define slope.  Rows < from and
     *  rows > to are assigned 0s.
     *  \param type of event corresponding to a row
     *  \param stimeMatrix column of the Matrix corresponding to the attack
@@ -271,17 +275,17 @@ class Matrix {
     *  \param from fist row to which this is applied
     *  \param to last row to which this is applied
     **/
-//    void AdjustMatrix(int type, int stimeMatrix, int endLocM, int slope, 
+//    void AdjustMatrix(int type, int stimeMatrix, int endLocM, int slope,
 //                      int from, int to);
 
     /**
-    *  If remainO is -1, sets each element of the vector (a row number) in the 
-    *  range specified by from and to to 0.  
-    *  If remainO is 0, sets the vector element (a row number) specified by 
+    *  If remainO is -1, sets each element of the vector (a row number) in the
+    *  range specified by from and to to 0.
+    *  If remainO is 0, sets the vector element (a row number) specified by
     *  type to 0.
     *  Otherwise, decreases the vector element specified by type by
-    *  1/(remain0 + 1) for each element in the matrix row specified by type 
-    *  that is greater than 0.  
+    *  1/(remain0 + 1) for each element in the matrix row specified by type
+    *  that is greater than 0.
     *  Finally, normalizes the vector element range specified by from and to.
     *  \param type a Matrix row corresponding to an (sub)object type
     *  \param numObjs the total number of children

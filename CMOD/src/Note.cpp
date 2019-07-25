@@ -304,7 +304,7 @@ void Note::loudness_and_modifiers(){
   }
 
   if (this -> loudness_out != loudness_prev && this -> pitch_out != "r"){
-    cout<< "pitch: "<< this->pitch_out << " current: " << this -> loudness_out << " previous: " << loudness_prev << endl;
+    //cout<< "pitch: "<< this->pitch_out << " current: " << this -> loudness_out << " previous: " << loudness_prev << endl;
   	this -> type_out += this -> loudness_out + " ";
   	loudness_prev = this -> loudness_out;
   }
@@ -443,7 +443,7 @@ int Note::notate(int tuplet_dur){
 // this is the function to rearrange the notes and have them ready for lilypond syntex
 // added by Haorong
 void Note::adjust_notes(){
-  //TODO: need to be rewrite
+
   vector<Note*>::iterator it;
   pre_tuplet = 0;
   int tuplet = 0; // variable which indicates if a tuplet is needed
@@ -503,6 +503,7 @@ void Note::make_valid(){
   // adjusting the duration of notes and notate them
   adjust_notes();
 
+  //print_all_notes();
   return;
 }
 
@@ -512,36 +513,36 @@ void Note::make_valid(){
 // this function is to check if the input sound has valid start time and end time
 // TODO: this function needs improvenment, it only works for 60 beatEDUs now.
 void Note::verify_valid(int &stime, int &endTime) {
-    int start_time = stime % beatEDUs;
-    int end_time = endTime % beatEDUs;
-    //cout << "start time: " << start_time << " end time: " << end_time << endl;
-    // find the distance between start time and the closest valid time spot
-    int min_diff = valid_time[0] - start_time;
-    for(int i = 0; i < 13; i++){
-      int diff = valid_time[i] - start_time;
-      if(diff == 0){
-        min_diff = 0;
-        break;
-      }
-      if(abs(diff) < abs(min_diff)){
-        min_diff = diff;
-      }
-    }
-    stime += min_diff;
-
-    // find the distance between end time and the closest valid time spot
-    min_diff = valid_time[0] - end_time;
-    for(int i = 0; i < 13; i++){
-      int diff = valid_time[i] - end_time;
-      if(diff == 0){
-        min_diff = 0;
-        break;
-      }
-      if(abs(diff) < abs(min_diff)){
-        min_diff = diff;
-      }
-    }
-    endTime += min_diff;
+    // int start_time = stime % beatEDUs;
+    // int end_time = endTime % beatEDUs;
+    // // cout << "start time: " << start_time << " end time: " << end_time << endl;
+    // // find the distance between start time and the closest valid time spot
+    // int min_diff = valid_time[0] - start_time;
+    // for(int i = 0; i < 19; i++){
+    //   int diff = valid_time[i] - start_time;
+    //   if(diff == 0){
+    //     min_diff = 0;
+    //     break;
+    //   }
+    //   if(abs(diff) < abs(min_diff)){
+    //     min_diff = diff;
+    //   }
+    // }
+    // stime += min_diff;
+    //
+    // // find the distance between end time and the closest valid time spot
+    // min_diff = valid_time[0] - end_time;
+    // for(int i = 0; i < 19; i++){
+    //   int diff = valid_time[i] - end_time;
+    //   if(diff == 0){
+    //     min_diff = 0;
+    //     break;
+    //   }
+    //   if(abs(diff) < abs(min_diff)){
+    //     min_diff = diff;
+    //   }
+    // }
+    // endTime += min_diff;
 }
 
 
@@ -663,7 +664,8 @@ void Note::notateDurations( string aName, string startEDU, string durationEDU)
   tuplet_limit = i;
   construct_tuplet_names(tuplet_limit);
   // check if start time and end time are valid
-  verify_valid(stime, endTime);
+  //verify_valid(stime, endTime);
+  //cout <<  " Note: start " << stime << " end " << endTime << endl;
   start_t = stime;
   end_t = endTime;
 
@@ -734,7 +736,7 @@ void Note::insert_note(Note* n){
 
 // this the function used for adding bars in the vector all_notes_bar
 void Note::add_bars(){
-  cout <<  "adding bars!" << endl;
+  cout <<  "adding bars!"  << endl;
   vector<vector<Note*>*>::iterator it;
   int i = 1;
   for (it = all_notes_bar.begin(); it!=all_notes_bar.end(); it++){
@@ -800,7 +802,11 @@ void Note::free_all_notes(){
 void print_all_notes(){ //helper function added by Haorong
   vector<Note*>::iterator it;
   for (it = all_notes.begin(); it!=all_notes.end(); it++){
-      Note* cur = *it;
+    Note* cur = *it;
+    if (cur -> pitch_out == "r" || cur -> type_out == "\\bar\"|\" \n" || cur -> type_out == " "){
+      continue;
+    }
+
       cout << " pitch: " << cur -> pitch_out << " start time: " << cur -> start_t
         << " end_time: "<< cur -> end_t << " dur: " << cur -> end_t - cur -> start_t << endl;
   }

@@ -1385,4 +1385,6 @@ void Event::buildMatrix(bool discrete) {
     delete durEnvs[i];
   }
   durEnvs.clear();
+
+
 }

@@ -19,7 +19,8 @@ extern string types[SIZE];
 
 extern string tuplet_names[SIZE];
 
-extern int valid_time[13];
+// extern int valid_time[13];
+extern int valid_time[19];
 
 extern string rest_signs[SIZE2];
 

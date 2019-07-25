@@ -67,6 +67,8 @@ Matrix::Matrix(int numTypes, int numAttacks, int numDurations,
   }
 
   sweepStart = 0;
+
+  beatEDUs = tempo.getEDUPerTimeSignatureBeat().Num();
 }
 
 
@@ -136,6 +138,16 @@ void Matrix::setAttacks(Sieve* attackSieve, vector<Envelope*> attackEnvs) {
       }
     }
   }
+
+  cout <<  "Matrix::setAttacks valid time: " ;
+  for(int i = 0; i < attTimes.size(); i++){
+    if(attTimes[i] > beatEDUs){
+      break;
+    }
+    short_attime.push_back(attTimes[i]);
+    cout << attTimes[i] << " , ";
+  }
+  cout << endl;
 }
 
 //----------------------------------------------------------------------------//
@@ -319,7 +331,7 @@ bool Matrix::normalizeMatrix() {
   double lastSum = 0;
   // get the sum of the matrix
   for (int type = 0; type < matr.size(); type++) {
-/*
+/*attackSieve
     cout << "		Matrix::normalizeMatrix - type=" << type
          << " matr.size=" << matr.size()
          << " matr[" << type << "].size=" << matr[type].size() << endl;
@@ -328,7 +340,7 @@ bool Matrix::normalizeMatrix() {
     // do for each type
     for (int attNum = 0; attNum < matr[type].size(); attNum++) {
 
-      // do for each attack
+      // do for each attackattackSieve
       for (int durNum = 0; durNum < matr[type][attNum].size(); durNum++) {
 
         // do for each dur
@@ -340,7 +352,7 @@ bool Matrix::normalizeMatrix() {
  /	if(type == 0) {
 	  cout << "Matrix::normalizeMatrix - typeProb[" << type << "]="
 		<< typeProb[type] << endl;
-	  cout << " matr[" << type << "][" << attNum << "][" << durNum
+	  cout << " matr[" << type << "][" << attNum << attackSieve"][" << durNum
 		<< "].normprob= " << matr[type][attNum][durNum].normprob << endl;
 	  cout << "      matrSum=" << matrSum << endl;
   	}
@@ -365,7 +377,6 @@ bool Matrix::normalizeMatrix() {
 
       for (int durNum = 0; durNum < matr[type][attNum].size(); durNum++) {
         // do for each dur
-
         lastSum += (matr[type][attNum][durNum].normprob) / matrSum;
         matr[type][attNum][durNum].normprob = lastSum;
 /*
@@ -376,7 +387,6 @@ bool Matrix::normalizeMatrix() {
       }
     }
   }
-
   return true; // success!
 }
 
@@ -396,11 +406,44 @@ void Matrix::recomputeTypeProbs(int chosenType, int remaining) {
 }
 
 //----------------------------------------------------------------------------//
+int Matrix::verify_valid(int endTime){
+  // for (int i = limit; i > 3; i--){
+  //   int temp = beatEDUs / i;
+  //   int n = endTime % temp;
+  //   if(n == 0){
+  //     return endTime;
+  //   }
+  // }
 
-void Matrix::removeConflicts(MatPoint chosenPt) {
+  int length = short_attime.size();
+
+  int low = 0;
+  int high = length - 1;
+  int eTime = endTime % beatEDUs;
+  while(high > low+1){
+    int mid = (high+low) / 2;
+    if(short_attime[mid] < eTime){
+      low = mid;
+    } else if(short_attime[mid] > eTime) {
+      high = mid;
+    } else {
+      return endTime;
+    }
+  }
+  //cout << "endTime: " << eTime << " high_n: " << valid_time[high] << " low_n: " << valid_time[low] <<  endl;
+  int offset = short_attime[high] - eTime < eTime - short_attime[low] ? short_attime[high] - eTime : short_attime[low] - eTime;
+  //cout << "endTime: " << endTime << " choose: " << endTime + offset << endl;
+  return endTime + offset;
+}
+//----------------------------------------------attackSieve------------------------------//
+
+void Matrix::removeConflicts(MatPoint &chosenPt) {
   int chosenStart = chosenPt.stime;
-  int chosenEnd = chosenStart + chosenPt.dur;
+  //int chosenEnd = chosenStart + chosenPt.dur;
+  int chosenEnd = verify_valid(chosenStart + chosenPt.dur);
+  chosenPt.dur = chosenEnd - chosenStart;
   int chosenLayer = typeLayers[chosenPt.type];
+
 
   for (int type = 0; type < matr.size(); type++) {
     // only remove conflicts if this type is in the same layer
@@ -408,7 +451,7 @@ void Matrix::removeConflicts(MatPoint chosenPt) {
     if ( chosenLayer == typeLayers[type] ) {
 
       for (int attNum = 0; attNum < matr[type].size(); attNum++) {
-        // do for each attack
+        // do for each attackattackSieve
 
         for (int durNum = 0; durNum < matr[type][attNum].size(); durNum++) {
           // do for each dur
@@ -430,13 +473,16 @@ void Matrix::removeConflicts(MatPoint chosenPt) {
       }
     }
   }
+
+  //cout << "removeConflicts : start: " << chosenStart << " end: " << chosenEnd <<  endl;
 }
 
 //----------------------------------------------------------------------------//
 
-void Matrix::removeSweepConflicts(MatPoint chosenPt) {
+void Matrix::removeSweepConflicts(MatPoint &chosenPt) {
   int chosenStart = chosenPt.stime;
-  int chosenEnd = chosenStart + chosenPt.dur;
+  int chosenEnd = verify_valid(chosenStart + chosenPt.dur);
+  chosenPt.dur = chosenEnd - chosenStart;
   int chosenLayer = typeLayers[chosenPt.type];
 
   for (int type = 0; type < matr.size(); type++) {
@@ -463,6 +509,7 @@ void Matrix::removeSweepConflicts(MatPoint chosenPt) {
       }
     }
   }
+  //cout << "removeSweepConflicts : start: " << chosenStart << " end: " << chosenEnd <<  endl;
 }
 
 //----------------------------------------------------------------------------//
