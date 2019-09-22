@@ -390,7 +390,7 @@ float Bottom::computeBaseFreq() {
   DOMElement* valueElement2 = valueElement->GNES();
   if (utilities->evaluate(XMLTC(freqFlagElement),(void*) this)==2) {//contiruum
     /* 2nd arg is a string (HERTZ or POW2) */
-      cout << "Bottom::computeBaseFreq  start-1"<< endl;
+     
     if (utilities->evaluate(XMLTC(continuumFlagElement), NULL)==0) { //Hertz
       float expVal = 0;
       for(int i = 0; i < 10; i++){
@@ -453,7 +453,6 @@ float Bottom::computeBaseFreq() {
     float diff = baseFreqResult - expVal;
     baseFreqResult -= 0.4 * diff;
   }
-  cout << "Bottom::computeBaseFreq  end"<< endl;
   return baseFreqResult;
 }
 
