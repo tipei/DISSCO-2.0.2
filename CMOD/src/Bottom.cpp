@@ -321,7 +321,6 @@ void Bottom::buildNote(SoundAndNoteWrapper* _soundNoteWrapper) {
   //Create the note.
 //Note* newNote = new Note();		//sever, make similar to newSound
   Note* newNote = new Note(tsChild, tempo);
-
   if (utilities->getOutputParticel()){
   //Output note-related properties.
     Output::beginSubLevel("Note");
@@ -357,7 +356,6 @@ void Bottom::buildNote(SoundAndNoteWrapper* _soundNoteWrapper) {
   } else {
     absPitchNum = wellTempPitch;
   }
-
   newNote->setPitchWellTempered(absPitchNum);
 
   //Bars and durations
@@ -366,6 +364,8 @@ void Bottom::buildNote(SoundAndNoteWrapper* _soundNoteWrapper) {
 			    _soundNoteWrapper->ts.durationEDU.toPrettyString());
 
   Output::endSubLevel();
+  // cout << "note's data: " << newNote -> pitch_out << " " << newNote -> start_t << " " << newNote -> end_t << endl;
+
   childNotes.push_back(newNote);
 }
 
@@ -382,6 +382,7 @@ list<Note> Bottom::getNotes() {
 //----------------------------------------------------------------------------//
 
 float Bottom::computeBaseFreq() {
+
   float baseFreqResult;
   DOMElement* freqFlagElement = frequencyElement->GFEC();
   DOMElement* continuumFlagElement = freqFlagElement->GNES();
@@ -389,7 +390,7 @@ float Bottom::computeBaseFreq() {
   DOMElement* valueElement2 = valueElement->GNES();
   if (utilities->evaluate(XMLTC(freqFlagElement),(void*) this)==2) {//contiruum
     /* 2nd arg is a string (HERTZ or POW2) */
-
+      cout << "Bottom::computeBaseFreq  start-1"<< endl;
     if (utilities->evaluate(XMLTC(continuumFlagElement), NULL)==0) { //Hertz
       float expVal = 0;
       for(int i = 0; i < 10; i++){
@@ -424,8 +425,10 @@ float Bottom::computeBaseFreq() {
     for(int i = 0; i < 10; i++){
       wellTempPitch = utilities->evaluate(XMLTC(valueElement), (void*)this);
       // cout << " Bottom - wellTempPitch=" << wellTempPitch << endl;
+
       expVal += C0 * pow(WELL_TEMP_INCR, wellTempPitch);
     }
+
     expVal /= 10;
     wellTempPitch = utilities->evaluate(XMLTC(valueElement), (void*)this);
     // cout << " Bottom - wellTempPitch=" << wellTempPitch << endl;
@@ -450,7 +453,7 @@ float Bottom::computeBaseFreq() {
     float diff = baseFreqResult - expVal;
     baseFreqResult -= 0.4 * diff;
   }
-
+  cout << "Bottom::computeBaseFreq  end"<< endl;
   return baseFreqResult;
 }
 

@@ -407,14 +407,6 @@ void Matrix::recomputeTypeProbs(int chosenType, int remaining) {
 
 //----------------------------------------------------------------------------//
 int Matrix::verify_valid(int endTime){
-  // for (int i = limit; i > 3; i--){
-  //   int temp = beatEDUs / i;
-  //   int n = endTime % temp;
-  //   if(n == 0){
-  //     return endTime;
-  //   }
-  // }
-
   int length = short_attime.size();
 
   int low = 0;
@@ -431,7 +423,7 @@ int Matrix::verify_valid(int endTime){
     }
   }
   //cout << "endTime: " << eTime << " high_n: " << valid_time[high] << " low_n: " << valid_time[low] <<  endl;
-  int offset = short_attime[high] - eTime < eTime - short_attime[low] ? short_attime[high] - eTime : short_attime[low] - eTime;
+  int offset = short_attime[high] - eTime <= eTime - short_attime[low] ? short_attime[high] - eTime : short_attime[low] - eTime;
   //cout << "endTime: " << endTime << " choose: " << endTime + offset << endl;
   return endTime + offset;
 }

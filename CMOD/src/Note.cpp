@@ -502,8 +502,8 @@ void Note::make_valid(){
   add_rests();
   // adjusting the duration of notes and notate them
   adjust_notes();
+  // print_all_notes();
 
-  //print_all_notes();
   return;
 }
 
@@ -679,7 +679,8 @@ void Note::notateDurations( string aName, string startEDU, string durationEDU)
 // this function is used to insert Note into the vector all_notes_bar,
 // it will determine the position of the Note, and split Note if it goes across the bar
 void Note::insert_note(Note* n){
-  if (n -> end_t == n -> start_t){
+  // cout << "note's data: " << n -> pitch_out << " " << n -> start_t << " " << n -> end_t << endl;
+  if (n -> end_t <= n -> start_t){
     // discard 0 duration sound
     return;
   }
