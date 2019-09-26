@@ -1103,9 +1103,12 @@ vector<string> Bottom::applyNoteModifiersOld() {
 */
 
   DOMElement* modifierElement = modifiersIncludingAncestorsElement->GFEC();
-//DOMElement* modifierElement = modifiersElement->GFEC();
+/*
+  DOMElement* modifierElement = modifiersElement->GFEC();
+
     cout<<"modifierElement: "<<XMLTC(modifierElement)<<endl;
    int sever;  cin >> sever;
+*/
 
   while (modifierElement != NULL) {
 

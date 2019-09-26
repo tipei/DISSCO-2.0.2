@@ -713,6 +713,8 @@ bool Event::buildSweep() {
     }
     // get the duration
     rawChildDuration = utilities->evaluate(XMLTC(childDurationElement),(void*)this);
+cout << "Event.cpp -buildSweep - rawChildDuration=" << rawChildDuration << endl;
+int sever; cin>> sever;
 
     //assign previousChild Duration here so that the next child can use it
     previousChildDuration = rawChildDuration;
@@ -725,7 +727,9 @@ bool Event::buildSweep() {
 
     if (durType == "1") {
       tsChild.durationEDU = Ratio(rawChildDurationInt, 1);
-      tsChild.duration = // convert to seconds
+cout << "Event.cpp -buildSweep - rawChildDurationInt=" << rawChildDurationInt << endl;
+int sever; cin>> sever;
+      tsChild.duration = 					// convert to seconds
         (float)rawChildDurationInt * tempo.getEDUDurationInSeconds().To<float>();
     } else if (durType == "2") {
       tsChild.duration = rawChildDuration;
@@ -1244,7 +1248,9 @@ bool Event::buildDiscrete() {
   if(durEDU > (int)maxChildDur)
     durEDU = maxChildDur;
   tsChild.startEDU = stimeEDU;
+cout << "Event::buildDiscrete - stimeEDU=" << stimeEDU << endl;
   tsChild.durationEDU = durEDU;
+cout << "Event::buildDiscrete - durEDU=" << durEDU << endl;
 
   tsChild.start = (float)stimeEDU *
     tempo.getEDUDurationInSeconds().To<float>();
