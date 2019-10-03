@@ -51,6 +51,7 @@ string Sieve::getFileName() {
   return fileName;
 }
 
+
 //---------------------------------------------------------------------------//
 
 void Sieve::BuildFromExpr(int minVal, int maxVal,
@@ -61,6 +62,9 @@ void Sieve::BuildFromExpr(int minVal, int maxVal,
   eList = mp.getElements();
   Sieve::Weights(mp.getMods(), wMethod, wArgVect, mp.getOffsets());
 }
+
+
+//---------------------------------------------------------------------------//
 
 void Sieve::Build(int minVal, int maxVal,
                   const char *eMethod, const char *wMethod,
@@ -131,16 +135,19 @@ int Sieve::ChooseL() {
   list<int>::iterator eIter = eList.begin();
   list<double>::iterator wIter = wList.begin();
 
-  // for (int i : eList) {
-  //   printf("%i ", i);
-  // }
-  // printf("\n");
+/*
+   for (int i : eList) {
+     printf("%i ", i);
+   }
+   printf("\n");
 
-  // printf("wList: ");
-  // for (double i : wList) {
-  //   printf("%f ", i);
-  // }
-  // printf("\n");
+   printf("wList: ");
+   for (double i : wList) {
+     printf("%f ", i);
+   }
+   printf("\n");
+int sever; cin >> sever;
+*/
 
   while (eIter != eList.end() && (randomNumber > *wIter)) {
     eIter++;
@@ -265,7 +272,7 @@ void Sieve::Multiples(int minVal, int maxVal, vector<int> numMods, std::vector<i
 
   eList.sort(); // sort into ascending order
 /*
-  cout << "eList" << endl;
+  cout << "Sieve::Multiples - eList" << endl;
   for (list<int>::iterator it = eList.begin(); it != eList.end(); ++it) {
     cout << *it << ", ";
   }

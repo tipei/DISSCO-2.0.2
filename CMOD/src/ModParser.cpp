@@ -11,6 +11,8 @@ ModParser::Token::Token(std::list<int> l)
                        : l(l)
                        , hasList(true) {}
 
+//----------------------------------------------------------------------------//
+
 const std::list<int>& ModParser::Token::getList() {
   if (hasList) return l;
   hasList = true;
@@ -18,9 +20,15 @@ const std::list<int>& ModParser::Token::getList() {
   return l;
 }
 
+
+//----------------------------------------------------------------------------//
+
 int ModParser::Token::getInt() {
   return n;
 }
+
+
+//----------------------------------------------------------------------------//
 
 std::list<int> ModParser::modList(int mod, int min, int max, int offset) {
   std::list<int> result;
@@ -32,6 +40,9 @@ std::list<int> ModParser::modList(int mod, int min, int max, int offset) {
   return result;
 }
 
+
+//----------------------------------------------------------------------------//
+
 std::list<int> ModParser::offsetList(const std::list<int>& l, int offset) {
   std::list<int> result;
   for (std::list<int>::const_iterator it = l.begin(); it != l.end(); ++it) {
@@ -40,12 +51,18 @@ std::list<int> ModParser::offsetList(const std::list<int>& l, int offset) {
   return result;
 }
 
+
+//----------------------------------------------------------------------------//
+
 std::list<int> ModParser::listUnion(const std::list<int>& a, const std::list<int>& b) {
   std::list<int> result(a.size() + b.size());
   std::list<int>::iterator it = set_union(a.begin(), a.end(), b.begin(), b.end(), result.begin());
   result.erase(it, result.end());
   return result;
 }
+
+
+//----------------------------------------------------------------------------//
 
 std::list<int> ModParser::listIntersection(const std::list<int>& a, const std::list<int>& b) {
   std::list<int> result(std::min(a.size(), b.size()));
@@ -54,12 +71,18 @@ std::list<int> ModParser::listIntersection(const std::list<int>& a, const std::l
   return result;
 }
 
+
+//----------------------------------------------------------------------------//
+
 std::list<int> ModParser::listDifference(const std::list<int>& a, const std::list<int>& b) {
   std::list<int> result(a.size());
   std::list<int>::iterator it = set_difference(a.begin(), a.end(), b.begin(), b.end(), result.begin());
   result.erase(it, result.end());
   return result;
 }
+
+
+//----------------------------------------------------------------------------//
 
 std::list<int> ModParser::listComplement(const std::list<int>& l, int minVal, int maxVal) {
   std::list<int> result;
@@ -73,6 +96,9 @@ std::list<int> ModParser::listComplement(const std::list<int>& l, int minVal, in
   }
   return result;
 }
+
+
+//----------------------------------------------------------------------------//
 
 void ModParser::parseOperator(std::vector<ModParser::Token>& operands, std::stack<char>& operators, int minVal, int maxVal) {
   char op = operators.top();
@@ -106,6 +132,9 @@ void ModParser::parseOperator(std::vector<ModParser::Token>& operands, std::stac
   operands.push_back(result);
 }
 
+
+//----------------------------------------------------------------------------//
+
 int ModParser::precedence(char c) {
   switch (c) {
     case 'U': case 'I': return 1;
@@ -114,6 +143,8 @@ int ModParser::precedence(char c) {
   }
 }
 
+
+//----------------------------------------------------------------------------//
 
 void ModParser::parseExpr(const std::string& exp, int minVal, int maxVal) {
   std::vector<ModParser::Token> operands;
@@ -159,6 +190,9 @@ void ModParser::parseExpr(const std::string& exp, int minVal, int maxVal) {
   }
   _elements = operands.back().getList();
 }
+
+
+//----------------------------------------------------------------------------//
 
 ModParser::ModParser(std::vector<int> offsets) : _offsets(offsets) {
 }
