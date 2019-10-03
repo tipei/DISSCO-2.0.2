@@ -502,7 +502,8 @@ void Note::make_valid(){
   add_rests();
   // adjusting the duration of notes and notate them
   adjust_notes();
-  // print_all_notes();
+  print_all_notes();
+
 
   return;
 }
@@ -804,7 +805,7 @@ void print_all_notes(){ //helper function added by Haorong
   vector<Note*>::iterator it;
   for (it = all_notes.begin(); it!=all_notes.end(); it++){
     Note* cur = *it;
-    if (cur -> pitch_out == "r" || cur -> type_out == "\\bar\"|\" \n" || cur -> type_out == " "){
+    if (cur -> pitch_out == "r111" || cur -> type_out == "\\bar\"|\" \n" || cur -> type_out == " "){
       continue;
     }
 
