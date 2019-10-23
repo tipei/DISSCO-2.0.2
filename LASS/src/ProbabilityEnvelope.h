@@ -29,44 +29,44 @@
 #include "Envelope.h"
 
 class ProbabilityEnvelope : public Envelope {
-
 public:
+    ProbabilityEnvelope();
+    ProbabilityEnvelope(const Envelope& other);
 
-  ProbabilityEnvelope();
-  ProbabilityEnvelope(const Envelope& other);
+    /**
+     * Estimate the area under the envelope curve
+     * \param num_steps number of steps to discretize the time axis of the
+     * envelope
+     */
+    m_value_type estimateAreaUnderCurve(int num_steps);
 
-  /**
-   * Estimate the area under the envelope curve
-   * \param num_steps number of steps to discretize the time axis of the envelope
-   */
-  m_value_type estimateAreaUnderCurve(int num_steps);
+    /**
+     * generate an internal table to count value at each time step
+     * \param num_steps number of steps to discretize the time axis of the
+     * envelope
+     */
+    void generateCountTable(int num_steps);
 
-  /**
-   * generate an internal table to count value at each time step
-   * \param num_steps number of steps to discretize the time axis of the envelope
-   */
-  void generateCountTable(int num_steps);
+    /**
+     * generate a random sample from the distribution
+     * \param x a random number between 0 and 1 from a uniform distribution
+     */
+    m_value_type sample(double x);
 
-  /**
-   * generate a random sample from the distribution
-   * \param x a random number between 0 and 1 from a uniform distribution
-   */
-  m_value_type sample(double x);
-
-  void print();
+    void print();
 
 private:
-  /** the "height" of probability at each time step */
-  vector<m_value_type> stepCounts;
+    /** the "height" of probability at each time step */
+    vector<m_value_type> stepCounts;
 
-  /** current step count + all previous step counts */
-  vector<m_value_type> cumulativeStepCounts;
+    /** current step count + all previous step counts */
+    vector<m_value_type> cumulativeStepCounts;
 
-  /** integral of stepCounts over stepTimes*/
-  m_value_type totalCounts;
+    /** integral of stepCounts over stepTimes*/
+    m_value_type totalCounts;
 
-  /** the time value of each time step */
-  vector<m_value_type> stepTimes;
+    /** the time value of each time step */
+    vector<m_value_type> stepTimes;
 };
 
 #endif /* __PROBABILITYENVELOPE_H */

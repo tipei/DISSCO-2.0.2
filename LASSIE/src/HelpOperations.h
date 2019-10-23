@@ -32,10 +32,9 @@
 
 #include "LASSIE.h"
 
-namespace HelpOperations{
-  void showAbout();
-  void showContents();
-};
+namespace HelpOperations {
+void showAbout();
+void showContents();
+};  // namespace HelpOperations
 
-#endif  //end defining namespace HelpOperations
-
+#endif  // end defining namespace HelpOperations

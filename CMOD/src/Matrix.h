@@ -17,7 +17,6 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-
 //----------------------------------------------------------------------------//
 //
 //   matrix.h
@@ -37,24 +36,22 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define MATRIX_H
 
 // CMOD includes
-#include "Libraries.h"
-
 #include "Define.h"
+#include "Libraries.h"
 #include "Sieve.h"
 #include "Tempo.h"
 
 struct MatPoint {
-  double attdurprob; // probability of attack and duration
-  double normprob; // normalized prob (with type taken into account)
-  int type;
-  int stime;
-  int dur;
+    double attdurprob;  // probability of attack and duration
+    double normprob;    // normalized prob (with type taken into account)
+    int type;
+    int stime;
+    int dur;
 };
 
 class Matrix {
-
-  private:
-    vector< vector< vector<MatPoint> > > matr;
+private:
+    vector<vector<vector<MatPoint> > > matr;
     vector<int> typeLayers;
     vector<double> typeProb;
     set<int> att;
@@ -64,24 +61,23 @@ class Matrix {
     vector<int> short_attime;
     int beatEDUs;
 
-  public:
+public:
+    /**
+     *  Constructor.
+     *  \param numTypes
+     *  \param numAttacks
+     *  \param numDurations
+     *  \param numTypesInLayers
+     *  \param maxVal - limit for the last duration (endDur) allowed by the
+     *parent
+     **/
+    Matrix(int numTypes, int numAttacks, int numDurations, vector<int> numTypesInLayers, int maxVal,
+           Tempo tempo, bool wellAligned = false);
 
     /**
-    *  Constructor.
-    *  \param numTypes
-    *  \param numAttacks
-    *  \param numDurations
-    *  \param numTypesInLayers
-    *  \param maxVal - limit for the last duration (endDur) allowed by the parent
-    **/
-    Matrix(int numTypes, int numAttacks, int numDurations,
-           vector<int> numTypesInLayers, int maxVal,
-           Tempo tempo, bool wellAligned=false);
-
-    /**
-    *  Matrix Copy Constructor
-    **/
-    Matrix(const Matrix &orig);
+     *  Matrix Copy Constructor
+     **/
+    Matrix(const Matrix& orig);
 
     /**
      *   Matrix Assignment Operator
@@ -89,8 +85,8 @@ class Matrix {
     Matrix& operator=(const Matrix& orig);
 
     /**
-    *  Destructor.
-    **/
+     *  Destructor.
+     **/
     ~Matrix();
 
     /**
@@ -98,8 +94,8 @@ class Matrix {
      *  each type of each layer to set probabilities of occurrence for each
      *  stime at each layer.
      *  \param Sieve* attackSieve
-    *  \param vector<Envelope*> attackEnvs
-    **/
+     *  \param vector<Envelope*> attackEnvs
+     **/
     void setAttacks(Sieve* attackSieve, vector<Envelope*> attackEnvs = vector<Envelope*>());
 
     /**
@@ -108,7 +104,8 @@ class Matrix {
      *  occurrence for each duration at each layer.
      *  \param Sieve* durSieve
      *  \param vector<Envelope*> durEnvs
-     *  \param maxVal - limit for the last duration (endDur) allowed by the parent
+     *  \param maxVal - limit for the last duration (endDur) allowed by the
+     *parent
      **/
     void setDurations(Sieve* durSieve, int maxVal, vector<Envelope*> durEnvs = vector<Envelope*>());
 
@@ -143,168 +140,165 @@ class Matrix {
 
     /**
      *  Print.  Prints all the elements of the matrix.
-    **/
+     **/
     void printMatrix(bool normalized);
 
     int verify_valid(int endTime);
 
-  private:
-
-  /**
-   *  Normalizes the matrix by adding all individual probabilities and
-   *  dividing each of them by their sum.
-  **/
+private:
+    /**
+     *  Normalizes the matrix by adding all individual probabilities and
+     *  dividing each of them by their sum.
+     **/
     bool normalizeMatrix();
 
-  /**
-   *  Eliminates possible future conflicts in the matrix by setting
-   *  probabilities to 0 for locations already selected.
-   *  \param chosenPt 	- already chosen location in the array
-  **/
-    void removeConflicts(MatPoint &chosenPt);
+    /**
+     *  Eliminates possible future conflicts in the matrix by setting
+     *  probabilities to 0 for locations already selected.
+     *  \param chosenPt 	- already chosen location in the array
+     **/
+    void removeConflicts(MatPoint& chosenPt);
 
-  /**
-   *  Eliminates possible future conflicts in the matrix for sweep
-   *  by setting probabilities to 0 for locations that do not come
-   *  after the chosen location.
-   *  \param chosenPt - already chosen location in the array
-  **/
-    void removeSweepConflicts(MatPoint &chosenPt);
+    /**
+     *  Eliminates possible future conflicts in the matrix for sweep
+     *  by setting probabilities to 0 for locations that do not come
+     *  after the chosen location.
+     *  \param chosenPt - already chosen location in the array
+     **/
+    void removeSweepConflicts(MatPoint& chosenPt);
 
-  /**
-   *  Adjusts the probabilitie of all types to reflect the last choice and
-   *  the number of children stiil to build.
-   *  \param chosenType  - type of the last chosen matrix element
-   *  \param remaining   - remaining number of children to build
-  **/
+    /**
+     *  Adjusts the probabilitie of all types to reflect the last choice and
+     *  the number of children stiil to build.
+     *  \param chosenType  - type of the last chosen matrix element
+     *  \param remaining   - remaining number of children to build
+     **/
     void recomputeTypeProbs(int chosenType, int remaining);
 
-
-  /**
-   * Chooses a random element in the matrix
-  **/
+    /**
+     * Chooses a random element in the matrix
+     **/
     MatPoint choose();
-//-----------------------------------------------------------------------------
+    //-----------------------------------------------------------------------------
 
-// 	$$$ The following are deprecated methods used for the old 2D matrix $$$
-
-    /**
-    *  Gets the value of the first subscript of the matrix
-    *  \return x row number
-    **/
-//    int GetX();
-
+    // 	$$$ The following are deprecated methods used for the old 2D matrix $$$
 
     /**
-    *  Gets the value of the second subscript of the matrix
-    *  \return y column number
-    **/
-//    int GetY();
+     *  Gets the value of the first subscript of the matrix
+     *  \return x row number
+     **/
+    //    int GetX();
+
+    /**
+     *  Gets the value of the second subscript of the matrix
+     *  \return y column number
+     **/
+    //    int GetY();
 
     /**
      *  Assign a vector - one value for each type or row of the matrix
      *  \param newVector read from a file somewhere else
      **/
-//    void SetVector(vector<float> newVector);
+    //    void SetVector(vector<float> newVector);
 
     /**
-    *  Loads e vector of nvelopes and finds the values corresponding to each
-    *  sieve location (attack point).
-    *  NB. we deal here with sieve locations and not with actual time values.
-    *    ====  first version does not need "probs" not used inside  ====
-    *    ====  third version: all this should take place somewhere else  ====
-    *    ====  no need to overload  ====
-    *  \param envList list of envelopes to be used
-    **/
-//    void Envelopes(vector<Envelope*> envList);
-/*
-    void Envelopes(vector<float> probs, vector<Envelope*> envList)
-    void Envelopes(vector<Collection<xy_point> > xyCollection,
-                   vector<vector<string> > segmentTypes,
-                   vector<vector<string> > segmentFixed);
-*/
+     *  Loads e vector of nvelopes and finds the values corresponding to each
+     *  sieve location (attack point).
+     *  NB. we deal here with sieve locations and not with actual time values.
+     *    ====  first version does not need "probs" not used inside  ====
+     *    ====  third version: all this should take place somewhere else  ====
+     *    ====  no need to overload  ====
+     *  \param envList list of envelopes to be used
+     **/
+    //    void Envelopes(vector<Envelope*> envList);
+    /*
+        void Envelopes(vector<float> probs, vector<Envelope*> envList)
+        void Envelopes(vector<Collection<xy_point> > xyCollection,
+                       vector<vector<string> > segmentTypes,
+                       vector<vector<string> > segmentFixed);
+    */
 
     /**
-    *  Multiplies the elements of an existing matrix with those of a vector
-    *  of doubles.  Each matrix line is multiplied by the same vector elemet,
-    *  one vector element per line.
-    **/
-//    void IncludeVector();
+     *  Multiplies the elements of an existing matrix with those of a vector
+     *  of doubles.  Each matrix line is multiplied by the same vector elemet,
+     *  one vector element per line.
+     **/
+    //    void IncludeVector();
 
     /**
-    *  Multiplies the elements of an existing matrix with those of an
-    *  array of doubles.  Each matrix line between a lower limit (from)
-    *  and an upper limit (to) is multiplied by the same array, each
-    *  element of the array with an element of the matrix line.
-    *  \param array of probabilities for each matrix column
-    *  \param from lower limit for rows
-    *  \param to upper limit for rows
-    **/
-//    void IncludeArray(double array[], int from, int to);
-//    void IncludeArray(vector<double> array, int from, int to);
+     *  Multiplies the elements of an existing matrix with those of an
+     *  array of doubles.  Each matrix line between a lower limit (from)
+     *  and an upper limit (to) is multiplied by the same array, each
+     *  element of the array with an element of the matrix line.
+     *  \param array of probabilities for each matrix column
+     *  \param from lower limit for rows
+     *  \param to upper limit for rows
+     **/
+    //    void IncludeArray(double array[], int from, int to);
+    //    void IncludeArray(vector<double> array, int from, int to);
 
     /**
-    *  Takes a two-dimenssional array of doubles, divides
-    *   each element by the sum of all elements, and adds the value to the
-    *   preceding value (sum of values) so that the last element is always 1.
-    **/
-//    void Normalize();
+     *  Takes a two-dimenssional array of doubles, divides
+     *   each element by the sum of all elements, and adds the value to the
+     *   preceding value (sum of values) so that the last element is always 1.
+     **/
+    //    void Normalize();
 
     /**
-    * Chooses an element out of the probability matrix, based on each
-    * element's associated probability and a randomly generated number
-    **/
-//    void ChooseM();
+     * Chooses an element out of the probability matrix, based on each
+     * element's associated probability and a randomly generated number
+     **/
+    //    void ChooseM();
 
     /**
-    * Same as ChooseM but returns the values directly to the
-    * caller through the reference params r and c.
-    *  \param r row
-    *  \param c column
-    **/
-//    void ChooseM(int &r, int &c);
+     * Same as ChooseM but returns the values directly to the
+     * caller through the reference params r and c.
+     *  \param r row
+     *  \param c column
+     **/
+    //    void ChooseM(int &r, int &c);
 
     /**
-    *  Blocks the locations covered by the duration (durMatrix).  The edges
-    *  are smoothed following a user define slope.  Rows < from and
-    *  rows > to are assigned 0s.
-    *  \param type of event corresponding to a row
-    *  \param stimeMatrix column of the Matrix corresponding to the attack
-    *  \param endLocM last Matrix location covered by this duration
-    *  \param slope smoothing curve user defined
-    *  \param from fist row to which this is applied
-    *  \param to last row to which this is applied
-    **/
-//    void AdjustMatrix(int type, int stimeMatrix, int endLocM, int slope,
-//                      int from, int to);
+     *  Blocks the locations covered by the duration (durMatrix).  The edges
+     *  are smoothed following a user define slope.  Rows < from and
+     *  rows > to are assigned 0s.
+     *  \param type of event corresponding to a row
+     *  \param stimeMatrix column of the Matrix corresponding to the attack
+     *  \param endLocM last Matrix location covered by this duration
+     *  \param slope smoothing curve user defined
+     *  \param from fist row to which this is applied
+     *  \param to last row to which this is applied
+     **/
+    //    void AdjustMatrix(int type, int stimeMatrix, int endLocM, int slope,
+    //                      int from, int to);
 
     /**
-    *  If remainO is -1, sets each element of the vector (a row number) in the
-    *  range specified by from and to to 0.
-    *  If remainO is 0, sets the vector element (a row number) specified by
-    *  type to 0.
-    *  Otherwise, decreases the vector element specified by type by
-    *  1/(remain0 + 1) for each element in the matrix row specified by type
-    *  that is greater than 0.
-    *  Finally, normalizes the vector element range specified by from and to.
-    *  \param type a Matrix row corresponding to an (sub)object type
-    *  \param numObjs the total number of children
-    *  \param newObj the new objects number
-    **/
-//    void AdjustVector(int type, int numObjs, int newObj);
+     *  If remainO is -1, sets each element of the vector (a row number) in the
+     *  range specified by from and to to 0.
+     *  If remainO is 0, sets the vector element (a row number) specified by
+     *  type to 0.
+     *  Otherwise, decreases the vector element specified by type by
+     *  1/(remain0 + 1) for each element in the matrix row specified by type
+     *  that is greater than 0.
+     *  Finally, normalizes the vector element range specified by from and to.
+     *  \param type a Matrix row corresponding to an (sub)object type
+     *  \param numObjs the total number of children
+     *  \param newObj the new objects number
+     **/
+    //    void AdjustVector(int type, int numObjs, int newObj);
 
     /**
-    *   Trims the Matrix by assigning 0s to locations outside the interval
-    *   occupied by the assigned duration for the current type (row) and to
-    *   all other rows (corresponding to all other types).
-    *   NB. This function is used only for the duration matrix and performs
-    *   similar tasks as performed on the s0 matrix for the type/attacks.
-    *   \param type Matrix row corresponding to a type of event
-    *   \param density density of this group of objects/events
-    *   \param remain0 number of (sub)objects that still need to be created
-    *   \param durLoc a location in the durArray (used for testing the end)
-    **/
-//    void TrimMatrix(int type, float density, int remain0, int durLoc);
+     *   Trims the Matrix by assigning 0s to locations outside the interval
+     *   occupied by the assigned duration for the current type (row) and to
+     *   all other rows (corresponding to all other types).
+     *   NB. This function is used only for the duration matrix and performs
+     *   similar tasks as performed on the s0 matrix for the type/attacks.
+     *   \param type Matrix row corresponding to a type of event
+     *   \param density density of this group of objects/events
+     *   \param remain0 number of (sub)objects that still need to be created
+     *   \param durLoc a location in the durArray (used for testing the end)
+     **/
+    //    void TrimMatrix(int type, float density, int remain0, int durLoc);
 
     /**
      *  Finds the most desirable duration given the density and the number
@@ -328,57 +322,55 @@ class Matrix {
      *  \param timeMatrix tart time (attack) in Matrix locations
      *  \param starTarray array of possible stimes.
      **/
-//    void Mult(int remain0, float density, int type, int durLoc,
-//              vector<int> durArray, int stimeMatrix, vector<int> startArray);
+    //    void Mult(int remain0, float density, int type, int durLoc,
+    //              vector<int> durArray, int stimeMatrix, vector<int>
+    //              startArray);
 
     /**
      *  PrintVectors.  Prints a vector/array on a 8 column format.
      **/
-//    void PrintVector();
+    //    void PrintVector();
 
-//----------------------------------------------------------------------------//
+    //----------------------------------------------------------------------------//
 
-  private:
+private:
+    /**
+     *   Deletes the matrix and sets its dimensions to 0.
+     **/
+    //    void Clear();
 
     /**
-    *   Deletes the matrix and sets its dimensions to 0.
-    **/
-//    void Clear();
+     *  Sets the dimensions of the matrix, vector, and the probability array.
+     *  \param x number of rows
+     *  \param y number of columns
+     **/
+    //    void SetDim(int x, int y);
 
     /**
-    *  Sets the dimensions of the matrix, vector, and the probability array.
-    *  \param x number of rows
-    *  \param y number of columns
-    **/
-//    void SetDim(int x, int y);
+     *  Initialize the matrix with the same value (usually 0)
+     *  \param init value to initialize the Matrix
+     **/
+    //    void Init(double init);
 
     /**
-    *  Initialize the matrix with the same value (usually 0)
-    *  \param init value to initialize the Matrix
-    **/
-//    void Init(double init);
+     *  Given the values for a few points fills in an array by intrepolating.
+     *  \param arraySize the size of the array
+     *  \param array an array
+     **/
+    //    void Interpol(int arraySize, double array[]);
 
     /**
-    *  Given the values for a few points fills in an array by intrepolating.
-    *  \param arraySize the size of the array
-    *  \param array an array
-    **/
-//    void Interpol(int arraySize, double array[]);
+     *  If flag = 1 smooth the the matrix locations leading up to
+     *  or trailing away from a sound according to the user defined slope.
+     *  \param line Matrix row corresponding to an object type
+     *  \param slope defined by the user
+     *  \param start beginning of the interval on which the slope is defined
+     *  \parama finish end of the interval on which the slope is defined
+     *  \param flag shows if the slope precedes or succedes the sound.
+     **/
+    //    void Smooth(int line, int slope, int start, int finish, int flag);
 
-    /**
-    *  If flag = 1 smooth the the matrix locations leading up to
-    *  or trailing away from a sound according to the user defined slope.
-    *  \param line Matrix row corresponding to an object type
-    *  \param slope defined by the user
-    *  \param start beginning of the interval on which the slope is defined
-    *  \parama finish end of the interval on which the slope is defined
-    *  \param flag shows if the slope precedes or succedes the sound.
-    **/
-//    void Smooth(int line, int slope, int start, int finish, int flag);
-
-//----------------------------------------------------------------------------//
-
-
+    //----------------------------------------------------------------------------//
 };
 
 #endif

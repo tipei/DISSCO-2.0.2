@@ -17,11 +17,10 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-#include "StandardHeaders.h"
-
 #include "AbstractIterator.h"
 #include "AllPassFilter.h"
 #include "AuWriter.h"
+#include "BiQuadFilter.h"
 #include "Collection.h"
 #include "Constant.h"
 #include "DynamicVariable.h"
@@ -38,6 +37,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "LPCombFilter.h"
 #include "Loudness.h"
 #include "LowPassFilter.h"
+#include "MarkovModel.h"
 #include "MultiPan.h"
 #include "MultiTrack.h"
 #include "Pan.h"
@@ -48,8 +48,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Sound.h"
 #include "SoundSample.h"
 #include "Spatializer.h"
+#include "StandardHeaders.h"
 #include "Track.h"
 #include "Types.h"
 #include "XmlReader.h"
-#include "BiQuadFilter.h"
-#include "MarkovModel.h"

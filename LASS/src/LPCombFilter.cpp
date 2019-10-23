@@ -17,7 +17,6 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-
 //----------------------------------------------------------------------------//
 //
 //	LPCombFilter.cpp
@@ -31,115 +30,94 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 //----------------------------------------------------------------------------//
 
-#include "SoundSample.h"
-#include "Collection.h"
-#include "Track.h"
-#include "MultiTrack.h"
-#include "Filter.h"
 #include "LPCombFilter.h"
+
+#include "Collection.h"
+#include "Filter.h"
 #include "LowPassFilter.h"
+#include "MultiTrack.h"
+#include "SoundSample.h"
+#include "Track.h"
 
 //----------------------------------------------------------------------------//
-LPCombFilter::LPCombFilter(float gain, long delay, float lpf_gain)
-{
-	// set parameters
-	g = gain;
-	D = delay;
-	lpf_g = lpf_gain;
+LPCombFilter::LPCombFilter(float gain, long delay, float lpf_gain) {
+    // set parameters
+    g = gain;
+    D = delay;
+    lpf_g = lpf_gain;
 
-	// create the lowpass-feedback filter
-	lpf = new LowPassFilter(lpf_g);
+    // create the lowpass-feedback filter
+    lpf = new LowPassFilter(lpf_g);
 
-	// initialize x_hist queue
-	x_hist = new Filter::hist_queue<m_sample_type>(D);
-	for(long i=0; i<D; i++)
-		x_hist->enqueue(0.0);
+    // initialize x_hist queue
+    x_hist = new Filter::hist_queue<m_sample_type>(D);
+    for (long i = 0; i < D; i++) x_hist->enqueue(0.0);
 }
 //----------------------------------------------------------------------------//
-LPCombFilter::~LPCombFilter()
-{
-	delete lpf;
-	delete x_hist;
-}
-
-//----------------------------------------------------------------------------//
-m_sample_type LPCombFilter::do_filter(m_sample_type x_t)
-{
-	m_sample_type y_t;
-
-	y_t = x_hist->dequeue();
-	x_hist->enqueue(x_t + (g * lpf->do_filter(y_t)));
-
-	return y_t;
+LPCombFilter::~LPCombFilter() {
+    delete lpf;
+    delete x_hist;
 }
 
 //----------------------------------------------------------------------------//
-void LPCombFilter::reset()
-{
-	// recreate the low-pass-feedback unit and the x-history queue
-	delete lpf;
-	delete x_hist;
+m_sample_type LPCombFilter::do_filter(m_sample_type x_t) {
+    m_sample_type y_t;
 
-	// create the lowpass-feedback filter
-	lpf = new LowPassFilter(lpf_g);
+    y_t = x_hist->dequeue();
+    x_hist->enqueue(x_t + (g * lpf->do_filter(y_t)));
 
-	// initialize x_hist queue
-	x_hist = new Filter::hist_queue<m_sample_type>(D);
-	for(long i=0; i<D; i++)
-		x_hist->enqueue(0.0);
+    return y_t;
 }
 
 //----------------------------------------------------------------------------//
-void LPCombFilter::xml_print( ofstream& xmlOutput )
-{
+void LPCombFilter::reset() {
+    // recreate the low-pass-feedback unit and the x-history queue
+    delete lpf;
+    delete x_hist;
 
-	xmlOutput << "\t<LPCombFilter>" << endl;
+    // create the lowpass-feedback filter
+    lpf = new LowPassFilter(lpf_g);
 
-	xmlOutput << "\t\t<g value=\"" << g << "\" />" << endl;
-	xmlOutput << "\t\t<D value=\"" << D << "\" />" << endl;
-	xmlOutput << "\t\t<lpf_g value=\"" << lpf_g << "\" />" << endl;
-	//lpf->xml_print();
-
-	xmlOutput << "\t</LPCombFilter>" << endl;
-
+    // initialize x_hist queue
+    x_hist = new Filter::hist_queue<m_sample_type>(D);
+    for (long i = 0; i < D; i++) x_hist->enqueue(0.0);
 }
 
 //----------------------------------------------------------------------------//
-LPCombFilter::LPCombFilter()
-{
-}
-void LPCombFilter::set_g(float new_g)
-{
-	g = new_g;
-}
-void LPCombFilter::set_D(long new_D)
-{
-	D = new_D;
+void LPCombFilter::xml_print(ofstream &xmlOutput) {
+    xmlOutput << "\t<LPCombFilter>" << endl;
 
-	// initialize x_hist queue
-	x_hist = new Filter::hist_queue<m_sample_type>(D);
-	for(long i=0; i<D; i++)
-		x_hist->enqueue(0.0);
-}
-void LPCombFilter::set_lpf_g(float new_lpf_g)
-{
-	lpf_g = new_lpf_g;
+    xmlOutput << "\t\t<g value=\"" << g << "\" />" << endl;
+    xmlOutput << "\t\t<D value=\"" << D << "\" />" << endl;
+    xmlOutput << "\t\t<lpf_g value=\"" << lpf_g << "\" />" << endl;
+    // lpf->xml_print();
 
-	// create the lowpass-feedback filter
-	lpf = new LowPassFilter(lpf_g);
+    xmlOutput << "\t</LPCombFilter>" << endl;
 }
-
-void LPCombFilter::xml_read(XmlReader::xmltag *lptag)
-{
-	char *value;
-	if((value = lptag->findChildParamValue("g", "value")) != 0)
-		set_g(atof(value));
-	if((value = lptag->findChildParamValue("D", "value")) != 0)
-		set_D(atoi(value));
-	if((value = lptag->findChildParamValue("lpf_g","value")) != 0)
-		set_lpf_g(atof(value));
-}
-
 
 //----------------------------------------------------------------------------//
-#endif //__LP_COMB_FILTER_CPP
+LPCombFilter::LPCombFilter() {}
+void LPCombFilter::set_g(float new_g) { g = new_g; }
+void LPCombFilter::set_D(long new_D) {
+    D = new_D;
+
+    // initialize x_hist queue
+    x_hist = new Filter::hist_queue<m_sample_type>(D);
+    for (long i = 0; i < D; i++) x_hist->enqueue(0.0);
+}
+void LPCombFilter::set_lpf_g(float new_lpf_g) {
+    lpf_g = new_lpf_g;
+
+    // create the lowpass-feedback filter
+    lpf = new LowPassFilter(lpf_g);
+}
+
+void LPCombFilter::xml_read(XmlReader::xmltag *lptag) {
+    char *value;
+    if ((value = lptag->findChildParamValue("g", "value")) != 0) set_g(atof(value));
+    if ((value = lptag->findChildParamValue("D", "value")) != 0) set_D(atoi(value));
+    if ((value = lptag->findChildParamValue("lpf_g", "value")) != 0) set_lpf_g(atof(value));
+}
+
+//----------------------------------------------------------------------------//
+#endif  //__LP_COMB_FILTER_CPP

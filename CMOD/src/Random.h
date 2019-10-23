@@ -27,96 +27,90 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define RANDOM_H
 
 // CMOD includes
-#include "Libraries.h"
-
 #include "Define.h"
+#include "Libraries.h"
 
 //----------------------------------------------------------------------------//
 
 /**
-*  Random is a static class which encapsulates functions for random number
-*  generation.
-**/
+ *  Random is a static class which encapsulates functions for random number
+ *  generation.
+ **/
 class Random {
-  public:
-        enum distribution_type {
-                RAND_FLAT,
-                RAND_TRIANGLE,
-                RAND_SIGN
-        };
+public:
+    enum distribution_type { RAND_FLAT, RAND_TRIANGLE, RAND_SIGN };
     /**
-    *  Seeds the random number generator
-    **/
+     *  Seeds the random number generator
+     **/
     static void Seed(unsigned int n);
 
     /**
-    *  Seeds the random number generator by system time
-    **/
+     *  Seeds the random number generator by system time
+     **/
     static void SeedBySystemTime();
-	
+
     /**
-    *  Returns a random number in the range [0.0, 1.0]
-    **/
+     *  Returns a random number in the range [0.0, 1.0]
+     **/
     static double Rand();
 
     /**
-    *  Returns a random number in the range [low, high]
-    **/
+     *  Returns a random number in the range [low, high]
+     **/
     static double Rand(double low, double high);
 
     /**
-    *  Returns a random number in the range [low, high] based on a
-    *  distribution type
-    **/
-    static double Rand(double low, double high, distribution_type 
-     distribution);
+     *  Returns a random number in the range [low, high] based on a
+     *  distribution type
+     **/
+    static double Rand(double low, double high, distribution_type distribution);
 
     /**
-    *  Returns a random number in the range [0.00, 1.00] based on a
-    *  distribution type
-    **/
+     *  Returns a random number in the range [0.00, 1.00] based on a
+     *  distribution type
+     **/
     static double Rand(distribution_type distribution);
 
     /**
-    *  Returns a random integer in the range [low, high] based on
-    *  a flat distribution.
-    **/
+     *  Returns a random integer in the range [low, high] based on
+     *  a flat distribution.
+     **/
     static int RandInt(int low, int high);
 
     /**
-    *  Randomly chooses a value from a list.
-    *  There are multiple versions for float, double, and integer lists
-    **/
+     *  Randomly chooses a value from a list.
+     *  There are multiple versions for float, double, and integer lists
+     **/
     static float ChooseFromList(float array[], int size);
     static double ChooseFromList(double array[], int size);
     static int ChooseFromList(int array[], int size);
 
     /**
-    *  Returns an integer value in the range [0, size] given
-    *  a list of probabilities representing the probability
-    *  of the corresponding index being selected.
-    **/
+     *  Returns an integer value in the range [0, size] given
+     *  a list of probabilities representing the probability
+     *  of the corresponding index being selected.
+     **/
     static int ChooseFromProb(std::vector<double> probs);
 
     /**
-    *  Assigns probabilities to a list using a linear distribution
-    *  based on index.
-    **/
+     *  Assigns probabilities to a list using a linear distribution
+     *  based on index.
+     **/
     static void AssignProb(std::list<double> &myProbList);
 
     /**
-    *  Finds a probability through a comparison of an average situation with
-    *  a desired or "prefered" situation.  Borrowed from MP1, NT expression
-    *  \parm value The value being tested
-    *  \parm checkPoint The moment in time (x axis) of the testing.
-    **/
+     *  Finds a probability through a comparison of an average situation with
+     *  a desired or "prefered" situation.  Borrowed from MP1, NT expression
+     *  \parm value The value being tested
+     *  \parm checkPoint The moment in time (x axis) of the testing.
+     **/
     static double PreferedValueDistribution(double value, double checkPoint);
 
     static unsigned int GetSeed() { return seed; }
 
-  private:
+private:
     static unsigned int seed;
-    double * probArray;
+    double *probArray;
 };
 
-#endif // _RANDOM_H_
+#endif  // _RANDOM_H_

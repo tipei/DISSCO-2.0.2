@@ -32,12 +32,12 @@
 #ifndef LASSIE_H
 #define LASSIE_H
 
-//GTKmm library
+// GTKmm library
 #include <gtkmm.h>
 #include <sys/types.h>
 #include <unistd.h>
 
-//LASS library
+// LASS library
 #include "../../LASS/src/LASS.h"
 
 /* Also includes
@@ -46,9 +46,9 @@
 #include <cstdarg>
 #include <cstring>
 #include <ctime>
+#include <fstream>
 #include <iomanip>
 #include <iostream>
-#include <fstream>
 #include <list>
 #include <map>
 #include <sstream>
@@ -56,7 +56,7 @@
 #include <vector>
 */
 
-//CMOD library
+// CMOD library
 #include "../../CMOD/src/CMOD.h"
 #include "../../CMOD/src/Utilities.h"
 
@@ -76,47 +76,40 @@
 #include <vector>
 */
 
-
-
-//other
+// other
 #include <sstream>
 
-//using namespace xercesc;
-
+// using namespace xercesc;
 
 typedef enum {
-  functionReturnInt,
-  functionReturnFloat,
-  functionReturnSPA,
-  functionReturnREV,
-  functionReturnENV,
-  functionReturnSIV,
-  functionReturnPAT,
-  funcitonReturnMEA,
-  functionReturnFIL, // added for filter object
-  functionReturnSPE, //added for generating spectrum from distance
-  functionReturnIntList,
-  functionReturnFloatList,
-  functionReturnEnvelopeList,
-  functionReturnString, //used to parse FileValue
-  functionReturnList,
-  functionReturnMakeListFun
+    functionReturnInt,
+    functionReturnFloat,
+    functionReturnSPA,
+    functionReturnREV,
+    functionReturnENV,
+    functionReturnSIV,
+    functionReturnPAT,
+    funcitonReturnMEA,
+    functionReturnFIL,  // added for filter object
+    functionReturnSPE,  // added for generating spectrum from distance
+    functionReturnIntList,
+    functionReturnFloatList,
+    functionReturnEnvelopeList,
+    functionReturnString,  // used to parse FileValue
+    functionReturnList,
+    functionReturnMakeListFun
 
 } FunctionReturnType;
 
-
-
-typedef enum{
-  modifierTremolo = 0,
-  modifierVibrato = 1,
-  modifierGlissando = 2,
-  modifierBend = 3,
-  modifierDetune = 4,
-  modifierAmptrans = 5,
-  modifierFreqtrans = 6,
-  modifierWave_type = 7
+typedef enum {
+    modifierTremolo = 0,
+    modifierVibrato = 1,
+    modifierGlissando = 2,
+    modifierBend = 3,
+    modifierDetune = 4,
+    modifierAmptrans = 5,
+    modifierFreqtrans = 6,
+    modifierWave_type = 7
 } ModifierType;
 
-
-
-#endif //LASSIE_H
+#endif  // LASSIE_H

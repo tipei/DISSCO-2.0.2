@@ -24,43 +24,41 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 //----------------------------------------------------------------------------//
 
-
 #ifndef PIECE_H
 #define PIECE_H
-#include "CMOD.h"
+#include <stdio.h>
+#include <stdlib.h>
 
+#include "CMOD.h"
 #include "Libraries.h"
 #include "Note.h"
-#include <stdlib.h>
-#include <stdio.h>
 
 //----------------------------------------------------------------------------//
 
 struct PieceHelper {
+    /// Lists contents of directory.
+    static int getDirectoryList(string dir, vector<string>& files);
 
-  ///Lists contents of directory.
-  static int getDirectoryList(string dir, vector<string> &files);
+    /// Ensures a path has a backslash on the end.
+    static string getFixedPath(string path);
 
-  ///Ensures a path has a backslash on the end.
-  static string getFixedPath(string path);
+    /// Determines the name of the project in the given directory.
+    static string getProjectName(string path);
 
-  ///Determines the name of the project in the given directory.
-  static string getProjectName(string path);
+    /// Converts a seed string into a seed number.
+    static int getSeedNumber(string seed);
 
-  ///Converts a seed string into a seed number.
-  static int getSeedNumber(string seed);
+    /// Creates the sound files directory if it does not exist.
+    static void createSoundFilesDirectory(string path);
 
-  ///Creates the sound files directory if it does not exist.
-  static void createSoundFilesDirectory(string path);
+    /// Creates the score files directory if it does not exist.
+    static void createScoreFilesDirectory(string path);
 
-  ///Creates the score files directory if it does not exist.
-  static void createScoreFilesDirectory(string path);
+    /// Checks to see if a file exists.
+    static bool doesFileExist(string path, string filename);
 
-  ///Checks to see if a file exists.
-  static bool doesFileExist(string path, string filename);
-
-  ///Gets the next available sound file.
-  static string getNextSoundFile(string path, string projectName);
+    /// Gets the next available sound file.
+    static string getNextSoundFile(string path, string projectName);
 };
 
 //----------------------------------------------------------------------------//
@@ -68,73 +66,69 @@ class FileValue;
 class Utilities;
 
 class Piece {
+public:
+    /**
+     * Constructor
+     **/
+    Piece(string _workingPath, string _projectTitle);
 
-  public:
+    /**
+     * Destructor
+     **/
+    ~Piece();
 
+    /**
+     * Prints information about the piece.
+     **/
+    void Print();
 
-  /**
-  * Constructor
-  **/
-  Piece(string _workingPath, string _projectTitle);
+    /// Gets the next available sound file.
+    string getNextSoundFile();
 
-  /**
-  * Destructor
-  **/
-  ~Piece();
+    // Modifies the Piece by writing to the DOMDocument. Returns vector of its
+    // children.
+    // Experimental
+    vector<DOMElement*> modifyPiece(DOMElement* eventElement);
 
-  /**
-  * Prints information about the piece.
-  **/
-  void Print();
+    // Identifies function and modifies their numbers. Experimental
+    void functionModifier(DOMElement* functionElement, int maxValue);
 
-  ///Gets the next available sound file.
-  string getNextSoundFile();
+    // Calculates Aesthetic value for every event. Returns vector of events
+    // children. Experimental
+    vector<DOMElement*> calculateAesthetic(DOMElement* eventElement);
 
-  //Modifies the Piece by writing to the DOMDocument. Returns vector of its children.
-  // Experimental
-  vector<DOMElement*> modifyPiece(DOMElement* eventElement);
+    // Calculates Shannon Entropy ratio based on sampled values
+    double calculateEntropyRatio(vector<double> sampleData, string partitionMethod, double min,
+                                 double max);
 
-  //Identifies function and modifies their numbers. Experimental
-  void functionModifier(DOMElement* functionElement, int maxValue);
+    // Genetic Evolution Algorithm.
+    void geneticOptimization(string fitnessFunction, double optimum);
 
-  //Calculates Aesthetic value for every event. Returns vector of events children.
-  //Experimental
-  vector<DOMElement*> calculateAesthetic(DOMElement* eventElement);
+    // Crossover and Mutation Function
+    void crossoverMutation(DOMElement* parent1, DOMElement* parent2, DOMElement* child,
+                           double mutationProb);
 
-  //Calculates Shannon Entropy ratio based on sampled values
-  double calculateEntropyRatio(vector<double> sampleData, string partitionMethod,
-                                double min, double max);
+    // Experiment 2: Calculate M val for an event
+    vector<DOMElement*> calcEventM(DOMElement* eventElement);
 
-  // Genetic Evolution Algorithm.
-  void geneticOptimization(string fitnessFunction, double optimum);
+    // Exp 2: List
 
-  // Crossover and Mutation Function
-  void crossoverMutation(DOMElement* parent1, DOMElement* parent2, DOMElement* child,
-                         double mutationProb);
+private:
+    string path;
+    string projectName;
+    string title;
+    string fileFlags;
+    string fileList;
+    string pieceStartTime;
+    string pieceDuration;
 
-  // Experiment 2: Calculate M val for an event
-  vector<DOMElement *> calcEventM(DOMElement* eventElement);
+    Utilities* utilities;
 
-  // Exp 2: List
-
-  private:
-
-  string path;
-  string projectName;
-  string title;
-  string fileFlags;
-  string fileList;
-  string pieceStartTime;
-  string pieceDuration;
-
-  Utilities* utilities;
-
-  bool soundSynthesis;
-  int numChannels;
-  int sampleRate;
-  int sampleSize;
-  int numThreads;
-
+    bool soundSynthesis;
+    int numChannels;
+    int sampleRate;
+    int sampleSize;
+    int numThreads;
 };
 
 //----------------------------------------------------------------------------//

@@ -27,87 +27,85 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define __ENVELOPE_ITERATOR_H
 
 //----------------------------------------------------------------------------//
-#include "StandardHeaders.h"
-
-#include "Types.h"
 #include "AbstractIterator.h"
 #include "Envelope.h"
+#include "StandardHeaders.h"
+#include "Types.h"
 
 //----------------------------------------------------------------------------//
 
 /**
-*   An iterator that interpolates over a Envelope.  Since a
-*   Envelope acts like a single DynamicVariable, when we want
-*   to use it as such, we need a way to iterate through its value.
-*   That's what this does.
-*   \author Michael Aikins
-**/
-class EnvelopeIterator : public AbstractIterator<m_value_type>
-{
- public:
+ *   An iterator that interpolates over a Envelope.  Since a
+ *   Envelope acts like a single DynamicVariable, when we want
+ *   to use it as such, we need a way to iterate through its value.
+ *   That's what this does.
+ *   \author Michael Aikins
+ **/
+class EnvelopeIterator : public AbstractIterator<m_value_type> {
+public:
     /**
-    *   This is the constructor which initalizes some basic values.
-    *	\param interpolators
-    **/
+     *   This is the constructor which initalizes some basic values.
+     *	\param interpolators
+     **/
     EnvelopeIterator(Collection<Interpolator*> interpolators);
-    
-    /**
-    *   This is the Destructor.
-    **/
-    ~EnvelopeIterator();
 
+    /**
+     *   This is the Destructor.
+     **/
+    ~EnvelopeIterator();
 
     // A B S T R A C T   I T E R A T O R   F U N C T I O N S
 
     /**
-    *	This makes a copy of this iterator.
-    *   \returns A copy of this iterator.
-    **/
+     *	This makes a copy of this iterator.
+     *   \returns A copy of this iterator.
+     **/
     EnvelopeIterator* clone();
-    
+
     /**
-    *	Indicate whether the iterator has another value to return.
-    *	\retval true If there is another value to return
-    *	\retval false If there is not another value to return
-    **/
+     *	Indicate whether the iterator has another value to return.
+     *	\retval true If there is another value to return
+     *	\retval false If there is not another value to return
+     **/
     bool hasNext();
-    
+
     /**
-    *   Gets the next value in the iteration.
-    *   \note Because this returns a reference type, value_ can be changed by the caller.  Steps should be taken to prevent this (with a pass-to-caller member variable perhaps).
-    *	\return a reference to the next value in the iteration
-    **/
+     *   Gets the next value in the iteration.
+     *   \note Because this returns a reference type, value_ can be changed by
+     *the caller.  Steps should be taken to prevent this (with a pass-to-caller
+     *member variable perhaps). \return a reference to the next value in the
+     *iteration
+     **/
     m_value_type& next();
 
 private:
     /**
-    *	This is a collection that holds the interpolators for all the segments.
-    **/
+     *	This is a collection that holds the interpolators for all the segments.
+     **/
     Collection<Interpolator*>* interpolators_;
 
     /**
-    *	This is the current segment's index.
-    **/
+     *	This is the current segment's index.
+     **/
     int iSegmentIndex_;
 
-    /** 
-    *	This is the current DV iterator.
-    **/
-    Iterator<m_value_type> *currentIterator_;
+    /**
+     *	This is the current DV iterator.
+     **/
+    Iterator<m_value_type>* currentIterator_;
 
     /**
-    *	This is the current value.
-    **/
+     *	This is the current value.
+     **/
     m_value_type currentValue_;
 
     /**
-    *	This indicates whether we have more values.
-    **/
+     *	This indicates whether we have more values.
+     **/
     bool moreValues_;
 
     long tempCounter_;
 };
 
-
 //----------------------------------------------------------------------------//
-#endif //__ENVELOPE_ITERATOR_H
+#endif  //__ENVELOPE_ITERATOR_H

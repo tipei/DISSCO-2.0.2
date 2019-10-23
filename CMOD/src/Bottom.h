@@ -32,69 +32,63 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define BOTTOM_H
 
 // CMOD includes
-#include "Libraries.h"
-#include "Define.h"
-#include "Modifier.h"
-#include "Event.h"
-#include "Note.h"
-#include "TimeSpan.h"
-#include "Tempo.h"
-
-#include "Utilities.h"
-#include "Random.h"
-#include "Piece.h"
-#include "Patter.h"
-#include "../../LASS/src/ProbabilityEnvelope.h" // consider moving this into LASS.h
 #include <string>
+
+#include "../../LASS/src/ProbabilityEnvelope.h"  // consider moving this into LASS.h
+#include "Define.h"
+#include "Event.h"
+#include "Libraries.h"
+#include "Modifier.h"
+#include "Note.h"
+#include "Patter.h"
+#include "Piece.h"
+#include "Random.h"
+#include "Tempo.h"
+#include "TimeSpan.h"
+#include "Utilities.h"
 //----------------------------------------------------------------------------//
 class Bottom : public Event {
-
-  private:
-
-    /*DOMElements are held here because these variables need to be recomputed for
-    every sound and note since there could be some randomness built in. */
+private:
+    /*DOMElements are held here because these variables need to be recomputed
+    for every sound and note since there could be some randomness built in. */
 
     DOMElement* frequencyElement;
     DOMElement* loudnessElement;
     DOMElement* modifiersElement;
     DOMElement* ancestorModifiersElement;
 
-    //Current partial during the processing of the event
+    // Current partial during the processing of the event
     int currPartialNum;
-
 
     /*Maps each mod name to an indicator if it's being used:
      -1 = initVal, 0 = notUsed, 1 = used.*/
     map<string, double> mod_used;
 
-    //Pitch number for a well-tempered frequency (used to create notes)
+    // Pitch number for a well-tempered frequency (used to create notes)
 
-    int wellTempPitch;		//(sever will change it to float)
-//  float wellTempPitch;
+    int wellTempPitch;  //(sever will change it to float)
+                        //  float wellTempPitch;
     int absPitchNum;
 
     vector<Sound*> childSounds;
     vector<Note*> childNotes;
 
-//----------------------------------------------------------------------------//
+    //----------------------------------------------------------------------------//
 
-  public:
+public:
+    /**
+     * This is the constructor for new CMOD model
+     *
+     */
+
+    Bottom(DOMElement* _element, TimeSpan _timeSpan, int _type, Tempo _tempo, Utilities* _utilities,
+           DOMElement* _ancestorSpa, DOMElement* _ancestorRev, DOMElement* _ancestorFil,
+           DOMElement* _ancestorModifiers);
 
     /**
-    * This is the constructor for new CMOD model
-    *
-    */
-
-    Bottom(DOMElement* _element, TimeSpan _timeSpan, int _type, Tempo _tempo, Utilities* _utilities, DOMElement* _ancestorSpa, DOMElement* _ancestorRev,
-          DOMElement* _ancestorFil,DOMElement* _ancestorModifiers);
-
-
-
-    /**
-    *   Destructor.
-    **/
+     *   Destructor.
+     **/
     ~Bottom();
-
 
     //--------------------- Build Methods  -----------------------//
     /**
@@ -111,16 +105,15 @@ class Bottom : public Event {
     void buildChildren();
 
     /**
-    * Added by Rishabh. Experimental.
-    **/
+     * Added by Rishabh. Experimental.
+     **/
 
     void modifyChildren();
-
 
     /**
      *  Returns the number of current partial -- overrides Event
      **/
-    int getCurrPartialNum() {return currPartialNum;};
+    int getCurrPartialNum() { return currPartialNum; };
 
     /**
      * Creates a sound and adds the sound to the Score.
@@ -131,7 +124,7 @@ class Bottom : public Event {
      *  Creates a note (traditional notation) with all its attributes.
      **/
     void buildNote(SoundAndNoteWrapper* _soundNoteWrapper);
-//  void buildNote(TimeSpan tsChild, int type, string name);
+    //  void buildNote(TimeSpan tsChild, int type, string name);
 
     /**
      *  Overloaded to prevent Event from printing.
@@ -162,7 +155,7 @@ class Bottom : public Event {
     /**
      * Adds pointers to any notes in this Bottom event to a vector (LIST ?)
      * \param noteVect a reference to a vector of notes
-    **/
+     **/
     list<Note> getNotes();
 
     /**
@@ -176,15 +169,13 @@ class Bottom : public Event {
      **/
     void constructChild(TimeSpan ts, int type, string name, Tempo tempo);
 
-    //getters
-    DOMElement* getSPAElement(){return spatializationElement;}
-    DOMElement* getREVElement(){return reverberationElement;}
-    DOMElement* getFILElement(){return filterElement;}
-
-
+    // getters
+    DOMElement* getSPAElement() { return spatializationElement; }
+    DOMElement* getREVElement() { return reverberationElement; }
+    DOMElement* getFILElement() { return filterElement; }
 
     //--------------------- Private helper methods  -----------------------//
-  private:
+private:
     /**
      *  Computes a base frequency for the bottom event
      **/
@@ -203,7 +194,7 @@ class Bottom : public Event {
     /**
      *  Computes a deviation value for the bottom event
      **/
-    float computeDeviation( DOMElement* _spectrum);
+    float computeDeviation(DOMElement* _spectrum);
 
     /**
      *   Assigns a frequency to a partial according to baseFrequency and the
@@ -234,7 +225,8 @@ class Bottom : public Event {
      * \param loudness loudness at the destination of the sounds
      * \param envNum envelope's number in envelope library
      **/
-    void generatePartials(Sound* newsound, float frequency, float loudness, float distance, Envelope* waveShape);
+    void generatePartials(Sound* newsound, float frequency, float loudness, float distance,
+                          Envelope* waveShape);
 
     /**
      *  Helper function for interpolating partials between spetrums of different
@@ -246,17 +238,18 @@ class Bottom : public Event {
      * \param y2 amplitude of the partial at y2
      * \param x the frequency whose amplitude we are looking for
      **/
-     double calculateFreqPartial(double x1, double y1, double x2, double y2, double x);
+    double calculateFreqPartial(double x1, double y1, double x2, double y2, double x);
 
     /**
-     *  Assigns values to the array of ampscales based on a randomly selected rule
+     *  Assigns values to the array of ampscales based on a randomly selected
+     *rule
      *  ==== not yet implemented ====
      * \param numPartials The number of partials
      * \param ampScale An array of floats for determining the amplitude scale
      **/
     void rules(int numPartials, float ampScale[]);
 
-//----------------------------------------------------------------------------//
+    //----------------------------------------------------------------------------//
 
     /**
      *  Applies filter to a sound
@@ -279,10 +272,7 @@ class Bottom : public Event {
      *     individual partials
      *  \param numParts the number of partials in this sound
      **/
-    void spatializationStereo(Sound *s,
-                              DOMElement* _channels,
-                              string applyHow,
-                              int numParts);
+    void spatializationStereo(Sound* s, DOMElement* _channels, string applyHow, int numParts);
 
     /**
      *  Sets the spatialization of a sound by assigning each speaker in an
@@ -293,10 +283,7 @@ class Bottom : public Event {
      *     individual partials
      *  \param numParts the number of partials in this sound
      **/
-    void spatializationMultiPan(Sound *s,
-                                DOMElement* _channels,
-                                string applyHow,
-                                int numParts);
+    void spatializationMultiPan(Sound* s, DOMElement* _channels, string applyHow, int numParts);
 
     /**
      *  Sets the spatialization of a sound assuming a speaker array
@@ -309,10 +296,7 @@ class Bottom : public Event {
      *     individual partials
      *  \param numParts the number of partials in this sound
      **/
-    void spatializationPolar(Sound *s,
-                             DOMElement* _channels,
-                             string applyHow,
-                             int numParts);
+    void spatializationPolar(Sound* s, DOMElement* _channels, string applyHow, int numParts);
 
     /**
      *  Applies reverberation to a sound
@@ -321,21 +305,20 @@ class Bottom : public Event {
     void applyReverberation(Sound* s);
 
     /**
-    *  Use of modifiers: tremolo, vibrato, transients. Makes 3 lists/maps -
-    *  one for modifiers with no dependencies, one for modifiers grouped
-    *  together, and one for modifiers with direct dependencies on other
-    *  modifiers. It goes through each list (in the order mentioned) to
-    *  find which modifiers to use and their respective values and applies
-    *  each of them.
-    **/
-    void applyModifiers(Sound *s, int numPartials);
+     *  Use of modifiers: tremolo, vibrato, transients. Makes 3 lists/maps -
+     *  one for modifiers with no dependencies, one for modifiers grouped
+     *  together, and one for modifiers with direct dependencies on other
+     *  modifiers. It goes through each list (in the order mentioned) to
+     *  find which modifiers to use and their respective values and applies
+     *  each of them.
+     **/
+    void applyModifiers(Sound* s, int numPartials);
 
     /**
      *  Apply modifiers for a note.
      **/
-//  vector<string> applyNoteModifiers();
+    //  vector<string> applyNoteModifiers();
     vector<string> applyNoteModifiers(DOMElement* _playingMethods);
     vector<string> applyNoteModifiersOld();
-
 };
 #endif

@@ -28,49 +28,48 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 //----------------------------------------------------------------------------//
 
-#include "Types.h"
 #include "Collection.h"
 #include "Envelope.h"
-
+#include "Types.h"
 
 /**
- *	This class manages a collection of Envelopes, providing methods for 
+ *	This class manages a collection of Envelopes, providing methods for
  *	loading and saving the collection to a library file as well as
- *	functionality for adding to, retrieving from, updating the collection 
+ *	functionality for adding to, retrieving from, updating the collection
  *	with, and displaying individual Envelope items. The name Envelope
  *	is used informally to designate an Envelope.
  *
- *	\note All methods in this class that take an index argument begin with a first value of 1 for user ease, though the actual Collection indices begin at 0.
+ *	\note All methods in this class that take an index argument begin with a
+ *first value of 1 for user ease, though the actual Collection indices begin at
+ *0.
  *
  *	\author Philipp Fraund
  **/
 
-class EnvelopeLibrary 
-{
+class EnvelopeLibrary {
 public:
-
     /**
      *  This is the Constructor.
      **/
-    EnvelopeLibrary ();
+    EnvelopeLibrary();
 
     /**
      *  This is the destructor.  It deallocates all the Envelopes stored in the
      *  library.
      **/
-    ~EnvelopeLibrary ();
+    ~EnvelopeLibrary();
 
     /**
      *  This is a copy constructor.
      *	\param lib The EnvelopeLibrary to copy
-     *	\return A copy of lib 
+     *	\return A copy of lib
      **/
-    EnvelopeLibrary (EnvelopeLibrary & lib);
+    EnvelopeLibrary(EnvelopeLibrary& lib);
 
     /**
      *  This is an overloaded assignment operator for EvelopeLibraries
      **/
-    EnvelopeLibrary & operator= (EnvelopeLibrary & lib);
+    EnvelopeLibrary& operator=(EnvelopeLibrary& lib);
 
     /**
      *  This function writes the Envelope library to a disk file.
@@ -78,21 +77,21 @@ public:
      *	\retval true If successful
      *	\retval false If unsuccessful
      **/
-    bool saveLibrary (char * filename);
+    bool saveLibrary(char* filename);
 
     /**
      *  This function reads the Envelope library from a disk file.
      *	\param filename The name of the file to read from
      *	\return The number of entries in the library of -1 if unsucessful
      **/
-    int loadLibrary (char * filename);
+    int loadLibrary(char* filename);
 
     /**
      *  This function reads an Envelope library in the new format
      *	\param filename The name of the file to read from
      *	\return The number of entries in the library of -1 if unsucessful
      **/
-    int loadLibraryNewFormat (char * filename);
+    int loadLibraryNewFormat(char* filename);
 
     /**
      *  This function returns a pointer to a new Envelope given an
@@ -100,7 +99,7 @@ public:
      *	\param index Which Envelope in the EnvelopeLibrary to find
      *	\return A pointer to an envelope
      **/
-    Envelope * getEnvelope (int index);
+    Envelope* getEnvelope(int index);
 
     /**
      *  This function returns a reference to a new Envelope given an
@@ -108,7 +107,7 @@ public:
      *	\param index Which Envelope in the EnvelopeLibrary to find
      *	\return A const reference to the original envelope
      **/
-    const Envelope& getEnvelopeRef (int index);
+    const Envelope& getEnvelopeRef(int index);
 
     /**
      *	This function adds an Envelope (passed by pointer) to the
@@ -116,7 +115,7 @@ public:
      *	\param env The new Envelope to add to the EnvelopeLibrary
      *	\return The index of the new Envelope in the EnvelopeLibrary
      **/
-    int addEnvelope (Envelope * env);
+    int addEnvelope(Envelope* env);
 
     /**
      *  This function adds a Collection of n+1 points and a Collection of n
@@ -126,8 +125,7 @@ public:
      *	\param segments A Collection of n segments
      *	\return The index where they were added
      **/
-    int addEnvelope (Collection <xy_point> points,
-		     Collection <envelope_segment> segments);
+    int addEnvelope(Collection<xy_point> points, Collection<envelope_segment> segments);
 
     /**
      *  This function updates the EnvelopeLibrary entry at the index with an
@@ -137,7 +135,7 @@ public:
      *	\retval true Successful
      *	\retval false Unsuccessful (index out of range)
      **/
-    bool updateEnvelope (int index, Envelope * env);
+    bool updateEnvelope(int index, Envelope* env);
 
     /**
      *  This function displays the indexed Envelope's contents
@@ -145,25 +143,23 @@ public:
      *	\param index The Envelope in the EvelopeLibrary to show
      **/
 
-    void showEnvelope (int index);
+    void showEnvelope(int index);
 
     /**
-     *  This function returns the number of envelopes existing in the 
+     *  This function returns the number of envelopes existing in the
      *	EnvelopeLibrary
      *	\return The number of envelopes
      **/
 
-    int size ();
-
+    int size();
 
 private:
-
     /**
      *  This is a data structure to hold the library of envelopes.
      **/
 
-    Collection <Envelope *> library;
+    Collection<Envelope*> library;
 };
 
 //----------------------------------------------------------------------------//
-#endif //__ENVELOPE_LIBRARY_H
+#endif  //__ENVELOPE_LIBRARY_H

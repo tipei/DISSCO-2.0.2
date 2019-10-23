@@ -32,125 +32,78 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 //----------------------------------------------------------------------------//
 
-
+//----------------------------------------------------------------------------//
+Constant::Constant(m_value_type value) : value_(value) {}
 
 //----------------------------------------------------------------------------//
-Constant::Constant(m_value_type value)
-    :value_(value)
-{
+Constant* Constant::clone() { return new Constant(*this); }
+
+//----------------------------------------------------------------------------//
+void Constant::setValue(m_value_type value) { value_ = value; }
+
+//----------------------------------------------------------------------------//
+m_value_type Constant::getValue() { return value_; }
+
+//----------------------------------------------------------------------------//
+Iterator<m_value_type> Constant::valueIterator() {
+    return Iterator<m_value_type>(new ConstantIterator(value_, getSampleCount()));
 }
 
 //----------------------------------------------------------------------------//
-Constant* Constant::clone()
-{
-    return new Constant(*this);
-}
+void Constant::scale(m_value_type factor) { value_ *= factor; }
 
 //----------------------------------------------------------------------------//
-void Constant::setValue(m_value_type value)
-{
-    value_ = value;
-}
-
-//----------------------------------------------------------------------------//
-m_value_type Constant::getValue()
-{
-    return value_;
-}
-
-//----------------------------------------------------------------------------//
-Iterator<m_value_type> Constant::valueIterator()
-{
-    return Iterator<m_value_type>(new ConstantIterator(value_,getSampleCount()));
-}
-
-//----------------------------------------------------------------------------//
-void Constant::scale(m_value_type factor)
-{
-    value_ *= factor;
-}
-
-
-//----------------------------------------------------------------------------//
-m_value_type Constant::getMaxValue()
-{
-    return value_;
-}
-
+m_value_type Constant::getMaxValue() { return value_; }
 
 //----------------------------------------------------------------------------//
 // Constant::ConstantIterator
 
 //----------------------------------------------------------------------------//
-Constant
-    ::ConstantIterator
-    ::ConstantIterator(m_value_type value, m_sample_count_type count)
-    : value_(value), count_(count)
-{
-}
+Constant ::ConstantIterator ::ConstantIterator(m_value_type value, m_sample_count_type count)
+    : value_(value), count_(count) {}
 
 //----------------------------------------------------------------------------//
-Constant::ConstantIterator* Constant
-    ::ConstantIterator
-    ::clone()
-{
+Constant::ConstantIterator* Constant ::ConstantIterator ::clone() {
     return new ConstantIterator(value_, count_);
 }
 
+//----------------------------------------------------------------------------//
+inline bool Constant ::ConstantIterator ::hasNext() { return (count_ > 0); }
 
 //----------------------------------------------------------------------------//
-inline bool Constant
-    ::ConstantIterator
-    ::hasNext()
-{
-    return (count_ > 0);
-}
-
-//----------------------------------------------------------------------------//
-inline m_value_type& Constant
-    ::ConstantIterator
-    ::next()
-{
+inline m_value_type& Constant ::ConstantIterator ::next() {
     count_--;
     return value_;
 }
 
-
 //----------------------------------------------------------------------------//
-void Constant::xml_print( ofstream& xmlOutput )
-{
+void Constant::xml_print(ofstream& xmlOutput) {
+    xmlOutput << "\t\t\t\t<dv_type value=\"constant\" />" << endl;
+    xmlOutput << "\t\t\t\t<duration value=\"" << getDuration() << "\" />" << endl;
+    xmlOutput << "\t\t\t\t<rate value=\"" << getSamplingRate() << "\" />" << endl;
 
-        xmlOutput << "\t\t\t\t<dv_type value=\"constant\" />" << endl;
-        xmlOutput << "\t\t\t\t<duration value=\"" << getDuration() << "\" />" << endl;
-        xmlOutput << "\t\t\t\t<rate value=\"" << getSamplingRate() << "\" />" << endl;
-
-        //Print out private vars and collections for Constant here
-        xmlOutput << "\t\t\t\t<value value=\"" << value_ << "\" />" << endl;
-
+    // Print out private vars and collections for Constant here
+    xmlOutput << "\t\t\t\t<value value=\"" << value_ << "\" />" << endl;
 }
 
 //----------------------------------------------------------------------------//
-void Constant::xml_read(XmlReader::xmltag *constanttag)
-{
-	char *value;
+void Constant::xml_read(XmlReader::xmltag* constanttag) {
+    char* value;
 
-	if((value = constanttag->findChildParamValue("duration","value")) != 0)
-		setDuration(atof(value));
+    if ((value = constanttag->findChildParamValue("duration", "value")) != 0)
+        setDuration(atof(value));
 
-	if((value = constanttag->findChildParamValue("rate","value")) != 0)
-		setSamplingRate(atoi(value));
+    if ((value = constanttag->findChildParamValue("rate", "value")) != 0)
+        setSamplingRate(atoi(value));
 
-	if((value = constanttag->findChildParamValue("value","value")) != 0)
-		setValue(atof(value));
+    if ((value = constanttag->findChildParamValue("value", "value")) != 0) setValue(atof(value));
 }
 
 //----------------------------------------------------------------------------//
-void Constant::xml_print( ofstream& xmlOutput, list<DynamicVariable*>& dynObjs )
-{
-  dynObjs.size(); //remove warning about unused parameter...
-	xml_print(xmlOutput);
+void Constant::xml_print(ofstream& xmlOutput, list<DynamicVariable*>& dynObjs) {
+    dynObjs.size();  // remove warning about unused parameter...
+    xml_print(xmlOutput);
 }
 
-
 //----------------------------------------------------------------------------//
-#endif //__CONSTANT_CPP
+#endif  //__CONSTANT_CPP

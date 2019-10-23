@@ -35,84 +35,67 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Iterator.h"
 
 //----------------------------------------------------------------------------//
-MultiTrack::MultiTrack()
-{
+MultiTrack::MultiTrack() {
     // nothing
 }
-    
+
 //----------------------------------------------------------------------------//
-MultiTrack::MultiTrack(
-        int channels,
-        m_sample_count_type numSamples,
-        m_rate_type samplingRate)
-{
-    for (int i=0; i<channels; i++)
-    {
+MultiTrack::MultiTrack(int channels, m_sample_count_type numSamples, m_rate_type samplingRate) {
+    for (int i = 0; i < channels; i++) {
         // create a blank track: (zero'd out)
         Track* t = new Track(numSamples, samplingRate, true);
         // add this blank track:
         add(t);
     }
-
 }
 
 //----------------------------------------------------------------------------//
-MultiTrack::MultiTrack(MultiTrack& mt) : Collection<Track*>(mt)
-{
+MultiTrack::MultiTrack(MultiTrack& mt) : Collection<Track*>(mt) {
     // copy every track from mt to this object.
     Iterator<Track*> it = mt.iterator();
-    while (it.hasNext())
-        add(new Track(*it.next()));
+    while (it.hasNext()) add(new Track(*it.next()));
 }
 
 //----------------------------------------------------------------------------//
-MultiTrack& MultiTrack::operator=(MultiTrack& mt)
-{
-    if ( this != &mt) // beware of self assignment
+MultiTrack& MultiTrack::operator=(MultiTrack& mt) {
+    if (this != &mt)  // beware of self assignment
     {
         // delete any tracks:
         Iterator<Track*> it = iterator();
-        while(it.hasNext())
-            delete it.next();
-        
+        while (it.hasNext()) delete it.next();
+
         // clear this object
         clear();
-        
+
         // copy every track from mt to this object.
         it = mt.iterator();
-        while (it.hasNext())
-            add(new Track(*it.next()));
+        while (it.hasNext()) add(new Track(*it.next()));
     }
-    
+
     return *this;
 }
 
 //----------------------------------------------------------------------------//
-MultiTrack::~MultiTrack()
-{
-        // delete any tracks:
-        Iterator<Track*> it = iterator();
-        while(it.hasNext())
-            delete it.next();
-        
-        // clear this object
-        clear();
+MultiTrack::~MultiTrack() {
+    // delete any tracks:
+    Iterator<Track*> it = iterator();
+    while (it.hasNext()) delete it.next();
+
+    // clear this object
+    clear();
 }
 
 //----------------------------------------------------------------------------//
-void MultiTrack::composite(MultiTrack& mt, m_time_type startTime)
-{
-
+void MultiTrack::composite(MultiTrack& mt, m_time_type startTime) {
     Iterator<Track*> it1 = iterator();
     Iterator<Track*> it2 = mt.iterator();
-    
-    while (it1.hasNext() && it2.hasNext())
-    {
+
+    while (it1.hasNext() && it2.hasNext()) {
         it1.next()->composite(*it2.next(), startTime);
     }
-    
+
     // we should do some warning if sizes aren't equal and such.
 }
 
 //----------------------------------------------------------------------------//
-#endif //__MULTI_TRACK_CPP
+#endif  //__MULTI_TRACK_CPP

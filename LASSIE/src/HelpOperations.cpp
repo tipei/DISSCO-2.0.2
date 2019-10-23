@@ -29,41 +29,34 @@
 
 #include "HelpOperations.h"
 
-void HelpOperations::showAbout(){
-  Glib::RefPtr<Gtk::Builder> refBuilder = Gtk::Builder::create();
-  
-  #ifdef GLIBMM_EXCEPTIONS_ENABLED
-    try{
-      refBuilder->add_from_file("./LASSIE/src/UI/HelpAbout.ui");
-      refBuilder->add_from_file("./LASSIE/src/UI/HelpAbout.ui");
+void HelpOperations::showAbout() {
+    Glib::RefPtr<Gtk::Builder> refBuilder = Gtk::Builder::create();
+
+#ifdef GLIBMM_EXCEPTIONS_ENABLED
+    try {
+        refBuilder->add_from_file("./LASSIE/src/UI/HelpAbout.ui");
+        refBuilder->add_from_file("./LASSIE/src/UI/HelpAbout.ui");
+    } catch (const Glib::FileError& ex) {
+        std::cerr << "FileError: " << ex.what() << std::endl;
+    } catch (const Gtk::BuilderError& ex) {
+        std::cerr << "BuilderError: " << ex.what() << std::endl;
     }
-    catch(const Glib::FileError& ex){
-      std::cerr << "FileError: " << ex.what() << std::endl;
-    }
-    catch(const Gtk::BuilderError& ex){
-      std::cerr << "BuilderError: " << ex.what() << std::endl;
-    }
-  #else
+#else
     std::auto_ptr<Glib::Error> error;
-    if (!refBuilder->add_from_file("./LASSIE/src/UI/HelpAbout.ui", error)){
-      std::cerr << error->what() << std::endl;
-  }
-  #endif /* !GLIBMM_EXCEPTIONS_ENABLED */
+    if (!refBuilder->add_from_file("./LASSIE/src/UI/HelpAbout.ui", error)) {
+        std::cerr << error->what() << std::endl;
+    }
+#endif /* !GLIBMM_EXCEPTIONS_ENABLED */
 
-  Gtk::Dialog* helpAboutDialog;
-  // Get the GtkBuilder-instantiated Dialog:
+    Gtk::Dialog* helpAboutDialog;
+    // Get the GtkBuilder-instantiated Dialog:
 
-  refBuilder->get_widget("helpAboutDialog", helpAboutDialog);
-  //newObjectDialog->set_parent(*this);
+    refBuilder->get_widget("helpAboutDialog", helpAboutDialog);
+    // newObjectDialog->set_parent(*this);
 
-  // Get the GtkBuilder-instantiated Button, and connect a signal handler:
-  helpAboutDialog->run();
-  helpAboutDialog->hide();
+    // Get the GtkBuilder-instantiated Button, and connect a signal handler:
+    helpAboutDialog->run();
+    helpAboutDialog->hide();
 }
 
-
-void HelpOperations::showContents(){
-}
-
-
-
+void HelpOperations::showContents() {}

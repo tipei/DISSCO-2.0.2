@@ -7,8 +7,6 @@ using namespace std;
 #define SIZE 8
 #define SIZE2 8
 
-
-
 extern string pitchNames[12];
 
 extern string OutNames[12];

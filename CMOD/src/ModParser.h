@@ -1,28 +1,30 @@
 #ifndef MODPARSER_H
 #define MODPARSER_H
 
-#include "Libraries.h"
-#include "Define.h"
 #include <map>
 
+#include "Define.h"
+#include "Libraries.h"
+
 class ModParser {
-  private:
+private:
     std::vector<int> _mods;
     std::vector<int> _offsets;
     std::list<int> _elements;
 
     // Helper class used as a placeholder for a number or a list while parsing.
-    // Facilitates implementation of polymorphic operators (for example, a list offset by
-    // an integer, if such functionality is ever needed.
+    // Facilitates implementation of polymorphic operators (for example, a list
+    // offset by an integer, if such functionality is ever needed.
     class Token {
-      private:
+    private:
         int n;
         int minVal;
         int maxVal;
         int offset;
         std::list<int> l;
         bool hasList;
-      public:
+
+    public:
         Token(int n, int minVal, int maxVal, int offset = 0);
         Token(std::list<int> l);
         const std::list<int>& getList();
@@ -46,8 +48,7 @@ class ModParser {
     // Hardcoded precedence of all operator characters allowed in expressions
     static int precedence(char c);
 
-  public:
-
+public:
     ModParser(std::vector<int> offsets);
 
     // Helper method for parseExpr
