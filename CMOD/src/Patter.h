@@ -17,7 +17,6 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-
 //---------------------------------------------------------------------------//
 //
 //    patter.h
@@ -37,29 +36,26 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define PATTER_H
 
 // CMOD includes
-#include "Libraries.h"
-
 #include "Define.h"
+#include "Libraries.h"
 
 //---------------------------------------------------------------------------//
 
 class Patter {
-  private:
+private:
     std::vector<int> intervals;
     std::vector<int> patty;
 
     int origin;
     int nextIndex;
 
-    //for use in expand
+    // for use in expand
     std::string expMethod;
     int expModulo;
     int expLow;
     int expHigh;
 
-
-  public:
-
+public:
     /**
      *  Constructor for empty object.  This will be used by eventfactory system
      *  for evaluating patter objects.
@@ -67,10 +63,10 @@ class Patter {
     Patter();
 
     /**
-    *  Advanced constructor.
-    *  \param originNum starting point
-    *  \param intervalVect list of intervals
-    **/
+     *  Advanced constructor.
+     *  \param originNum starting point
+     *  \param intervalVect list of intervals
+     **/
     Patter(int originNum, std::vector<int> intervalVect);
 
     /**
@@ -83,16 +79,15 @@ class Patter {
      **/
     Patter& operator=(const Patter& rhs);
 
-
     /**
-    *  Destructor.  Calls Patter::clear();
-    **/
+     *  Destructor.  Calls Patter::clear();
+     **/
     ~Patter();
 
     /**
      *  Moves the origin of this pattern to a new point
      **/
-    void moveOrigin( int newOrigin );
+    void moveOrigin(int newOrigin);
 
     /**
      *  Returns the next value from the pattern
@@ -124,37 +119,35 @@ class Patter {
      **/
     void Adjust();
 
-  private:
-
+private:
     /**
-    *  Finds all intervals allowed by a given range which are equivalent mod m
-    *  with the initial list.  The "numTerms" equivalence should not be
-    *  reduced since the terms are integers.
-    *  \param modulo interval of repeat
-    *  \param low lower limit
-    *  \param high higher limit
-    **/
+     *  Finds all intervals allowed by a given range which are equivalent mod m
+     *  with the initial list.  The "numTerms" equivalence should not be
+     *  reduced since the terms are integers.
+     *  \param modulo interval of repeat
+     *  \param low lower limit
+     *  \param high higher limit
+     **/
     void Equivalence(int modulo, int low, int high);
 
     /**
-    *  Creates symmetrical patterns.
-    *    ====  Not available at the present time  ====
-    *  \param modulo interval of repeat
-    *  \param low lower limit
-    *  \param high higher limit
-    **/
+     *  Creates symmetrical patterns.
+     *    ====  Not available at the present time  ====
+     *  \param modulo interval of repeat
+     *  \param low lower limit
+     *  \param high higher limit
+     **/
     void Symmetries(int modulo, int low, int high);
 
-
     /**
-    *  Distorts an existing pattern
-    *    ====  Not available at the present time  ====
-    *  \param modulo interval of repeat
-    *  \param low lower limit
-    *  \param high higher limit
-    **/
+     *  Distorts an existing pattern
+     *    ====  Not available at the present time  ====
+     *  \param modulo interval of repeat
+     *  \param low lower limit
+     *  \param high higher limit
+     **/
     void Distort(int modulo, int low, int high);
 
-//----------------------------------------------------------------------------//
+    //----------------------------------------------------------------------------//
 };
 #endif

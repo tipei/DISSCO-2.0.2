@@ -30,76 +30,69 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 //----------------------------------------------------------------------------//
 
-#include "SoundSample.h"
-#include "Collection.h"
-#include "Track.h"
-#include "MultiTrack.h"
 #include "Filter.h"
 
+#include "Collection.h"
+#include "MultiTrack.h"
+#include "SoundSample.h"
+#include "Track.h"
+
 //----------------------------------------------------------------------------//
-MultiTrack &Filter::do_filter_MultiTrack(MultiTrack &inWave)
-{
-	MultiTrack *newMultiTrack;
-	Track *newTrack;
-	SoundSample *channel;
+MultiTrack &Filter::do_filter_MultiTrack(MultiTrack &inWave) {
+    MultiTrack *newMultiTrack;
+    Track *newTrack;
+    SoundSample *channel;
 
-	// create the new MultiTrack
-	newMultiTrack = new MultiTrack();
+    // create the new MultiTrack
+    newMultiTrack = new MultiTrack();
 
-	// iterate over all individual tracks
-	// for each track:
-	//  grab the SoundSample from inside the Track
-	//  filter the SoundSample, which returns a NEW SoundSample
-	//  reset the filter so that it can be used fresh next time
-	//  create a new track based on the returned, filtered SoundSample
-	//  add this new track to the output MultiTrack
-    Iterator<Track*> it = inWave.iterator();
-    while (it.hasNext())
-    {
-		channel = & it.next()->getWave();
-		newTrack = new Track(do_filter_SoundSample(channel));
-		reset();
-		newMultiTrack->add(newTrack);
+    // iterate over all individual tracks
+    // for each track:
+    //  grab the SoundSample from inside the Track
+    //  filter the SoundSample, which returns a NEW SoundSample
+    //  reset the filter so that it can be used fresh next time
+    //  create a new track based on the returned, filtered SoundSample
+    //  add this new track to the output MultiTrack
+    Iterator<Track *> it = inWave.iterator();
+    while (it.hasNext()) {
+        channel = &it.next()->getWave();
+        newTrack = new Track(do_filter_SoundSample(channel));
+        reset();
+        newMultiTrack->add(newTrack);
     }
 
-	return *newMultiTrack;
+    return *newMultiTrack;
 }
 
 //----------------------------------------------------------------------------//
-Track &Filter::do_filter_Track(Track &inWave)
-{
-	Track *newTrack;
-	SoundSample *channel;
-	
-	// grab the SoundSample from inside the Track
-	// filter the SoundSample, which returns a NEW SoundSample
-	// create a new track based on the returned, filtered SoundSample
-	channel = & inWave.getWave();
-	newTrack = new Track(do_filter_SoundSample(channel));
+Track &Filter::do_filter_Track(Track &inWave) {
+    Track *newTrack;
+    SoundSample *channel;
 
-	return *newTrack;
+    // grab the SoundSample from inside the Track
+    // filter the SoundSample, which returns a NEW SoundSample
+    // create a new track based on the returned, filtered SoundSample
+    channel = &inWave.getWave();
+    newTrack = new Track(do_filter_SoundSample(channel));
+
+    return *newTrack;
 }
 
 //----------------------------------------------------------------------------//
-SoundSample *Filter::do_filter_SoundSample(SoundSample *inWave)
-{
-  
-  
-	int i;
-	SoundSample *outWave;
+SoundSample *Filter::do_filter_SoundSample(SoundSample *inWave) {
+    int i;
+    SoundSample *outWave;
 
-	// create new SoundSample
-	outWave = new SoundSample(inWave->getSampleCount(),
-							  inWave->getSamplingRate());
+    // create new SoundSample
+    outWave = new SoundSample(inWave->getSampleCount(), inWave->getSamplingRate());
 
-	for(i=0;i<inWave->getSampleCount();i++)
-	{
-		(*outWave)[i] = do_filter((*inWave)[i]);
-//	outWave->operator[](i) = do_filter(inWave->operator[](i));
-	}
+    for (i = 0; i < inWave->getSampleCount(); i++) {
+        (*outWave)[i] = do_filter((*inWave)[i]);
+        //	outWave->operator[](i) = do_filter(inWave->operator[](i));
+    }
 
-	return outWave;
+    return outWave;
 }
 
 //----------------------------------------------------------------------------//
-#endif //__FILTER_CPP
+#endif  //__FILTER_CPP

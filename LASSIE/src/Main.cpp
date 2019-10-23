@@ -36,14 +36,14 @@
  argv - array of strings containing arguments
  return    : return 0 if terminate normally
  ******************************************************************************/
-int main (int argc,char** argv){
-  // create a Gtk main function
-  Gtk::Main kit(argc, argv);
+int main(int argc, char** argv) {
+    // create a Gtk main function
+    Gtk::Main kit(argc, argv);
 
-  // create the MainWindow object
-  MainWindow mainWindow;
+    // create the MainWindow object
+    MainWindow mainWindow;
 
-  // Shows the window and returns when it is closed.
-  Gtk::Main::run(mainWindow);
-  return 0;
+    // Shows the window and returns when it is closed.
+    Gtk::Main::run(mainWindow);
+    return 0;
 }

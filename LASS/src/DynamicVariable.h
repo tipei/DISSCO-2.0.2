@@ -27,130 +27,125 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define __DYNAMIC_VARIABLE_H
 
 //----------------------------------------------------------------------------//
-#include "StandardHeaders.h"
-
-#include "Types.h"
-#include "Iterator.h"
-#include "XmlReader.h"
 #include "Collection.h"
+#include "Iterator.h"
+#include "StandardHeaders.h"
+#include "Types.h"
+#include "XmlReader.h"
 
 //----------------------------------------------------------------------------//
 
 /**
-*	An abstract definition of a simple Dynamic Variable.
-*	This simply defines an m_value_type that changes over time.
-*	Any implemention that derives from DynamicVariable can be
-*	added.
-*	\author Braden Kowitz
-**/
-class DynamicVariable
-{
+ *	An abstract definition of a simple Dynamic Variable.
+ *	This simply defines an m_value_type that changes over time.
+ *	Any implemention that derives from DynamicVariable can be
+ *	added.
+ *	\author Braden Kowitz
+ **/
+class DynamicVariable {
 public:
-
     /**
-    *	Default constructor for DynamicVariables.
-    *	Sets the length to 1 second.
-    *	Sets the rate to DEFAULT_SAMPLING_RATE
-    **/
+     *	Default constructor for DynamicVariables.
+     *	Sets the length to 1 second.
+     *	Sets the rate to DEFAULT_SAMPLING_RATE
+     **/
     DynamicVariable();
 
     /**
-    *	Destructor.
-    **/
-    virtual ~DynamicVariable(){}
+     *	Destructor.
+     **/
+    virtual ~DynamicVariable() {}
 
     /**
-    *	Creates an exact duplicate of this variable.
-    **/
+     *	Creates an exact duplicate of this variable.
+     **/
     virtual DynamicVariable* clone() = 0;
 
     /**
-    *	Returns an iterator object that will iterate over
-    *	all values in this DynamicVariable.
-    *	\return An iterator
-    **/
+     *	Returns an iterator object that will iterate over
+     *	all values in this DynamicVariable.
+     *	\return An iterator
+     **/
     virtual Iterator<m_value_type> valueIterator() = 0;
 
     /**
-    *	Scales this DynamicIterator by the given factor.
-    *	\param factor The scaling factor
-    **/
+     *	Scales this DynamicIterator by the given factor.
+     *	\param factor The scaling factor
+     **/
     virtual void scale(m_value_type factor) = 0;
 
     /**
-    *	Returns the maximum value present in this variable.
-    *   \return the max value
-    **/
+     *	Returns the maximum value present in this variable.
+     *   \return the max value
+     **/
     virtual m_value_type getMaxValue() = 0;
 
     /**
-    *	Sets the length of this dynamic variable.
-    *	Will also affect the sample count for this variable.
-    *	\param duration The duration
-    **/
+     *	Sets the length of this dynamic variable.
+     *	Will also affect the sample count for this variable.
+     *	\param duration The duration
+     **/
     void setDuration(m_time_type duration);
-    
+
     /**
-    *	Returns the Length in seconds of this Dynamic Variablei
-    *	\return The duration in seconds
-    **/
+     *	Returns the Length in seconds of this Dynamic Variablei
+     *	\return The duration in seconds
+     **/
     m_time_type getDuration();
-    
+
     /**
-    *	Sets the sampling rate for this dynamic variable.
-    *	Will also affect the sample count for this variable.
-    *	\param rate The sampling rate
-    **/
+     *	Sets the sampling rate for this dynamic variable.
+     *	Will also affect the sample count for this variable.
+     *	\param rate The sampling rate
+     **/
     void setSamplingRate(m_rate_type rate);
-    
+
     /**
-    *	Returns the sampling rate.
-    *	\return The sampling rate
-    **/
+     *	Returns the sampling rate.
+     *	\return The sampling rate
+     **/
     m_rate_type getSamplingRate();
 
     /**
-    *	Returns the number of samples at the current length and rate.
-    *	\return number of samples
-    **/
+     *	Returns the number of samples at the current length and rate.
+     *	\return number of samples
+     **/
     m_sample_count_type getSampleCount();
 
     /**
-    *	\deprecated
-    *	This outputs an XML representation of the object to STDOUT
-    **/
-    virtual void xml_print( ofstream& xmlOutput, list<DynamicVariable*>& dynObjs ) = 0;
+     *	\deprecated
+     *	This outputs an XML representation of the object to STDOUT
+     **/
+    virtual void xml_print(ofstream& xmlOutput, list<DynamicVariable*>& dynObjs) = 0;
 
     /**
-    *	\deprecated
-    *	This outputs an XML representation of the object to STDOUT
-    **/
-    virtual void xml_print( ofstream& xmlOutput ) = 0;
+     *	\deprecated
+     *	This outputs an XML representation of the object to STDOUT
+     **/
+    virtual void xml_print(ofstream& xmlOutput) = 0;
 
-
-    //static DynamicVariable* create_dv_from_xml(XmlReader::xmltag *dvtag, hash_map<long,DynamicVariable*> *dvHash);
+    // static DynamicVariable* create_dv_from_xml(XmlReader::xmltag *dvtag,
+    // hash_map<long,DynamicVariable*> *dvHash);
 
     /**
-    *	\deprecated
-    *	This create a DynamicVariable from xml
-    *	\param dvtag Some xml
-    *	\return A DynamicVariable
-    **/
-    static DynamicVariable* create_dv_from_xml(XmlReader::xmltag *dvtag);
+     *	\deprecated
+     *	This create a DynamicVariable from xml
+     *	\param dvtag Some xml
+     *	\return A DynamicVariable
+     **/
+    static DynamicVariable* create_dv_from_xml(XmlReader::xmltag* dvtag);
 
 private:
-    
     /**
-    *	The duration
-    **/
+     *	The duration
+     **/
     m_time_type duration_;
-    
+
     /**
-    *	The sampling rate
-    **/
+     *	The sampling rate
+     **/
     m_rate_type rate_;
 };
 
-
 //----------------------------------------------------------------------------//
-#endif //__DYNAMIC_VARIABLE_H
+#endif  //__DYNAMIC_VARIABLE_H

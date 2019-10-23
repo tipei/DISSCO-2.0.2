@@ -32,52 +32,41 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 //----------------------------------------------------------------------------//
 
-
 /**
-*	This is a wrapper around an AbstractIterator pointer.
-*	This gets around C++'s polymorphic limitations.
-*	It allows for simple management of this AbstractClass.
-*	\author Braden Kowitz
-**/
-template<class T> class Iterator
-{
+ *	This is a wrapper around an AbstractIterator pointer.
+ *	This gets around C++'s polymorphic limitations.
+ *	It allows for simple management of this AbstractClass.
+ *	\author Braden Kowitz
+ **/
+template <class T>
+class Iterator {
 private:
     AbstractIterator<T>* it_;
-    
+
 public:
-    
     /**
-    *	This is a constructor.  
-    *	\param it A pointer to an AbstractIterator
-    **/
-    Iterator(AbstractIterator<T>* it)
-        :it_(it)
-    {}
-    
-    /**
-    *	This is a copy constructor
-    *	\param I The iterator to make a copy of
-    **/
-    Iterator(const Iterator& I)
-        :it_(I.it_->clone())
-    {
-    }    
+     *	This is a constructor.
+     *	\param it A pointer to an AbstractIterator
+     **/
+    Iterator(AbstractIterator<T>* it) : it_(it) {}
 
     /**
-    *	This is the destructor which deletes the underlying object.
-    **/
-    ~Iterator()
-    {
-        delete it_;
-    }
+     *	This is a copy constructor
+     *	\param I The iterator to make a copy of
+     **/
+    Iterator(const Iterator& I) : it_(I.it_->clone()) {}
 
     /**
-    *	This is an overloaded assignment operator.
-    *	\param I An iterator to assign
-    **/
-    Iterator& operator=(const Iterator& I)
-    {
-        if (this != &I) // beware self assignment
+     *	This is the destructor which deletes the underlying object.
+     **/
+    ~Iterator() { delete it_; }
+
+    /**
+     *	This is an overloaded assignment operator.
+     *	\param I An iterator to assign
+     **/
+    Iterator& operator=(const Iterator& I) {
+        if (this != &I)  // beware self assignment
         {
             delete it_;
             it_ = I.it_->clone();
@@ -85,30 +74,21 @@ public:
         return *this;
     }
 
-    
     // MEMBER FUNCTIONS
 
     /**
-    *	This checks whether there is another element in the iterator.
-    *	\retval true If there is another element
-    *	\retval false If there is not another element
-    **/
-    inline bool hasNext()
-    {
-        return it_->hasNext();
-    }
-    
-    /**
-    *	This returns the next iterator.
-    *	\return The next iterator.
-    **/
-    inline T& next()
-    {
-        return it_->next();
-    }
+     *	This checks whether there is another element in the iterator.
+     *	\retval true If there is another element
+     *	\retval false If there is not another element
+     **/
+    inline bool hasNext() { return it_->hasNext(); }
 
+    /**
+     *	This returns the next iterator.
+     *	\return The next iterator.
+     **/
+    inline T& next() { return it_->next(); }
 };
 
-
 //----------------------------------------------------------------------------//
-#endif //_ITERATOR_H
+#endif  //_ITERATOR_H

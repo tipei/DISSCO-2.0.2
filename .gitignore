@@ -1,0 +1,7 @@
+Makefile
+*.make
+lib/
+obj/
+cmod
+lassie
+UpgradeProjectFormat

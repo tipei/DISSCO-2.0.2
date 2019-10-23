@@ -35,7 +35,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define NOTE_H
 
 #include "Libraries.h"
-
 #include "Rational.h"
 #include "Tempo.h"
 #include "TimeSpan.h"
@@ -49,49 +48,47 @@ static int eBeat;
  *
  **/
 class Note {
+    // static ofstream notaFile;
 
-// static ofstream notaFile;
+    // Rhythm//
 
-    		//Rhythm//
-
-    //The timespan of the note.
+    // The timespan of the note.
     TimeSpan ts;
 
-    //The parent tempo.
+    // The parent tempo.
     Tempo tempo;
 
-    		//Pitch//
+    // Pitch//
 
-    //Absolute numeric value of the pitch
+    // Absolute numeric value of the pitch
     int pitchNum;
 
-    //The octave the pitch is in
+    // The octave the pitch is in
     int octaveNum;
 
-    //The number of the pitches within the octave
+    // The number of the pitches within the octave
     int octavePitch;
 
-    //The string name of this pitch
+    // The string name of this pitch
     std::string pitchName;
 
-    //Dynamic number
+    // Dynamic number
     int loudnessNum;
 
-    //Dynamic marking (i.e. "ff")
+    // Dynamic marking (i.e. "ff")
     std::string loudnessMark;
 
-    //Modifiers
-    std::vector<std::string> modifiers; //string names of the modifiers
+    // Modifiers
+    std::vector<std::string> modifiers;  // string names of the modifiers
 
-  public:
-
+public:
     /* variables for output notes */
     string pitch_out;
     string type_out;
     string loudness_out;
 
-    int start_t; //start time
-    int end_t; //end time
+    int start_t;  // start time
+    int end_t;    // end time
 
     int tuplet;
     string tuplet_name;
@@ -100,34 +97,33 @@ class Note {
 
     std::vector<std::string> modifiers_out;
 
-
-    //Simple constructor
+    // Simple constructor
     Note();
 
-    //Constructor with timespan and tempo
+    // Constructor with timespan and tempo
     Note(TimeSpan ts, Tempo tempo);
 
-    //Copy constructor
+    // Copy constructor
     Note(const Note& other);
 
     /**
      *  Comparison operator (to sort in a list)
      *  \param rhs the object to compare to (right hand side)
      **/
-    bool operator < (const Note& rhs);
+    bool operator<(const Note& rhs);
 
     /**
      * Destructor
      **/
     ~Note();
 
-//----------------------------------------------------------------------------//
+    //----------------------------------------------------------------------------//
 
     /**
-      *  Assigns the pitch of a note
-      *  \param absPitchNum Pitch on the well-tempered scale, starting with 0=C0
-      *  \param pitchNames The names of the pitches (C, C#, D, Eb, ...)
-      *  \note: vector<string> pitchnames not available yet
+     *  Assigns the pitch of a note
+     *  \param absPitchNum Pitch on the well-tempered scale, starting with 0=C0
+     *  \param pitchNames The names of the pitches (C, C#, D, Eb, ...)
+     *  \note: vector<string> pitchnames not available yet
      **/
     void setPitchWellTempered(int pitchNum);
 
@@ -157,29 +153,27 @@ class Note {
     void setLoudnessSones(float sones);
 
     /**
-      *  Assigns any modifiers to the sound: expressive mark attached to notes:
-      *   accent, espressivo, marcato, portato, staccatissimo, staccato, tenuto,
-      *   prall, prallup, pralldown, upprall, downprall, prallprall, lineprall,
-      *   prall mordent mordent upmordent downmordent trill turn reverseturn
-      *   shortfermata, fermata, longfermata, verylongfermata, upbow, downbow,
-      *   flageolet, open, halfopen, lheel, rheel, ltoe, rtoe, snappizzicato,
-      *    stopped, segno, coda, varcoda (LyliPond markings)
-      *  \param modNums
-      *  \param modNames
+     *  Assigns any modifiers to the sound: expressive mark attached to notes:
+     *   accent, espressivo, marcato, portato, staccatissimo, staccato, tenuto,
+     *   prall, prallup, pralldown, upprall, downprall, prallprall, lineprall,
+     *   prall mordent mordent upmordent downmordent trill turn reverseturn
+     *   shortfermata, fermata, longfermata, verylongfermata, upbow, downbow,
+     *   flageolet, open, halfopen, lheel, rheel, ltoe, rtoe, snappizzicato,
+     *    stopped, segno, coda, varcoda (LyliPond markings)
+     *  \param modNums
+     *  \param modNames
      **/
     void setModifiers(std::vector<std::string> modNames);
 
- //   bool is_attach_mark(string mod_name);
+    //   bool is_attach_mark(string mod_name);
 
     /**
      *   Spells note attributes: start time, duration in fractions equivalent
      *   to Traditional notation note values and marking bar lines.
      *   Adds pitch, dynamics and playing techniques.
      *   \param
-    **/
-    void notateDurations( string aName, string startEDU, string durationEDU);
-
-
+     **/
+    void notateDurations(string aName, string startEDU, string durationEDU);
 
     /**
      * Main function that set up all variables for output score
@@ -188,61 +182,59 @@ class Note {
      **/
     int notate(int tuplet);
 
+    /**
+     * Some duration need two notes to notate, such notation is marked
+     * starting with an '!'. This function read this mark and split it into
+     * two notes.
+     * \param s - string that holds the duration info. s will be modified
+     * \param pitch_out - output pitch
+     * \output: NONE
+     **/
+    void translate(string& s, string pitch_out);
 
-  /**
-    * Some duration need two notes to notate, such notation is marked
-    * starting with an '!'. This function read this mark and split it into
-    * two notes.
-    * \param s - string that holds the duration info. s will be modified
-    * \param pitch_out - output pitch
-    * \output: NONE
-    **/
-   void translate(string & s, string pitch_out);
+    /**
+     *            not in use ?
+     *
+     * Sorts the note into a vector and keep the vector in time
+     *  increasing order
+     *  \input: Note * n - pointer to a note
+     **/
+    static void sort_notes(Note* n);
 
+    /**
+     * Sorts individual note into a vector and keeps the vector in time
+     *  increasing order (for original notes). This function is similar to prev
+     *  one but sorts notes into another vector.
+     *  \param Note * n - pointer to a note
+     **/
+    static void sort_notes_orig(Note* n);
 
-   /**
-    *            not in use ?
-    *
-    * Sorts the note into a vector and keep the vector in time
-    *  increasing order
-    *  \input: Note * n - pointer to a note
-    **/
-  static void sort_notes(Note * n);
+    void loudness_and_modifiers();
 
-  /**
-  * Sorts individual note into a vector and keeps the vector in time
-  *  increasing order (for original notes). This function is similar to prev
-  *  one but sorts notes into another vector.
-  *  \param Note * n - pointer to a note
-  **/
-  static void sort_notes_orig(Note * n);
+    /**
+     * Checks if the gap between two notes(dur of a rest sign) is valid. If not,
+     *  the beginning time of the second note will be modified to a valid value.
+     *  Then each note is converted to a corresponding notation
+     *								-shenyi
+     **/
+    static void make_valid();
 
-  void loudness_and_modifiers();
+    /**
+     *
+     *  \param &time1  previous end time
+     *  \param &time2  current start time
+     *  \param loud    previous loudness
+     **/
+    static void adjust_notes();
 
-  /**
-   * Checks if the gap between two notes(dur of a rest sign) is valid. If not,
-   *  the beginning time of the second note will be modified to a valid value.
-   *  Then each note is converted to a corresponding notation
-   *								-shenyi
-   **/
-  static void make_valid();
+    /**
+     * Checks if time is valid, if it is not, change it to closest
+     *  valid value
+     *  \input: int &time - (reference) time to be verified
+     **/
+    void verify_valid(int& stime, int& endTime);
 
-  /**
-   *
-   *  \param &time1  previous end time
-   *  \param &time2  current start time
-   *  \param loud    previous loudness
-   **/
-  static void adjust_notes ();
-
-  /**
-   * Checks if time is valid, if it is not, change it to closest
-   *  valid value
-   *  \input: int &time - (reference) time to be verified
-   **/
-   void verify_valid(int &stime, int &endTime);
-
-   //// ---- functions added by haorong at June 12 ---- ////
+    //// ---- functions added by haorong at June 12 ---- ////
 
     void note_in_tuplet(int tup_type, int dur);
 
@@ -252,8 +244,8 @@ class Note {
     static void insert_note(Note* n);
 
     /**
-      * close every vector in all_notes_bar with bar;
-      **/
+     * close every vector in all_notes_bar with bar;
+     **/
     static void add_bars();
 
     static void add_rests();
@@ -262,30 +254,25 @@ class Note {
 
     static void construct_tuplet_names(int uplimit);
     // ----------------------------------------------- ////
-
-
 };
 
-//extern string convert_dur_to_type(int dur);
+// extern string convert_dur_to_type(int dur);
 
 extern int beatEDUs;
 
 extern string timesignature;
 
-//a vector holds the pointers to all the notes after processing
+// a vector holds the pointers to all the notes after processing
 extern vector<Note*> all_notes;
 
-//a 2D vector holds the notes divided by bars(added by haorong at June 12)
+// a 2D vector holds the notes divided by bars(added by haorong at June 12)
 extern vector<vector<Note*>*> all_notes_bar;
 
-
-
-//helper functions
+// helper functions
 extern int str_to_int(string s);
 extern string int_to_str(int n);
 extern int power(int base, int p);
 extern int check_pow(int dur);
-
 
 /**
  * Checks if input rational number is a power of 2

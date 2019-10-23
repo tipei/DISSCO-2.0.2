@@ -26,91 +26,90 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef TEMPO_H
 #define TEMPO_H
 
-//CMOD includes
-#include "Libraries.h"
+// CMOD includes
 #include "Define.h"
+#include "Libraries.h"
 #include "Rational.h"
 
 //----------------------------------------------------------------------------//
 class Tempo {
-  Ratio tempoBeatsPerMinute;
-  Ratio tempoBeat;
-  Ratio timeSignatureBeat;
-  Ratio timeSignatureBeatsPerBar;
-  Ratio EDUPerTimeSignatureBeat;
-  float tempoStartTime;
-  
-  ///When unitsPerSecond was used, it assumed this tempo (5/4 at quarter=60).
-  void setBackwardsCompatibleTempo(void);
-  
-  public:
-  
-  ///Constructor initializes a backwards-compatible tempo of 5/4 quarter=60.
-  Tempo();
-  
-  ///Explicit copy constructor just to be sure (eventually this should go away).
-  Tempo(const Tempo& other);
-  
-  /**Two tempos are identical if they have the same tempo and time signature and
-  tempo start time. Note that EDU per beat does not matter because the two
-  tempos are still easily conflated with rational numbers.*/
-  bool isTempoSameAs(Tempo& other);
-  
-  float getStartTime(void);
-  
-  void setStartTime(float newStartTime);
-  
-  /*Sets the beats-per-minute using the following format:
-  
-  <beat-name>|<beat-ratio> = <beats-per-minute>
-  
-  Examples:
-  tempo = 'quarter = 130'
-  tempo = '1/4 = 130'
-  tempo = 'dotted quarter = 130'
-  tempo = '3/8 = 130'
+    Ratio tempoBeatsPerMinute;
+    Ratio tempoBeat;
+    Ratio timeSignatureBeat;
+    Ratio timeSignatureBeatsPerBar;
+    Ratio EDUPerTimeSignatureBeat;
+    float tempoStartTime;
 
-  Tuple equivalents:
-  triplet half = 1/3
-  triplet quarter = 1/6
-  triplet eighth = 1/12
-  
-  Also accepts decimal for the BPM: "quarter=60.5"  --> 1/4 = 121/2
-  */
-  void setTempo(string newTempo);
-  
-  void setTimeSignature(string newTimeSignature);
-  
-  // in order to remove the errer in valgrind...
-  //void setEDUPerTimeSignatureBeat(string newEDUPerTimeSignatureBeat);
-  void setEDUPerTimeSignatureBeat(Ratio newEDUPerTimeSignatureBeat);
-  
-  Ratio getTimeSignatureBeatsPerBar(void);
-  
-  Ratio getTimeSignatureBeat(void);
-  Ratio getTempoBeatsPerMinute(void);
-  
-  Ratio getTempoBeat(void);
-  
-  Ratio getTempoBeatsPerBar(void);
-  
-  Ratio getTimeSignatureBeatsPerMinute(void);
-  
-  string getTimeSignature(void);
-  
-  Ratio getTempoBeatDurationInSeconds(void);
-  
-  Ratio getTimeSignatureBeatDurationInSeconds(void) ;
-  
-  Ratio getEDUPerTimeSignatureBeat(void);
-    
-  Ratio getEDUPerBar(void);
-  
-  Ratio getEDUPerTempoBeat(void);
-  
-  Ratio getEDUPerSecond(void);
-  
-  Ratio getEDUDurationInSeconds(void);
+    /// When unitsPerSecond was used, it assumed this tempo (5/4 at quarter=60).
+    void setBackwardsCompatibleTempo(void);
+
+public:
+    /// Constructor initializes a backwards-compatible tempo of 5/4 quarter=60.
+    Tempo();
+
+    /// Explicit copy constructor just to be sure (eventually this should go
+    /// away).
+    Tempo(const Tempo& other);
+
+    /**Two tempos are identical if they have the same tempo and time signature
+    and tempo start time. Note that EDU per beat does not matter because the two
+    tempos are still easily conflated with rational numbers.*/
+    bool isTempoSameAs(Tempo& other);
+
+    float getStartTime(void);
+
+    void setStartTime(float newStartTime);
+
+    /*Sets the beats-per-minute using the following format:
+
+    <beat-name>|<beat-ratio> = <beats-per-minute>
+
+    Examples:
+    tempo = 'quarter = 130'
+    tempo = '1/4 = 130'
+    tempo = 'dotted quarter = 130'
+    tempo = '3/8 = 130'
+
+    Tuple equivalents:
+    triplet half = 1/3
+    triplet quarter = 1/6
+    triplet eighth = 1/12
+
+    Also accepts decimal for the BPM: "quarter=60.5"  --> 1/4 = 121/2
+    */
+    void setTempo(string newTempo);
+
+    void setTimeSignature(string newTimeSignature);
+
+    // in order to remove the errer in valgrind...
+    // void setEDUPerTimeSignatureBeat(string newEDUPerTimeSignatureBeat);
+    void setEDUPerTimeSignatureBeat(Ratio newEDUPerTimeSignatureBeat);
+
+    Ratio getTimeSignatureBeatsPerBar(void);
+
+    Ratio getTimeSignatureBeat(void);
+    Ratio getTempoBeatsPerMinute(void);
+
+    Ratio getTempoBeat(void);
+
+    Ratio getTempoBeatsPerBar(void);
+
+    Ratio getTimeSignatureBeatsPerMinute(void);
+
+    string getTimeSignature(void);
+
+    Ratio getTempoBeatDurationInSeconds(void);
+
+    Ratio getTimeSignatureBeatDurationInSeconds(void);
+
+    Ratio getEDUPerTimeSignatureBeat(void);
+
+    Ratio getEDUPerBar(void);
+
+    Ratio getEDUPerTempoBeat(void);
+
+    Ratio getEDUPerSecond(void);
+
+    Ratio getEDUDurationInSeconds(void);
 };
 #endif /* TEMPO_H */
-

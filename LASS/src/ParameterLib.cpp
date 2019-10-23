@@ -27,62 +27,54 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define __PARAMETER_LIB_CPP
 
 //----------------------------------------------------------------------------//
-#include "StandardHeaders.h"
-
 #include "ParameterLib.h"
+
 #include "Constant.h"
+#include "StandardHeaders.h"
 
 //----------------------------------------------------------------------------//
 // CONSTRUCTORS, DESTRUCTOR, ASSIGNMENT
 
 //----------------------------------------------------------------------------//
-template<class StaticT, class DynamicT>
-    ParameterLib<StaticT, DynamicT>
-    ::ParameterLib()
-{
+template <class StaticT, class DynamicT>
+ParameterLib<StaticT, DynamicT>::ParameterLib() {
     // nothing
 }
 
 //----------------------------------------------------------------------------//
-template<class StaticT, class DynamicT>
-    ParameterLib<StaticT, DynamicT>
-    ::ParameterLib(const ParameterLib<StaticT, DynamicT>& pl)
-{
-        // copy member variables
-        staticParams_ = pl.staticParams_;
-        
-        // and copy over the dynamic variables
-        DISSCO_HASHMAP<int , DynamicVariable*>::const_iterator it = pl.dynamicParams_.begin();
-        
-        while (it != pl.dynamicParams_.end())
+template <class StaticT, class DynamicT>
+ParameterLib<StaticT, DynamicT>::ParameterLib(const ParameterLib<StaticT, DynamicT>& pl) {
+    // copy member variables
+    staticParams_ = pl.staticParams_;
+
+    // and copy over the dynamic variables
+    DISSCO_HASHMAP<int, DynamicVariable*>::const_iterator it = pl.dynamicParams_.begin();
+
+    while (it != pl.dynamicParams_.end()) {
+        if ((*it).second != 0)  // beware null pointers
         {
-            if ((*it).second != 0) // beware null pointers
-            {
-                // make a new copy of the DynamicVariable for *this* ParameterLib
-                dynamicParams_[(*it).first] = (*it).second->clone();
-            }
-            
-            it++;
+            // make a new copy of the DynamicVariable for *this* ParameterLib
+            dynamicParams_[(*it).first] = (*it).second->clone();
         }
+
+        it++;
+    }
 }
 
 //----------------------------------------------------------------------------//
-template<class StaticT, class DynamicT>
-    ParameterLib<StaticT, DynamicT>&
-    ParameterLib<StaticT, DynamicT>
-    ::operator=(const ParameterLib<StaticT, DynamicT>& pl)
-{
-    if (this != &pl) // beware self assignment
+template <class StaticT, class DynamicT>
+ParameterLib<StaticT, DynamicT>& ParameterLib<StaticT, DynamicT>::operator=(
+    const ParameterLib<StaticT, DynamicT>& pl) {
+    if (this != &pl)  // beware self assignment
     {
         // copy member variables
         staticParams_ = pl.staticParams_;
 
         // delete dynamic memory:
-        DISSCO_HASHMAP<int , DynamicVariable*>::const_iterator it = dynamicParams_.begin();
-        while(it != dynamicParams_.end())
-        {
+        DISSCO_HASHMAP<int, DynamicVariable*>::const_iterator it = dynamicParams_.begin();
+        while (it != dynamicParams_.end()) {
             // (it) is a pair<DynamicT, DynamicVariable*>
-            if ((*it).second != 0) // beware null pointers
+            if ((*it).second != 0)  // beware null pointers
             {
                 // delete the dynamic memory
                 delete (*it).second;
@@ -94,35 +86,30 @@ template<class StaticT, class DynamicT>
 
         // copy over dynamic variables
         it = pl.dynamicParams_.begin();
-        while (it != pl.dynamicParams_.end())
-        {
-            if ((*it).second != 0) // beware null pointers
+        while (it != pl.dynamicParams_.end()) {
+            if ((*it).second != 0)  // beware null pointers
             {
-                // make a new copy of the DynamicVariable for *this* ParameterLib
+                // make a new copy of the DynamicVariable for *this*
+                // ParameterLib
                 dynamicParams_[(*it).first] = (*it).second->clone();
             }
 
             it++;
         }
-
     }
 
     return *this;
 }
 
 //----------------------------------------------------------------------------//
-template<class StaticT, class DynamicT>
-    ParameterLib<StaticT, DynamicT>
-    ::~ParameterLib()
-{
-
+template <class StaticT, class DynamicT>
+ParameterLib<StaticT, DynamicT>::~ParameterLib() {
     // delete dynamic memory:
-    DISSCO_HASHMAP<int , DynamicVariable*>::iterator it = dynamicParams_.begin();
-    
-    while(it != dynamicParams_.end())
-    {
+    DISSCO_HASHMAP<int, DynamicVariable*>::iterator it = dynamicParams_.begin();
+
+    while (it != dynamicParams_.end()) {
         // (it) is a pair<DynamicT, DynamicVariable*>
-        if ((*it).second != 0) // beware null pointers
+        if ((*it).second != 0)  // beware null pointers
         {
             // delete the dynamic memory
             delete (*it).second;
@@ -130,10 +117,9 @@ template<class StaticT, class DynamicT>
         }
         it++;
     }
-    
+
     dynamicParams_.clear();
 }
-
 
 //----------------------------------------------------------------------------//
 // PARAMETER ACCESS
@@ -142,16 +128,12 @@ template<class StaticT, class DynamicT>
 // DYNAMIC VARIABLES
 
 //----------------------------------------------------------------------------//
-template<class StaticT, class DynamicT>
-    void
-    ParameterLib<StaticT, DynamicT>
-    ::setParam(DynamicT p, DynamicVariable& v)
-{
+template <class StaticT, class DynamicT>
+void ParameterLib<StaticT, DynamicT>::setParam(DynamicT p, DynamicVariable& v) {
     // is there an entry at this position already?
-    DISSCO_HASHMAP<int , DynamicVariable*>::iterator it;
+    DISSCO_HASHMAP<int, DynamicVariable*>::iterator it;
     it = dynamicParams_.find(p);
-    if (it != dynamicParams_.end())
-    {
+    if (it != dynamicParams_.end()) {
         // delete the entry
         delete (*it).second;
     }
@@ -162,39 +144,29 @@ template<class StaticT, class DynamicT>
 }
 
 //----------------------------------------------------------------------------//
-template<class StaticT, class DynamicT>
-    void
-    ParameterLib<StaticT, DynamicT>
-    ::setParam(DynamicT p, m_value_type v)
-{
+template <class StaticT, class DynamicT>
+void ParameterLib<StaticT, DynamicT>::setParam(DynamicT p, m_value_type v) {
     Constant c(v);
-    setParam(p,c);
+    setParam(p, c);
 }
 
 //----------------------------------------------------------------------------//
-template<class StaticT, class DynamicT>
-    DynamicVariable&
-    ParameterLib<StaticT, DynamicT>
-    ::getParam(DynamicT p)
-{
+template <class StaticT, class DynamicT>
+DynamicVariable& ParameterLib<StaticT, DynamicT>::getParam(DynamicT p) {
     // is there an entry at this position already?
-    DISSCO_HASHMAP<int , DynamicVariable*>::iterator it;
+    DISSCO_HASHMAP<int, DynamicVariable*>::iterator it;
     it = dynamicParams_.find(p);
-    if (it != dynamicParams_.end())
-    {
+    if (it != dynamicParams_.end()) {
         // simply return the entry
         return *((*it).second);
-    }
-    else
-    {
+    } else {
         // set the entry to zero, and return the value
         dynamicParams_[p] = new Constant(0.0);
         return *(dynamicParams_[p]);
     }
 }
 
-
-//----------------------------------------------------------------------------//                                                    
+//----------------------------------------------------------------------------//
 /*
 template<class StaticT, class DynamicT>
     DynamicVariable& ParameterLib<StaticT, DynamicT>::getParamEnv(DynamicT p)
@@ -204,7 +176,7 @@ template<class StaticT, class DynamicT>
     if (it != dynamicParams_.end())
     {
       Envelope env1 (*((*it).second));
-	return env1;
+        return env1;
     }
 
     else
@@ -216,30 +188,21 @@ template<class StaticT, class DynamicT>
 // STATIC VARIABLES
 
 //----------------------------------------------------------------------------//
-template<class StaticT, class DynamicT>
-    void
-    ParameterLib<StaticT, DynamicT>
-    ::setParam(StaticT p, m_value_type v)
-{
+template <class StaticT, class DynamicT>
+void ParameterLib<StaticT, DynamicT>::setParam(StaticT p, m_value_type v) {
     staticParams_[p] = v;
 }
 
 //----------------------------------------------------------------------------//
-template<class StaticT, class DynamicT>
-    m_value_type
-    ParameterLib<StaticT, DynamicT>
-    ::getParam(StaticT p)
-{
+template <class StaticT, class DynamicT>
+m_value_type ParameterLib<StaticT, DynamicT>::getParam(StaticT p) {
     // is there an entry at this position already?
-    DISSCO_HASHMAP<int , m_value_type>::iterator it;
+    DISSCO_HASHMAP<int, m_value_type>::iterator it;
     it = staticParams_.find(p);
-    if (it != staticParams_.end())
-    {
+    if (it != staticParams_.end()) {
         // return the entry
         return (*it).second;
-    }
-    else
-    {
+    } else {
         // set the entry to 0.0, and return 0.0;
         staticParams_[p] = 0.0;
         return 0.0;
@@ -247,4 +210,4 @@ template<class StaticT, class DynamicT>
 }
 
 //----------------------------------------------------------------------------//
-#endif //__PARAMETER_LIB_CPP
+#endif  //__PARAMETER_LIB_CPP

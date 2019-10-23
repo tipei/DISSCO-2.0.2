@@ -28,21 +28,21 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 //----------------------------------------------------------------------------//
 
+#include <unistd.h>
+
 #include <algorithm>
 #include <cmath>
 #include <cstdarg>
 #include <cstring>
 #include <ctime>
-#include <unistd.h>
+#include <fstream>
 #include <iomanip>
 #include <iostream>
-#include <fstream>
 #include <list>
 #include <map>
 #include <sstream>
 #include <string>
 #include <vector>
-
 
 /*The C++ standards committee only recently agreed on the new name
 for "unordered_map". It used to be referred to as a hash_map, which
@@ -55,11 +55,10 @@ will be used here for now.*/
   #define DISSCO_HASHMAP unordered_map
 */
 
-//Also need pthreads from the POSIX library (link with -lpthread)
+// Also need pthreads from the POSIX library (link with -lpthread)
 #include <pthread.h>
 
 using namespace std;
-using namespace __gnu_cxx; 
+using namespace __gnu_cxx;
 
 #endif
-

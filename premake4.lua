@@ -6,7 +6,7 @@ end
 newoption({trigger="examples",
   description="Creates makefiles for LASS examples"})
 
-DebugFlags = {"Symbols", "NoPCH", "NoManifest"}
+DebugFlags = {"Symbols", "NoPCH", "NoManifest", "ExtraWarnings"}
 ReleaseFlags = {"Optimize"}
 
 solution "dissco"

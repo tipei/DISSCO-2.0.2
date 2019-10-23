@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 //----------------------------------------------------------------------------//
 //
-//	Track.h	
+//	Track.h
 //
 //----------------------------------------------------------------------------//
 
@@ -34,46 +34,31 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // CONSTRUCTORS, DESTRUCTOR, ASSIGNMENT
 
 //----------------------------------------------------------------------------//
-Track::Track(SoundSample* wave, SoundSample* amp)
-    :wave_(wave), amp_(amp)
-{
-}
+Track::Track(SoundSample* wave, SoundSample* amp) : wave_(wave), amp_(amp) {}
 
 //----------------------------------------------------------------------------//
-Track::Track(m_sample_count_type sampleCount,
-       m_rate_type samplingRate,
-       bool zeroData)
-    :wave_(new SoundSample(sampleCount, samplingRate, zeroData)),
-     amp_(new SoundSample(sampleCount, samplingRate, zeroData))
-{
-}
+Track::Track(m_sample_count_type sampleCount, m_rate_type samplingRate, bool zeroData)
+    : wave_(new SoundSample(sampleCount, samplingRate, zeroData)),
+      amp_(new SoundSample(sampleCount, samplingRate, zeroData)) {}
 
 //----------------------------------------------------------------------------//
-Track::Track(const Track& t)
-{
+Track::Track(const Track& t) {
     wave_ = new SoundSample(*t.wave_);
-    if (t.amp_ == 0)
-    {
+    if (t.amp_ == 0) {
         amp_ = 0;
-    }
-    else
-    {
+    } else {
         amp_ = new SoundSample(*t.amp_);
     }
 }
 
 //----------------------------------------------------------------------------//
-Track& Track::operator= (const Track& t)
-{
-    if (this != &t) // beware self assignment
+Track& Track::operator=(const Track& t) {
+    if (this != &t)  // beware self assignment
     {
         wave_ = new SoundSample(*t.wave_);
-        if (t.amp_ == 0)
-        {
+        if (t.amp_ == 0) {
             amp_ = 0;
-        }
-        else
-        {
+        } else {
             amp_ = new SoundSample(*t.amp_);
         }
     }
@@ -81,8 +66,7 @@ Track& Track::operator= (const Track& t)
 }
 
 //----------------------------------------------------------------------------//
-Track::~Track()
-{
+Track::~Track() {
     delete wave_;
     if (amp_ != 0) delete amp_;
 }
@@ -91,47 +75,34 @@ Track::~Track()
 // PUBLIC METHODS
 
 //----------------------------------------------------------------------------//
-SoundSample& Track::getWave()
-{
-    return *wave_;
-}
+SoundSample& Track::getWave() { return *wave_; }
 
 //----------------------------------------------------------------------------//
-bool Track::hasAmp()
-{
-    return (amp_ != 0);
-}
+bool Track::hasAmp() { return (amp_ != 0); }
 
 //----------------------------------------------------------------------------//
-SoundSample& Track::getAmp()
-{
-    if (amp_ != 0)
-    {
+SoundSample& Track::getAmp() {
+    if (amp_ != 0) {
         return *amp_;
-    }
-    else
-    {
+    } else {
         cerr << "Track::getAmp() ERROR, no Amp SoundSample available." << endl;
-        return (* new SoundSample(0));
+        return (*new SoundSample(0));
     }
 }
 
 //----------------------------------------------------------------------------//
-void Track::composite(Track& t, m_time_type startTime)
-{
+void Track::composite(Track& t, m_time_type startTime) {
     wave_->composite(*t.wave_, startTime);
-    if ( hasAmp() && t.hasAmp() )
-    {
+    if (hasAmp() && t.hasAmp()) {
         amp_->composite(*t.amp_, startTime);
     }
 }
 
 //----------------------------------------------------------------------------//
-void Track::scale(m_value_type factor)
-{
+void Track::scale(m_value_type factor) {
     wave_->scale(factor);
     if (amp_ != 0) amp_->scale(factor);
 }
 
 //----------------------------------------------------------------------------//
-#endif //__TRACK_CPP
+#endif  //__TRACK_CPP

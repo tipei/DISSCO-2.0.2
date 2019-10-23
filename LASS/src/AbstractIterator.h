@@ -27,36 +27,33 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //----------------------------------------------------------------------------//
 
 /**
-*	This is a templated abstract definition of the most basic iterator.
-*	\author Braden Kowitz
-**/
-template<class T> class AbstractIterator
-{
+ *	This is a templated abstract definition of the most basic iterator.
+ *	\author Braden Kowitz
+ **/
+template <class T>
+class AbstractIterator {
 public:
-
     /**
-    *	\return An exact copy of this iterator
-    **/
+     *	\return An exact copy of this iterator
+     **/
     virtual AbstractIterator<T>* clone() = 0;
 
     /**
-    *	\retval true If the iterator has another value
-    *	\retval false If the iterator does not have another value
-    **/
+     *	\retval true If the iterator has another value
+     *	\retval false If the iterator does not have another value
+     **/
     virtual bool hasNext() = 0;
-    
+
     /**
-    *	\return The next value in the iterator as a reference
-    **/
+     *	\return The next value in the iterator as a reference
+     **/
     virtual T& next() = 0;
-    
+
     /**
-    *	This is the destructor for the iterator.
-    **/
+     *	This is the destructor for the iterator.
+     **/
     virtual ~AbstractIterator(){};
 };
 
-
 //----------------------------------------------------------------------------//
-#endif //__ABSTRACT_ITERATOR_H
-
+#endif  //__ABSTRACT_ITERATOR_H

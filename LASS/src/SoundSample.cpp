@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 //----------------------------------------------------------------------------//
 //
-//	SoundSample.cpp	
+//	SoundSample.cpp
 //
 //----------------------------------------------------------------------------//
 
@@ -36,28 +36,22 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  * Because m_time_type is a float, there can be a slight round-off error that
  * causes different calculations to produce different numbers of samples for
  * a given Track/SoundSample.  We would like to warn the user if he tries to
- * composite two sections of vastly different lengths, but we need to have 
- * some acceptable error to account for round-off errors inherent in the 
+ * composite two sections of vastly different lengths, but we need to have
+ * some acceptable error to account for round-off errors inherent in the
  * program and not caused by users
  **/
 #define MIN_CLIP_WARNING 10
 
 //----------------------------------------------------------------------------//
 
-
 //----------------------------------------------------------------------------//
 // CONSTRUCTORS, DESTRUCTOR, ASSIGNMENT
 
 //----------------------------------------------------------------------------//
-SoundSample::SoundSample(m_sample_count_type sampleCount,
-            m_rate_type samplingRate,
-            bool zeroData)
-    :samplingRate_(samplingRate),data_(sampleCount)
-{
-    if (zeroData)
-    {
-        for (m_sample_count_type s=0; s<sampleCount; s++)
-        {
+SoundSample::SoundSample(m_sample_count_type sampleCount, m_rate_type samplingRate, bool zeroData)
+    : samplingRate_(samplingRate), data_(sampleCount) {
+    if (zeroData) {
+        for (m_sample_count_type s = 0; s < sampleCount; s++) {
             data_[s] = 0.0;
         }
     }
@@ -65,14 +59,11 @@ SoundSample::SoundSample(m_sample_count_type sampleCount,
 
 //----------------------------------------------------------------------------//
 SoundSample::SoundSample(const SoundSample& ss)
-    :samplingRate_(ss.samplingRate_), data_(ss.data_)
-{
-}
+    : samplingRate_(ss.samplingRate_), data_(ss.data_) {}
 
 //----------------------------------------------------------------------------//
-SoundSample& SoundSample::operator=(const SoundSample& ss)
-{
-    if (this != &ss) // beware self assignment
+SoundSample& SoundSample::operator=(const SoundSample& ss) {
+    if (this != &ss)  // beware self assignment
     {
         samplingRate_ = ss.samplingRate_;
         data_ = ss.data_;
@@ -81,8 +72,7 @@ SoundSample& SoundSample::operator=(const SoundSample& ss)
 }
 
 //----------------------------------------------------------------------------//
-SoundSample::~SoundSample()
-{
+SoundSample::~SoundSample() {
     // no dynamic data
 }
 
@@ -90,34 +80,20 @@ SoundSample::~SoundSample()
 // PUBLIC METHODS
 
 //----------------------------------------------------------------------------//
-void SoundSample::setSamplingRate(m_rate_type samplingRate)
-{
-    samplingRate_ = samplingRate;
-}
+void SoundSample::setSamplingRate(m_rate_type samplingRate) { samplingRate_ = samplingRate; }
 
 //----------------------------------------------------------------------------//
-m_rate_type SoundSample::getSamplingRate()
-{
-    return samplingRate_;
-}
+m_rate_type SoundSample::getSamplingRate() { return samplingRate_; }
 
 //----------------------------------------------------------------------------//
-m_sample_count_type SoundSample::getSampleCount()
-{
-    return data_.size();
-}
+m_sample_count_type SoundSample::getSampleCount() { return data_.size(); }
 
 //----------------------------------------------------------------------------//
-m_sample_type& SoundSample::operator[](m_sample_count_type index)
-{
-    return data_[index];
-}
+m_sample_type& SoundSample::operator[](m_sample_count_type index) { return data_[index]; }
 //----------------------------------------------------------------------------//
-void SoundSample::composite(SoundSample& ss, m_time_type startTime)
-{
+void SoundSample::composite(SoundSample& ss, m_time_type startTime) {
     // make sure both sound samples have the same sampling rate.
-    if (samplingRate_ != ss.samplingRate_)
-    {
+    if (samplingRate_ != ss.samplingRate_) {
         cerr << "ERROR: SoundSample::composite() "
              << "two SoundSamples have different sampling rates. "
              << "Bailing out." << endl;
@@ -126,44 +102,36 @@ void SoundSample::composite(SoundSample& ss, m_time_type startTime)
 
     // find the number of samples to composite
     m_sample_count_type samplesToCopy = ss.data_.size();
-    m_sample_count_type samplesToSkip = 
-        m_sample_count_type(startTime * float(samplingRate_));
+    m_sample_count_type samplesToSkip = m_sample_count_type(startTime * float(samplingRate_));
     m_sample_count_type lengthNeeded = samplesToCopy + samplesToSkip;
-    
-    if ( m_sample_count_type(data_.size()) < lengthNeeded)
-    {
-        if ( m_sample_count_type(data_.size()) + MIN_CLIP_WARNING < lengthNeeded)
-	{
+
+    if (m_sample_count_type(data_.size()) < lengthNeeded) {
+        if (m_sample_count_type(data_.size()) + MIN_CLIP_WARNING < lengthNeeded) {
             cerr << "WARNING: SoundSample::composite() "
                  << "sample being composited past end: "
                  << "clipping will occur." << endl;
-	}
-             
-        samplesToCopy = 
-            m_sample_count_type(data_.size()) - samplesToSkip;
-            
+        }
+
+        samplesToCopy = m_sample_count_type(data_.size()) - samplesToSkip;
+
         if (samplesToCopy <= 0) return;
     }
 
     // copy the data:
-    for (m_sample_count_type s=0; s<samplesToCopy; s++)
-    {
-        data_[s+samplesToSkip] += ss.data_[s];
+    for (m_sample_count_type s = 0; s < samplesToCopy; s++) {
+        data_[s + samplesToSkip] += ss.data_[s];
     }
 }
 
 //----------------------------------------------------------------------------//
-//Iterator<m_sample_type> SoundSample::sampleIterator()
+// Iterator<m_sample_type> SoundSample::sampleIterator()
 //{
 //}
 
-
 //----------------------------------------------------------------------------//
-void SoundSample::scale(m_value_type factor)
-{
-  for(int i = 0; i < (int)data_.size(); i++)
-    data_[i] *= factor;
+void SoundSample::scale(m_value_type factor) {
+    for (int i = 0; i < (int)data_.size(); i++) data_[i] *= factor;
 }
 
 //----------------------------------------------------------------------------//
-#endif //__SOUND_SAMPLE_CPP
+#endif  //__SOUND_SAMPLE_CPP

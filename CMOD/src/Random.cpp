@@ -31,141 +31,121 @@ unsigned int Random::seed = 0;
 
 //----------------------------------------------------------------------------//
 
-void Random::Seed(unsigned int n) { // Allow seed to be changed multiple times for brewing piece
+void Random::Seed(unsigned int n) {  // Allow seed to be changed multiple times
+                                     // for brewing piece
 
-  seed = n;
-  srand(n);
+    seed = n;
+    srand(n);
 }
 
 //----------------------------------------------------------------------------//
 
 void Random::SeedBySystemTime() {
-
-  if (seed == 0){
-  // Get the current system time and seed it
-  Seed(time(NULL));
-  }
+    if (seed == 0) {
+        // Get the current system time and seed it
+        Seed(time(NULL));
+    }
 }
 
 //----------------------------------------------------------------------------//
 
-double Random::Rand() {
+double Random::Rand() { return (double)rand() / ((double)RAND_MAX + 1.0); }
 
-  return (double)rand() / ((double)RAND_MAX + 1.0);
+//----------------------------------------------------------------------------//
+
+double Random::Rand(double low, double high) { return Rand() * (high - low) + low; }
+
+//----------------------------------------------------------------------------//
+
+double Random::Rand(double low, double high, Random::distribution_type distribution) {
+    double randNum = Rand();
+
+    switch (distribution) {
+        case RAND_FLAT:
+            return Rand(low, high);
+            break;
+
+        case RAND_TRIANGLE:
+            return (Rand(low, high) + Rand(low, high)) * 0.5 * (high - low) + low;
+            break;
+
+        case RAND_SIGN:
+
+            if (randNum <= 0.5)
+                return Rand(low, high);
+            else
+                return Rand(low, high) * -1.0;
+            break;
+
+        default:
+            return 0.0;
+    }
 }
 
 //----------------------------------------------------------------------------//
 
-double Random::Rand(double low, double high) {
-
-  return Rand() * (high - low) + low;
-}
-
-//----------------------------------------------------------------------------//
-
-double Random::Rand(double low, double high, Random::distribution_type
- distribution) {
-  double randNum = Rand();
-
-  switch (distribution) {
-    case RAND_FLAT:
-      return Rand(low, high);
-      break;
-
-    case RAND_TRIANGLE:
-      return  (Rand(low, high) + Rand(low, high)) * 0.5 * (high - low) + low;
-      break;
-
-    case RAND_SIGN:
-
-      if (randNum <= 0.5)
-        return Rand(low, high);
-      else
-        return Rand(low, high)*-1.0;
-        break;
-
-    default:
-      return 0.0;
-  }
-}
-
-//----------------------------------------------------------------------------//
-
-double Random::Rand(Random::distribution_type distribution) {
-
-        return Rand(0.0,1.0,distribution);
-}
-
+double Random::Rand(Random::distribution_type distribution) { return Rand(0.0, 1.0, distribution); }
 
 //----------------------------------------------------------------------------//
 
 int Random::RandInt(int lowNum, int highNum) {
-  int range = (highNum - lowNum) + 1;
-  int result = lowNum + (int)( range * Rand() );
-  return result;
+    int range = (highNum - lowNum) + 1;
+    int result = lowNum + (int)(range * Rand());
+    return result;
 }
 
 //----------------------------------------------------------------------------//
 
-float Random::ChooseFromList(float array[], int size) {
-
-  return array[RandInt(0, size-1)];
-}
+float Random::ChooseFromList(float array[], int size) { return array[RandInt(0, size - 1)]; }
 
 //----------------------------------------------------------------------------//
 
-double Random::ChooseFromList(double array[], int size) {
-
-  return array[RandInt(0, size-1)];
-}
+double Random::ChooseFromList(double array[], int size) { return array[RandInt(0, size - 1)]; }
 
 //----------------------------------------------------------------------------//
 
-int Random::ChooseFromList(int array[], int size) {
-
-  return array[RandInt(0, size-1)];
-}
+int Random::ChooseFromList(int array[], int size) { return array[RandInt(0, size - 1)]; }
 
 //----------------------------------------------------------------------------//
 
 int Random::ChooseFromProb(vector<double> probs) {
-  double randomNumber = Rand();
+    double randomNumber = Rand();
 
-  for (int i = 0; i < probs.size(); i++) {
-    if (randomNumber <= probs[i]) {
-      return i;
+    for (int i = 0; i < probs.size(); i++) {
+        if (randomNumber <= probs[i]) {
+            return i;
+        }
     }
-  }
 
-  std::cerr << "Error in Random::ChooseFromProb" << std::endl;
-  std::cerr << "         probs.size()=" << probs.size() << ", randNum=" << randomNumber << std::endl;
-  std::cerr << "         probs=< ";
-  for (int i = 0; i < probs.size(); i++) std::cerr << probs[i] << " ";
-  std::cerr << ">" << std::endl;
-  exit(1);
+    std::cerr << "Error in Random::ChooseFromProb" << std::endl;
+    std::cerr << "         probs.size()=" << probs.size() << ", randNum=" << randomNumber
+              << std::endl;
+    std::cerr << "         probs=< ";
+    for (int i = 0; i < probs.size(); i++) std::cerr << probs[i] << " ";
+    std::cerr << ">" << std::endl;
+    exit(1);
 }
 
 //----------------------------------------------------------------------------//
 
 void Random::AssignProb(list<double> &myProbList) {
-  double len = myProbList.size();
-  double prob = 0.0;
+    double len = myProbList.size();
+    double prob = 0.0;
 
-  list<double>::iterator iter = myProbList.begin();
-  while (iter != myProbList.end()) {
-    prob += (1 / len);
-    *iter = prob;
-    iter++;
-  }
+    list<double>::iterator iter = myProbList.begin();
+    while (iter != myProbList.end()) {
+        prob += (1 / len);
+        *iter = prob;
+        iter++;
+    }
 }
 
 //----------------------------------------------------------------------------//
 
 double Random::PreferedValueDistribution(double value, double checkPoint) {
-  double probability;
+    double probability;
 
-  probability = exp(FIRST_CONST + SECOND_CONST * pow(2, (value - 0.5)) *
-   pow(2, checkPoint));
+    probability = exp(FIRST_CONST + SECOND_CONST * pow(2, (value - 0.5)) * pow(2, checkPoint));
 
-  return probability;
+    return probability;
 }

@@ -23,20 +23,19 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 //----------------------------------------------------------------------------//
 
-// Best if viewed with 4-space tabs 
+// Best if viewed with 4-space tabs
 
 #ifndef __LP_COMB_FILTER_H
 #define __LP_COMB_FILTER_H
 
 //----------------------------------------------------------------------------//
-#include "StandardHeaders.h"
-
-#include "SoundSample.h"
 #include "Collection.h"
-#include "Track.h"
-#include "MultiTrack.h"
-#include "LowPassFilter.h"
 #include "Filter.h"
+#include "LowPassFilter.h"
+#include "MultiTrack.h"
+#include "SoundSample.h"
+#include "StandardHeaders.h"
+#include "Track.h"
 #include "XmlReader.h"
 
 //----------------------------------------------------------------------------//
@@ -70,102 +69,99 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
  * \author Jim Lindstrom
  **/
-class LPCombFilter : public Filter
-{
+class LPCombFilter : public Filter {
 public:
+    /**
+     * This is a constructor.
+     * \param gain The feedback gain (0.0 to 1.0) applied to the IIR
+     *             lowpass feedback unit
+     * \param delay The comb delay, in units of samples.
+     * \param lpf_gain The internal gain of the lowpass feedback unit
+     **/
+    LPCombFilter(float gain, long delay, float lpf_gain);
 
-	/**
-	 * This is a constructor.
-	 * \param gain The feedback gain (0.0 to 1.0) applied to the IIR
-	 *             lowpass feedback unit
-	 * \param delay The comb delay, in units of samples.
-	 * \param lpf_gain The internal gain of the lowpass feedback unit
-	 **/
-	LPCombFilter(float gain, long delay, float lpf_gain);
+    /**
+     * This is the destructor.
+     **/
+    ~LPCombFilter();
 
-	/**
-	 * This is the destructor.
-	 **/
-	~LPCombFilter();
+    /**
+     * This method applies a lpcomb filter to a single sample
+     * \param x_t The input sample
+     * \return The filtered sample
+     **/
+    m_sample_type do_filter(m_sample_type x_t);
 
-	/**
-	 * This method applies a lpcomb filter to a single sample
-	 * \param x_t The input sample
-	 * \return The filtered sample
-	 **/
-	m_sample_type do_filter(m_sample_type x_t);
+    /**
+     * This method should be redefined by each class derived from Filter to
+     * reset the filter to an initial state.  It should have the same effect
+     * as deleting the filter and creating a new one.
+     **/
+    void reset(void);
 
-	/**
-	 * This method should be redefined by each class derived from Filter to
-	 * reset the filter to an initial state.  It should have the same effect
-	 * as deleting the filter and creating a new one.
-	 **/
-	void reset(void);
+    /**
+     *	\deprecated
+     *   This outputs an XML representation of the object to STDOUT
+     **/
+    void xml_print(ofstream &xmlOutput);
 
-	/**
-	 *	\deprecated
-         *   This outputs an XML representation of the object to STDOUT
-        **/
-	void xml_print( ofstream& xmlOutput );
+    /**
+     * This constructor is used when recreating the object from an XML
+     * file when you don't know all the parameters until you've read
+     * them in.  Don't use this constructor unless you intend to use
+     * the proper calls to set the gain, delay, and lpf.
+     **/
+    LPCombFilter();
 
-	/**
-	 * This constructor is used when recreating the object from an XML
-	 * file when you don't know all the parameters until you've read
-	 * them in.  Don't use this constructor unless you intend to use
-	 * the proper calls to set the gain, delay, and lpf.
-	 **/
-	LPCombFilter();
+    /**
+     * This sets the gain.
+     * \param new_g The gain
+     **/
+    void set_g(float new_g);
 
-	/**
-	* This sets the gain.
-	* \param new_g The gain
-	**/
-	void set_g(float new_g);
-	
-	/**
-	* This sets the delay.
-	* \param D The delay
-	**/
-	void set_D(long D);
+    /**
+     * This sets the delay.
+     * \param D The delay
+     **/
+    void set_D(long D);
 
-	/** This sets the low-pass feedback.
-	* \param new_lpf_g
-	**/
-	void set_lpf_g(float new_lpf_g);
-	
-	/**
-	*	\deprecated
-	**/
-	void xml_read( XmlReader::xmltag *lptag);
+    /** This sets the low-pass feedback.
+     * \param new_lpf_g
+     **/
+    void set_lpf_g(float new_lpf_g);
+
+    /**
+     *	\deprecated
+     **/
+    void xml_read(XmlReader::xmltag *lptag);
 
 private:
+    /**
+     * The gain for the comb component of the filter
+     **/
+    float g;
 
-	/**
-	 * The gain for the comb component of the filter
-	 **/
-	float g;
+    /**
+     * The delay for the comb component of the filter
+     **/
+    long D;
 
-	/**
-	 * The delay for the comb component of the filter
-	 **/
-	long D;
+    /**
+     * The gain for the lowpass-feedback component of the filter
+     **/
+    float lpf_g;
 
-	/**
-	 * The gain for the lowpass-feedback component of the filter
-	 **/
-	float lpf_g;
+    /**
+     * This implements the lowpass-feedback portion of the filter
+     **/
+    LowPassFilter *lpf;
 
-	/**
-	 * This implements the lowpass-feedback portion of the filter
-	 **/
-	LowPassFilter *lpf;
-
-	/**
-	 * This queue holds past samples to implement the delay
-	 **/
-	Filter::hist_queue<m_sample_type> *x_hist;
+    /**
+     * This queue holds past samples to implement the delay
+     **/
+    Filter::hist_queue<m_sample_type> *x_hist;
 };
 
 //----------------------------------------------------------------------------//
 
-#endif //__LP_COMB_FILTER_H
+#endif  //__LP_COMB_FILTER_H

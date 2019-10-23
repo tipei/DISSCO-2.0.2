@@ -28,259 +28,240 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //----------------------------------------------------------------------------//
 
 void Tempo::setBackwardsCompatibleTempo(void) {
-  tempoBeatsPerMinute = 60;
-  tempoBeat = Ratio(1,4);
-  timeSignatureBeat = Ratio(1,4);
-  timeSignatureBeatsPerBar = 5;
-  EDUPerTimeSignatureBeat = 1;
-  tempoStartTime = 0;
+    tempoBeatsPerMinute = 60;
+    tempoBeat = Ratio(1, 4);
+    timeSignatureBeat = Ratio(1, 4);
+    timeSignatureBeatsPerBar = 5;
+    EDUPerTimeSignatureBeat = 1;
+    tempoStartTime = 0;
 }
 
 //----------------------------------------------------------------------------//
 
 Tempo::Tempo() {
-  //Default tempo should just be the backwards-compatible one.
-  setBackwardsCompatibleTempo();
+    // Default tempo should just be the backwards-compatible one.
+    setBackwardsCompatibleTempo();
 }
 
 //----------------------------------------------------------------------------//
 
 Tempo::Tempo(const Tempo& other) {
-  tempoBeatsPerMinute = other.tempoBeatsPerMinute;
-  tempoBeat = other.tempoBeat;
-  timeSignatureBeat = other.timeSignatureBeat;
-  timeSignatureBeatsPerBar = other.timeSignatureBeatsPerBar;
-  EDUPerTimeSignatureBeat = other.EDUPerTimeSignatureBeat;
-  tempoStartTime = other.tempoStartTime;
+    tempoBeatsPerMinute = other.tempoBeatsPerMinute;
+    tempoBeat = other.tempoBeat;
+    timeSignatureBeat = other.timeSignatureBeat;
+    timeSignatureBeatsPerBar = other.timeSignatureBeatsPerBar;
+    EDUPerTimeSignatureBeat = other.EDUPerTimeSignatureBeat;
+    tempoStartTime = other.tempoStartTime;
 }
 
 //----------------------------------------------------------------------------//
 
 bool Tempo::isTempoSameAs(Tempo& other) {
-  return tempoBeatsPerMinute == other.tempoBeatsPerMinute &&
-    tempoBeat == other.tempoBeat &&
-    timeSignatureBeat == other.timeSignatureBeat &&
-    timeSignatureBeatsPerBar == other.timeSignatureBeatsPerBar &&
-    EDUPerTimeSignatureBeat == other.EDUPerTimeSignatureBeat &&
-    tempoStartTime == other.tempoStartTime;
+    return tempoBeatsPerMinute == other.tempoBeatsPerMinute && tempoBeat == other.tempoBeat &&
+           timeSignatureBeat == other.timeSignatureBeat &&
+           timeSignatureBeatsPerBar == other.timeSignatureBeatsPerBar &&
+           EDUPerTimeSignatureBeat == other.EDUPerTimeSignatureBeat &&
+           tempoStartTime == other.tempoStartTime;
 }
 
 //----------------------------------------------------------------------------//
 
-float Tempo::getStartTime(void) {return tempoStartTime;}
+float Tempo::getStartTime(void) { return tempoStartTime; }
 
 //----------------------------------------------------------------------------//
 
-void Tempo::setStartTime(float newStartTime) {tempoStartTime = newStartTime;}
+void Tempo::setStartTime(float newStartTime) { tempoStartTime = newStartTime; }
 
 //----------------------------------------------------------------------------//
 
 void Tempo::setTempo(string newTempo) {
-  int length = (int)newTempo.length();
-  string firstHalf, secondHalf;
-  bool firstHalfIsNumber = false;
-  bool inSecondHalf = false;
-  bool countDigits = false;
-  bool encounteredSecondHalfSlash = false;
-  int digitCount = 0;
+    int length = (int)newTempo.length();
+    string firstHalf, secondHalf;
+    bool firstHalfIsNumber = false;
+    bool inSecondHalf = false;
+    bool countDigits = false;
+    bool encounteredSecondHalfSlash = false;
+    int digitCount = 0;
 
-  for(int i = 0; i < length; i++) {
-    char c = newTempo[i];
-    if(c == ' ')
-      continue;
-    else if(c == '=')
-      inSecondHalf = true;
-    else if(!inSecondHalf) {
-      if((c >= '0' && c <= '9') || c == '/')
-        firstHalfIsNumber = true;
-      firstHalf.append(1, c);
+    for (int i = 0; i < length; i++) {
+        char c = newTempo[i];
+        if (c == ' ')
+            continue;
+        else if (c == '=')
+            inSecondHalf = true;
+        else if (!inSecondHalf) {
+            if ((c >= '0' && c <= '9') || c == '/') firstHalfIsNumber = true;
+            firstHalf.append(1, c);
+        } else {
+            if (c == '.')
+                countDigits = true;
+            else if (c >= '0' && c <= '9') {
+                secondHalf.append(1, c);
+                if (countDigits) digitCount++;
+            } else if (c == '/' && !countDigits && !encounteredSecondHalfSlash) {
+                encounteredSecondHalfSlash = true;
+                secondHalf.append("/");
+            }
+        }
     }
-    else {
-      if(c == '.')
-        countDigits = true;
-      else if(c >= '0' && c <= '9') {
-        secondHalf.append(1, c);
-        if(countDigits)
-          digitCount++;
-      }
-      else if(c == '/' && !countDigits && !encounteredSecondHalfSlash) {
-        encounteredSecondHalfSlash = true;
-        secondHalf.append("/");
-      }
+
+    // A really obscure way to add /10 /100 /1000 etc. depending on digitCount
+    if (countDigits) {
+        secondHalf.append("/1");
+        secondHalf.append(digitCount, '0');
     }
-  }
-  
-  //A really obscure way to add /10 /100 /1000 etc. depending on digitCount
-  if(countDigits) {
-    secondHalf.append("/1");
-    secondHalf.append(digitCount, '0');
-  }
-  tempoBeatsPerMinute = secondHalf;
-  
-  if(firstHalfIsNumber) {
-    tempoBeat = firstHalf;
-    return;
-  }
-  
-  if(firstHalf.find("thirt") != string::npos)
-    tempoBeat = Ratio(1,32);
-  else if(firstHalf.find("six") != string::npos)
-    tempoBeat = Ratio(1,16);
-  else if(firstHalf.find("eig") != string::npos)
-    tempoBeat = Ratio(1,8);
-  else if(firstHalf.find("quar") != string::npos)
-{   tempoBeat = Ratio(1,4);
-}
-  else if(firstHalf.find("hal") != string::npos)
-    tempoBeat = Ratio(1,2);
-  else if(firstHalf.find("who") != string::npos)
-    tempoBeat = Ratio(1,1);
-    
-  if(firstHalf.find("doub") != string::npos)
-    tempoBeat *= Ratio(7,4);
-  else if(firstHalf.find("dot") != string::npos)
-    tempoBeat *= Ratio(3,2);
-    
-  if(firstHalf.find("tripl") != string::npos)
-    tempoBeat *= Ratio(2,3);
-  else if(firstHalf.find("quin") != string::npos)
-    tempoBeat *= Ratio(4,5);
-  else if(firstHalf.find("sext") != string::npos)
-    tempoBeat *= Ratio(5,6); 
-  else if(firstHalf.find("sept") != string::npos)
-    tempoBeat *= Ratio(6,7);
+    tempoBeatsPerMinute = secondHalf;
+
+    if (firstHalfIsNumber) {
+        tempoBeat = firstHalf;
+        return;
+    }
+
+    if (firstHalf.find("thirt") != string::npos)
+        tempoBeat = Ratio(1, 32);
+    else if (firstHalf.find("six") != string::npos)
+        tempoBeat = Ratio(1, 16);
+    else if (firstHalf.find("eig") != string::npos)
+        tempoBeat = Ratio(1, 8);
+    else if (firstHalf.find("quar") != string::npos) {
+        tempoBeat = Ratio(1, 4);
+    } else if (firstHalf.find("hal") != string::npos)
+        tempoBeat = Ratio(1, 2);
+    else if (firstHalf.find("who") != string::npos)
+        tempoBeat = Ratio(1, 1);
+
+    if (firstHalf.find("doub") != string::npos)
+        tempoBeat *= Ratio(7, 4);
+    else if (firstHalf.find("dot") != string::npos)
+        tempoBeat *= Ratio(3, 2);
+
+    if (firstHalf.find("tripl") != string::npos)
+        tempoBeat *= Ratio(2, 3);
+    else if (firstHalf.find("quin") != string::npos)
+        tempoBeat *= Ratio(4, 5);
+    else if (firstHalf.find("sext") != string::npos)
+        tempoBeat *= Ratio(5, 6);
+    else if (firstHalf.find("sept") != string::npos)
+        tempoBeat *= Ratio(6, 7);
 }
 
 //----------------------------------------------------------------------------//
 
 void Tempo::setTimeSignature(string newTimeSignature) {
-  int length = (int)newTimeSignature.length();
-  string firstHalf, secondHalf;
-  bool inSecondHalf = false;
-  for(int i = 0; i < length; i++) {
-    char c = newTimeSignature[i];
-    if(c == ' ')
-      continue;
-    else if(c == '/')
-      inSecondHalf = true;
-    else if(c >= '0' && c <= '9') {
-      if(!inSecondHalf) {
-        firstHalf.append(1, c);
-      }
-      else {
-        secondHalf.append(1, c);
-      }
+    int length = (int)newTimeSignature.length();
+    string firstHalf, secondHalf;
+    bool inSecondHalf = false;
+    for (int i = 0; i < length; i++) {
+        char c = newTimeSignature[i];
+        if (c == ' ')
+            continue;
+        else if (c == '/')
+            inSecondHalf = true;
+        else if (c >= '0' && c <= '9') {
+            if (!inSecondHalf) {
+                firstHalf.append(1, c);
+            } else {
+                secondHalf.append(1, c);
+            }
+        }
     }
-  }
-  timeSignatureBeatsPerBar = Ratio(firstHalf);
-  timeSignatureBeat = Ratio(1) / Ratio(secondHalf);
+    timeSignatureBeatsPerBar = Ratio(firstHalf);
+    timeSignatureBeat = Ratio(1) / Ratio(secondHalf);
 }
 
 //----------------------------------------------------------------------------//
 
-
 void Tempo::setEDUPerTimeSignatureBeat(Ratio newEDUPerTimeSignatureBeat) {
-  EDUPerTimeSignatureBeat = newEDUPerTimeSignatureBeat;
+    EDUPerTimeSignatureBeat = newEDUPerTimeSignatureBeat;
 }
-//in order to clean up the error message in Valgrind.
-//void Tempo::setEDUPerTimeSignatureBeat(string newEDUPerTimeSignatureBeat) {
+// in order to clean up the error message in Valgrind.
+// void Tempo::setEDUPerTimeSignatureBeat(string newEDUPerTimeSignatureBeat) {
 //  EDUPerTimeSignatureBeat = Ratio(newEDUPerTimeSignatureBeat);
 //}
 
 //----------------------------------------------------------------------------//
 
-Ratio Tempo::getTimeSignatureBeatsPerBar(void) {
-  return timeSignatureBeatsPerBar;
-}
+Ratio Tempo::getTimeSignatureBeatsPerBar(void) { return timeSignatureBeatsPerBar; }
 
 //----------------------------------------------------------------------------//
 
-Ratio Tempo::getTimeSignatureBeat(void) {
-  return timeSignatureBeat;
-}
+Ratio Tempo::getTimeSignatureBeat(void) { return timeSignatureBeat; }
 
 //----------------------------------------------------------------------------//
 
-Ratio Tempo::getTempoBeatsPerMinute(void) {
-  return tempoBeatsPerMinute;
-}
+Ratio Tempo::getTempoBeatsPerMinute(void) { return tempoBeatsPerMinute; }
 
 //----------------------------------------------------------------------------//
 
-Ratio Tempo::getTempoBeat(void) {
-  return tempoBeat;
-}
+Ratio Tempo::getTempoBeat(void) { return tempoBeat; }
 
 //----------------------------------------------------------------------------//
 
 Ratio Tempo::getTempoBeatsPerBar(void) {
-  return timeSignatureBeatsPerBar * (timeSignatureBeat / tempoBeat);
+    return timeSignatureBeatsPerBar * (timeSignatureBeat / tempoBeat);
 }
 
 //----------------------------------------------------------------------------//
 
 Ratio Tempo::getTimeSignatureBeatsPerMinute(void) {
-  return tempoBeatsPerMinute * (tempoBeat / timeSignatureBeat);
+    return tempoBeatsPerMinute * (tempoBeat / timeSignatureBeat);
 }
 
 //----------------------------------------------------------------------------//
 
-string Tempo::getTimeSignature(void)
-{
-  int n = timeSignatureBeatsPerBar.Num();
-  int d = timeSignatureBeat.Den();
-  stringstream oss; oss << n << "/" << d;
-  return oss.str();
+string Tempo::getTimeSignature(void) {
+    int n = timeSignatureBeatsPerBar.Num();
+    int d = timeSignatureBeat.Den();
+    stringstream oss;
+    oss << n << "/" << d;
+    return oss.str();
 }
 
 //----------------------------------------------------------------------------//
 
-Ratio Tempo::getTempoBeatDurationInSeconds(void) {
-  return Ratio(60) / tempoBeatsPerMinute;
-}
+Ratio Tempo::getTempoBeatDurationInSeconds(void) { return Ratio(60) / tempoBeatsPerMinute; }
 
 //----------------------------------------------------------------------------//
 
 Ratio Tempo::getTimeSignatureBeatDurationInSeconds(void) {
-  return Ratio(60) / (tempoBeatsPerMinute * (tempoBeat / timeSignatureBeat));
+    return Ratio(60) / (tempoBeatsPerMinute * (tempoBeat / timeSignatureBeat));
 }
 
 //----------------------------------------------------------------------------//
 
 Ratio Tempo::getEDUPerTimeSignatureBeat(void) {
-//cout << "  	Ratio Tempo::getEDUPerTimeSignatureBeat - 
-// EDUPerTimeSignatureBeat=" << EDUPerTimeSignatureBeat.toPrettyString() << endl;
-  return EDUPerTimeSignatureBeat;
+    // cout << "  	Ratio Tempo::getEDUPerTimeSignatureBeat -
+    // EDUPerTimeSignatureBeat=" << EDUPerTimeSignatureBeat.toPrettyString() <<
+    // endl;
+    return EDUPerTimeSignatureBeat;
 }
 
 //----------------------------------------------------------------------------//
 
-Ratio Tempo::getEDUPerBar(void) {
-  return EDUPerTimeSignatureBeat * timeSignatureBeatsPerBar;
-}
+Ratio Tempo::getEDUPerBar(void) { return EDUPerTimeSignatureBeat * timeSignatureBeatsPerBar; }
 
 //----------------------------------------------------------------------------//
 
 Ratio Tempo::getEDUPerTempoBeat(void) {
-  return EDUPerTimeSignatureBeat * (tempoBeat / timeSignatureBeat);
+    return EDUPerTimeSignatureBeat * (tempoBeat / timeSignatureBeat);
 }
 
 //----------------------------------------------------------------------------//
 
 Ratio Tempo::getEDUPerSecond(void) {
-/*
-  cout << "Ratio Tempo::getEDUPerSecond - EDUPerTimeSignatureBeat="
-       << EDUPerTimeSignatureBeat.toPrettyString() << " TimeSignatureBeatsPerMinute="
-       << getTimeSignatureBeatsPerMinute().toPrettyString() << endl;
-  cout << "    	   string:" << getEDUPerTimeSignatureBeat().toPrettyString() << endl;
-*/
-  return EDUPerTimeSignatureBeat *
-    getTimeSignatureBeatsPerMinute() / Ratio(60);
+    /*
+      cout << "Ratio Tempo::getEDUPerSecond - EDUPerTimeSignatureBeat="
+           << EDUPerTimeSignatureBeat.toPrettyString() << "
+      TimeSignatureBeatsPerMinute="
+           << getTimeSignatureBeatsPerMinute().toPrettyString() << endl;
+      cout << "    	   string:" <<
+      getEDUPerTimeSignatureBeat().toPrettyString() << endl;
+    */
+    return EDUPerTimeSignatureBeat * getTimeSignatureBeatsPerMinute() / Ratio(60);
 }
 
 //----------------------------------------------------------------------------//
 
 Ratio Tempo::getEDUDurationInSeconds(void) {
-  return getTimeSignatureBeatDurationInSeconds() / EDUPerTimeSignatureBeat;
+    return getTimeSignatureBeatDurationInSeconds() / EDUPerTimeSignatureBeat;
 }
-

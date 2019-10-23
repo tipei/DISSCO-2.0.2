@@ -26,7 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef TIMESPAN_H
 #define TIMESPAN_H
 
-//CMOD includes
+// CMOD includes
 #include "Libraries.h"
 #include "Rational.h"
 
@@ -36,12 +36,11 @@ seconds and, in the case of it being an exact interval, EDU.*/
 
 //----------------------------------------------------------------------------//
 struct TimeSpan {
-  float start;
-  float duration;
-  Ratio startEDU;
-  Ratio durationEDU;
-  
-  TimeSpan() : start(0), duration(0), startEDU(0, 0), durationEDU(0, 0) {}
+    float start;
+    float duration;
+    Ratio startEDU;
+    Ratio durationEDU;
+
+    TimeSpan() : start(0), duration(0), startEDU(0, 0), durationEDU(0, 0) {}
 };
 #endif /* TIMESPAN_H */
-

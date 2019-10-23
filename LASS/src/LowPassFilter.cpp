@@ -30,60 +30,52 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 //----------------------------------------------------------------------------//
 
-#include "SoundSample.h"
-#include "Collection.h"
-#include "Track.h"
-#include "MultiTrack.h"
-#include "Filter.h"
 #include "LowPassFilter.h"
 
-//----------------------------------------------------------------------------//
-LowPassFilter::LowPassFilter(float gain)
-{
-	// set parameters
-	g = gain;
+#include "Collection.h"
+#include "Filter.h"
+#include "MultiTrack.h"
+#include "SoundSample.h"
+#include "Track.h"
 
-	// initialize y_hist queue
-	y_hist = new Filter::hist_queue<m_sample_type>(1);
-	y_hist->enqueue(0.0);
+//----------------------------------------------------------------------------//
+LowPassFilter::LowPassFilter(float gain) {
+    // set parameters
+    g = gain;
+
+    // initialize y_hist queue
+    y_hist = new Filter::hist_queue<m_sample_type>(1);
+    y_hist->enqueue(0.0);
 }
 
 //----------------------------------------------------------------------------//
-LowPassFilter::~LowPassFilter()
-{
-	delete y_hist;
+LowPassFilter::~LowPassFilter() { delete y_hist; }
+
+//----------------------------------------------------------------------------//
+m_sample_type LowPassFilter::do_filter(m_sample_type x_t) {
+    m_sample_type y_t;
+
+    // y(t) = x(t) + g*y(t-1)
+    y_t = x_t + (g * y_hist->dequeue());
+    y_hist->enqueue(y_t);
+
+    return y_t;
 }
 
 //----------------------------------------------------------------------------//
-m_sample_type LowPassFilter::do_filter(m_sample_type x_t)
-{
-	m_sample_type y_t;
-
-	// y(t) = x(t) + g*y(t-1)
-	y_t = x_t + (g * y_hist->dequeue());
-	y_hist->enqueue(y_t);
-
-	return y_t;
+void LowPassFilter::reset() {
+    // reinitialize y_hist queue
+    delete y_hist;
+    y_hist = new Filter::hist_queue<m_sample_type>(1);
+    y_hist->enqueue(0.0);
 }
 
 //----------------------------------------------------------------------------//
-void LowPassFilter::reset()
-{
-	// reinitialize y_hist queue
-	delete y_hist;
-	y_hist = new Filter::hist_queue<m_sample_type>(1);
-	y_hist->enqueue(0.0);
+void LowPassFilter::xml_print() {
+    cout << "\t\t<LowPassFilter>" << endl;
+    cout << "\t\t\t<g value=\"" << g << "\" />" << endl;
+    cout << "\t\t</LowPassFilter>" << endl;
 }
 
 //----------------------------------------------------------------------------//
-void LowPassFilter::xml_print()
-{
-
-	cout << "\t\t<LowPassFilter>" << endl;
-	cout << "\t\t\t<g value=\"" << g << "\" />" << endl;
-	cout << "\t\t</LowPassFilter>" << endl;
-
-}
-
-//----------------------------------------------------------------------------//
-#endif //__LOW_PASS_FILTER_CPP
+#endif  //__LOW_PASS_FILTER_CPP

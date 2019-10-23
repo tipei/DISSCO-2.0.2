@@ -1,16 +1,16 @@
 /*
 CMOD (composition module)
    Copyright (C) 2007  Sever Tipei (s-tipei@uiuc.edu)
-      
-   
+
+
    Update:
    This class is no longer in used by XML version of CMOD. It's here only
    for people who need to upgrade their DISSCO projects from the old format
    to the new format (See LASSIE/src/UpgradeProjectFormat.h ).
-   
+
                                             --Ming-ching Chiu May 06 2013
-                                            
-                                            
+
+
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -31,102 +31,98 @@ CMOD (composition module)
 
 #include "EventParser.h"
 
+#include "CMOD.h"
 #include "FileValue.h"
 #include "Piece.h"
-#include "CMOD.h"
-
 
 //----------------------------------------------------------------------------//
 
 struct ltstr {
-  bool operator()(const char* s1, const char* s2) const {
-    return strcmp(s1,s2) < 0;
-  }
+    bool operator()(const char *s1, const char *s2) const { return strcmp(s1, s2) < 0; }
 };
 
 //----------------------------------------------------------------------------//
 
-map<const char*, FileValue*, ltstr> file_data;
+map<const char *, FileValue *, ltstr> file_data;
 //#define file_data (*file_data_ptr)
 
 //----------------------------------------------------------------------------//
 
 typedef struct EvKeyEval_s {
-  const char *s;
-  void (EventFactory::*fptr)(FileValue *arg);
+    const char *s;
+    void (EventFactory::*fptr)(FileValue *arg);
 } EvKeyEval;
 
 //----------------------------------------------------------------------------//
 
 typedef struct GbKeyEval_s {
-  const char *s;
-  void (Piece::*fptr)(FileValue *arg);
+    const char *s;
+    void (Piece::*fptr)(FileValue *arg);
 } GbKeyEval;
 
 //----------------------------------------------------------------------------//
 
-      /**************************************************************
-       *							    *
-       * Modify this section to add new keywords.		    *
-       *							    *
-       * Store all key and function pairs in the 'xxkeys' array.    *
-       * The {"",NULL} line MUST be the last.  Do NOT remove it!    *
-       **************************************************************/
+/**************************************************************
+ *							    *
+ * Modify this section to add new keywords.		    *
+ *							    *
+ * Store all key and function pairs in the 'xxkeys' array.    *
+ * The {"",NULL} line MUST be the last.  Do NOT remove it!    *
+ **************************************************************/
 
-//global keys - referring to the entire piece (in main.cpp)
-GbKeyEval gbkeys[] = { /*
-  {"title", &Piece::setTitle},
-  {"fileFlags", &Piece::setFileFlags},
-  {"fileList", &Piece::setFileList},
-  {"pieceStartTime", &Piece::setPieceStartTime},
-  {"pieceDuration", &Piece::setPieceDuration},
-  {"soundSynthesis", &Piece::setSoundSynthesis},
-  {"numChannels", &Piece::setNumChannels},
-  {"sampleRate", &Piece::setSampleRate},
-  {"sampleSize", &Piece::setSampleSize},
-  {"numThreads", &Piece::setNumThreads},
+// global keys - referring to the entire piece (in main.cpp)
+GbKeyEval gbkeys[] = {/*
+ {"title", &Piece::setTitle},
+ {"fileFlags", &Piece::setFileFlags},
+ {"fileList", &Piece::setFileList},
+ {"pieceStartTime", &Piece::setPieceStartTime},
+ {"pieceDuration", &Piece::setPieceDuration},
+ {"soundSynthesis", &Piece::setSoundSynthesis},
+ {"numChannels", &Piece::setNumChannels},
+ {"sampleRate", &Piece::setSampleRate},
+ {"sampleSize", &Piece::setSampleSize},
+ {"numThreads", &Piece::setNumThreads},
 */
-  /* Insert more keyword/function pairs above this line. */
-  {"", NULL}
-};
+                      /* Insert more keyword/function pairs above this line. */
+                      {"", NULL}};
 
-//event keys - referring to various events
+// event keys - referring to various events
 EvKeyEval evkeys[] = {
-/*
-  // All Events
-  {"childNames", &EventFactory::setChildNames},
-  {"numChildren", &EventFactory::setNumChildren},
-  {"childEventDef", &EventFactory::setChildEventDef},
-  // All events -- cont'd (new tempo indications)
-  {"tempo", &EventFactory::setTempo},
-  {"timeSignature", &EventFactory::setTimeSignature},
-  {"EDUPerBeat", &EventFactory::setEDUPerBeat},
-  {"maxChildDur", &EventFactory::setMaxChildDur},
-  // All events -- deprecated -- these just forward to other evaluation keys.
-  {"unitsPerSecond", &EventFactory::setUnitsPerSecond}, // --> EDUPerBeat
-  {"unitsPerBar",  &EventFactory::setUnitsPerBar}, // --> deprecated
-  // for Bottom Events
-  {"frequency", &EventFactory::setFrequency},
-  {"loudness", &EventFactory::setLoudness},
-  {"spatialization", &EventFactory::setSpatialization},
-  {"reverberation", &EventFactory::setReverberation},
-  {"modifiers", &EventFactory::setModifiers},
-  // for sounds
-  {"numPartials", &EventFactory::setNumPartials},
-  {"deviation", &EventFactory::setDeviation},
-  {"spectrum", &EventFactory::setSpectrum},
-  // for notes
-  {"notePitchClass", &EventFactory::setNotePitchClass},
-  {"noteDynamicMark", &EventFactory::setNoteDynamicMark},
-  {"noteModifiers", &EventFactory::setNoteModifiers},
-  // Special cases (reading objs from external files)
-  {"envelopeBuilder", &EventFactory::setEnvelopeBuilder},
-  {"sieveBuilder", &EventFactory::setSieveBuilder},
-  {"patternBuilder", &EventFactory::setPatternBuilder},
-*/
-  /* Insert more keyword/function pairs above this line. */
-  {"", NULL}
-};
+    /*
+      // All Events
+      {"childNames", &EventFactory::setChildNames},
+      {"numChildren", &EventFactory::setNumChildren},
+      {"childEventDef", &EventFactory::setChildEventDef},
+      // All events -- cont'd (new tempo indications)
+      {"tempo", &EventFactory::setTempo},
+      {"timeSignature", &EventFactory::setTimeSignature},
+      {"EDUPerBeat", &EventFactory::setEDUPerBeat},
+      {"maxChildDur", &EventFactory::setMaxChildDur},
+      // All events -- deprecated -- these just forward to other evaluation
+      keys.
+      {"unitsPerSecond", &EventFactory::setUnitsPerSecond}, // --> EDUPerBeat
+      {"unitsPerBar",  &EventFactory::setUnitsPerBar}, // --> deprecated
+      // for Bottom Events
+      {"frequency", &EventFactory::setFrequency},
+      {"loudness", &EventFactory::setLoudness},
+      {"spatialization", &EventFactory::setSpatialization},
+      {"reverberation", &EventFactory::setReverberation},
+      {"modifiers", &EventFactory::setModifiers},
+      // for sounds
+      {"numPartials", &EventFactory::setNumPartials},
+      {"deviation", &EventFactory::setDeviation},
+      {"spectrum", &EventFactory::setSpectrum},
+      // for notes
+      {"notePitchClass", &EventFactory::setNotePitchClass},
+      {"noteDynamicMark", &EventFactory::setNoteDynamicMark},
+      {"noteModifiers", &EventFactory::setNoteModifiers},
+      // Special cases (reading objs from external files)
+      {"envelopeBuilder", &EventFactory::setEnvelopeBuilder},
+      {"sieveBuilder", &EventFactory::setSieveBuilder},
+      {"patternBuilder", &EventFactory::setPatternBuilder},
+    */
+    /* Insert more keyword/function pairs above this line. */
+    {"", NULL}};
 
 //----------------------------------------------------------------------------//
 /*
@@ -180,15 +176,15 @@ int parseFile(string filename, EventFactory* ef, Piece *piece) {
 //----------------------------------------------------------------------------//
 
 int setFile(string filename) {
-  FILE *yytmp;
-  extern FILE *yyin;
-  yytmp = fopen(filename.c_str(), "r");
+    FILE *yytmp;
+    extern FILE *yyin;
+    yytmp = fopen(filename.c_str(), "r");
 
-  if (yytmp == NULL) {
-    cout << "ERROR: File " << filename << " does not exist!" << endl;
-    exit(1);
-  }
+    if (yytmp == NULL) {
+        cout << "ERROR: File " << filename << " does not exist!" << endl;
+        exit(1);
+    }
 
-  yyin = yytmp;
-  return 1;
+    yyin = yytmp;
+    return 1;
 }

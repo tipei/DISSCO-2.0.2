@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 //----------------------------------------------------------------------------//
 //
-//	Pan.h	
+//	Pan.h
 //
 //----------------------------------------------------------------------------//
 
@@ -28,66 +28,64 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 //----------------------------------------------------------------------------//
 
-#include "Types.h"
-#include "Spatializer.h"
-#include "MultiTrack.h"
-#include "Track.h"
 #include "DynamicVariable.h"
+#include "MultiTrack.h"
+#include "Spatializer.h"
+#include "Track.h"
+#include "Types.h"
 
 //----------------------------------------------------------------------------//
 
 /**
-*	Pan is a simple Spatializer.
-*	It implements simple panning accross a number of channels.
-*	\todo Add destructor to Spatializer.
-*	\author Braden Kowitz
-**/
-class Pan : public Spatializer
-{
+ *	Pan is a simple Spatializer.
+ *	It implements simple panning accross a number of channels.
+ *	\todo Add destructor to Spatializer.
+ *	\author Braden Kowitz
+ **/
+class Pan : public Spatializer {
 private:
     DynamicVariable* panVar_;
+
 public:
+    /**
+     *	This is a simple constructor which creates a pan object around
+     *	a dynamic variable. The range should be [0,1] (else undefined).
+     *	\param v The DynamicVariable
+     **/
+    Pan(DynamicVariable& v);
 
     /**
-    *	This is a simple constructor which creates a pan object around 
-    *	a dynamic variable. The range should be [0,1] (else undefined).
-    *	\param v The DynamicVariable
-    **/
-    Pan(DynamicVariable& v);
-    
-    /**
      * Destructor
-    **/
-    
+     **/
+
     ~Pan();
     /**
-    *	This returns an exact duplicate of this Pan object.
-    *	\return The new Pan object
-    **/
+     *	This returns an exact duplicate of this Pan object.
+     *	\return The new Pan object
+     **/
     Pan* clone();
-    
+
     /**
-    *	This sets the dynamic variable for a Pan object
-    *	to something different than specified in the constructor.
-    *	\param v The new DynamicVariable
-    **/
+     *	This sets the dynamic variable for a Pan object
+     *	to something different than specified in the constructor.
+     *	\param v The new DynamicVariable
+     **/
     void set(DynamicVariable& v);
 
     /**
-    *	This will return a new MultiTrack object with numTracks.
-    *	The given track will be panned accross the channels.
-    *	\param t The Track to pan
-    *	\param numTracks The number of tracks
-    *	\return A pointer to a new MultiTrack
-    **/
+     *	This will return a new MultiTrack object with numTracks.
+     *	The given track will be panned accross the channels.
+     *	\param t The Track to pan
+     *	\param numTracks The number of tracks
+     *	\return A pointer to a new MultiTrack
+     **/
     MultiTrack* spatialize(Track& t, int numTracks);
 
-	/** 
-	* \deprecated
-	**/
-	void xml_print( ofstream& xmlOutput );
+    /**
+     * \deprecated
+     **/
+    void xml_print(ofstream& xmlOutput);
 };
 
-
 //----------------------------------------------------------------------------//
-#endif //__PAN_H
+#endif  //__PAN_H

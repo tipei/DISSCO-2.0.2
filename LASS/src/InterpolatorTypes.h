@@ -28,120 +28,111 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 //----------------------------------------------------------------------------//
 
-#include "Types.h"
-#include "InterpolatorIterator.h"
 #include "Interpolator.h"
+#include "InterpolatorIterator.h"
+#include "Types.h"
 #include "XmlReader.h"
 
 //----------------------------------------------------------------------------//
 /**
-*	This is a DynamicVariable that changes over time.
-*	This linearly interpolates between a set of points
-*	ordered in time. (LinearInterpolatorEntry)
-*
-*	\author Braden Kowitz
-*	\author Philipp Fraund
-**/
-class LinearInterpolator : public Interpolator
-{
-
+ *	This is a DynamicVariable that changes over time.
+ *	This linearly interpolates between a set of points
+ *	ordered in time. (LinearInterpolatorEntry)
+ *
+ *	\author Braden Kowitz
+ *	\author Philipp Fraund
+ **/
+class LinearInterpolator : public Interpolator {
 public:
-    
     /**
-    *	This is the default constructor.
-    **/
+     *	This is the default constructor.
+     **/
     LinearInterpolator();
 
     /**
-    *	This makes a clone of a LinearInterpolator.
-    *	\return A new LinearInterpolator
-    **/
+     *	This makes a clone of a LinearInterpolator.
+     *	\return A new LinearInterpolator
+     **/
     LinearInterpolator* clone();
 
     /**
-    *	This creates an iterator over LinearInterpolators.
-    *	\return An iterator
-    **/
+     *	This creates an iterator over LinearInterpolators.
+     *	\return An iterator
+     **/
     Iterator<m_value_type> valueIterator();
 
     /**
-    *	This provides an implementation to get the type of interpolator.
-    *	\return The interpolation type
-    **/
+     *	This provides an implementation to get the type of interpolator.
+     *	\return The interpolation type
+     **/
     virtual interpolation_type getType();
 };
 
 /**
-*  This is a DynamicVariable that changes over time.
-*  This exponentially interpolates between a set of points
-*  ordered in time.
-*  \author Braden Kowitz
-*  \author Philipp Fraund
-**/
-class ExponentialInterpolator : public Interpolator
-{
-
+ *  This is a DynamicVariable that changes over time.
+ *  This exponentially interpolates between a set of points
+ *  ordered in time.
+ *  \author Braden Kowitz
+ *  \author Philipp Fraund
+ **/
+class ExponentialInterpolator : public Interpolator {
 public:
-    
     /**
-    *	This is the default constructor
-    **/
+     *	This is the default constructor
+     **/
     ExponentialInterpolator();
-    
+
     /**
-    *	This makes a clone of a ExponentialInterpolator.
-    *	\return A new ExponentialInterpolator
-    **/
+     *	This makes a clone of a ExponentialInterpolator.
+     *	\return A new ExponentialInterpolator
+     **/
     ExponentialInterpolator* clone();
 
     /**
-    *	This creates an iterator over ExponentialInterpolators.
-    *	\return An iterator
-    **/
+     *	This creates an iterator over ExponentialInterpolators.
+     *	\return An iterator
+     **/
     Iterator<m_value_type> valueIterator();
 
     /**
-    *	This provides an implementation to get the type of interpolator.
-    *	\return The interpolation type
-    **/
+     *	This provides an implementation to get the type of interpolator.
+     *	\return The interpolation type
+     **/
     virtual interpolation_type getType();
 };
 
 /**
-*  This is a DynamicVariable that changes over time.
-*  This does cubic spline interpolation between a set of points
-*  ordered in time.
-*  \author Braden Kowitz
-*  \author Philipp Fraund
-**/
-class CubicSplineInterpolator : public Interpolator
-{
-
+ *  This is a DynamicVariable that changes over time.
+ *  This does cubic spline interpolation between a set of points
+ *  ordered in time.
+ *  \author Braden Kowitz
+ *  \author Philipp Fraund
+ **/
+class CubicSplineInterpolator : public Interpolator {
 public:
-    
     /**
-    *	This is the default constructor.
-    **/
+     *	This is the default constructor.
+     **/
     CubicSplineInterpolator();
 
     /**
-    *	This makes a clone of a CubicSplineInterpolator.
-    *	\return A new CubicSplineInterpolator
-    **/
+     *	This makes a clone of a CubicSplineInterpolator.
+     *	\return A new CubicSplineInterpolator
+     **/
     CubicSplineInterpolator* clone();
 
     /**
-    *	This creates an iterator over CubicSplineInterpolators.
-    *	\return An iterator
-    **/
+     *	This creates an iterator over CubicSplineInterpolators.
+     *	\return An iterator
+     **/
     Iterator<m_value_type> valueIterator();
 
     /**
-    *	This provides an implementation to get the type of interpolator.
-    *	\return The interpolation type
-    **/
+     *	This provides an implementation to get the type of interpolator.
+     *	\return The interpolation type
+     **/
     virtual interpolation_type getType();
 };
 
 //----------------------------------------------------------------------------//
-#endif //INTERPOLATOR_TYPES_H
+#endif  // INTERPOLATOR_TYPES_H

@@ -39,95 +39,83 @@ class SharedPointers;
 class ObjectWindow;
 class ObjectWindowObjectPackage;
 
-
-class PaletteViewController: public Gtk::VBox {
-  
+class PaletteViewController : public Gtk::VBox {
 public:
-   PaletteViewController(SharedPointers* _sharedPointers);
-  ~PaletteViewController();
-  
-  void insertEvent(IEvent* _event);
-  void insertEvent(IEvent* _event, std::string _parentName);
-  void refreshObjectName(IEvent* _event);
-  Glib::ustring folderSelected(); // check if any row is selected;
-  IEvent* getCurrentSelectedEvent();
-  void deleteKeyPressed();
-  int getCurrentMaxObjectNumber(string _folderName);
-  void refreshObjectOrder( string _folderName);
-  ObjectWindowObjectPackage* getObjectsLinkedList(string _typeString);
-  
-  
-  
+    PaletteViewController(SharedPointers* _sharedPointers);
+    ~PaletteViewController();
+
+    void insertEvent(IEvent* _event);
+    void insertEvent(IEvent* _event, std::string _parentName);
+    void refreshObjectName(IEvent* _event);
+    Glib::ustring folderSelected();  // check if any row is selected;
+    IEvent* getCurrentSelectedEvent();
+    void deleteKeyPressed();
+    int getCurrentMaxObjectNumber(string _folderName);
+    void refreshObjectOrder(string _folderName);
+    ObjectWindowObjectPackage* getObjectsLinkedList(string _typeString);
 
 protected:
-  // Signal handlers:
-  void objectActivated(
-    const Gtk::TreeModel::Path& _path, Gtk::TreeViewColumn* _column);
-  void showEnvelopeLibrary();
-  void showMarkovModelLibrary();
-  
-  //drag and drop to projectTreeView
-  void on_button_drag_data_get(
-    const Glib::RefPtr<Gdk::DragContext>& context,
-    Gtk::SelectionData& selection_data,
-    guint info,
-    guint time);
+    // Signal handlers:
+    void objectActivated(const Gtk::TreeModel::Path& _path, Gtk::TreeViewColumn* _column);
+    void showEnvelopeLibrary();
+    void showMarkovModelLibrary();
 
-  bool onRightClick(GdkEventButton* event);
-  void AddToProjectTree(); //deprecated
-  void deleteObject();
-  void duplicateObject();
+    // drag and drop to projectTreeView
+    void on_button_drag_data_get(const Glib::RefPtr<Gdk::DragContext>& context,
+                                 Gtk::SelectionData& selection_data, guint info, guint time);
 
-  // Tree model columns:
-  class Columns : public Gtk::TreeModel::ColumnRecord{
-  public:
-    Columns(){
-      add(columnObjectType);
-      add(columnObjectName);
-    /*add (columnButton)*/;
-      add(columnEntry);
-      add(columnObjectOrder);
-    }
-    Gtk::TreeModelColumn<Glib::ustring> columnObjectType;
-    Gtk::TreeModelColumn<Glib::ustring> columnObjectName;
+    bool onRightClick(GdkEventButton* event);
+    void AddToProjectTree();  // deprecated
+    void deleteObject();
+    void duplicateObject();
 
-    Gtk::TreeModelColumn<IEvent*> columnEntry;
-    Gtk::TreeModelColumn<int> columnObjectOrder;
-  };
-  int slot_comp_func(const Gtk::TreeModel::iterator& a,  const Gtk::TreeModel::iterator& b);
-  Gtk::TreeSortable::SlotCompare slot_comp;
+    // Tree model columns:
+    class Columns : public Gtk::TreeModel::ColumnRecord {
+    public:
+        Columns() {
+            add(columnObjectType);
+            add(columnObjectName);
+            /*add (columnButton)*/;
+            add(columnEntry);
+            add(columnObjectOrder);
+        }
+        Gtk::TreeModelColumn<Glib::ustring> columnObjectType;
+        Gtk::TreeModelColumn<Glib::ustring> columnObjectName;
 
-  Columns columns;
-  ProjectViewController* projectView;
+        Gtk::TreeModelColumn<IEvent*> columnEntry;
+        Gtk::TreeModelColumn<int> columnObjectOrder;
+    };
+    int slot_comp_func(const Gtk::TreeModel::iterator& a, const Gtk::TreeModel::iterator& b);
+    Gtk::TreeSortable::SlotCompare slot_comp;
 
-  //Child widgets:
-  Gtk::ScrolledWindow scrolledWindow;
-  Gtk::TreeView palette;
-  Glib::RefPtr<Gtk::TreeStore> refTreeModel;
+    Columns columns;
+    ProjectViewController* projectView;
 
-  Gtk::Label viewName;
-  Gtk::Button envelopeLibButton;
-  Gtk::Button markovModelLibButton;
+    // Child widgets:
+    Gtk::ScrolledWindow scrolledWindow;
+    Gtk::TreeView palette;
+    Glib::RefPtr<Gtk::TreeStore> refTreeModel;
 
-  Gtk::TreeModel::Row selectedRow;
-  void on_selection_changed();
+    Gtk::Label viewName;
+    Gtk::Button envelopeLibButton;
+    Gtk::Button markovModelLibButton;
+
+    Gtk::TreeModel::Row selectedRow;
+    void on_selection_changed();
 
 private:
-  void on_cursor_changed();
-  void switchBackToPreviousCursor(IEvent* _ifDeleteOnCursor);
-  
-  // these three are for setting up pop up menu
-  Glib::RefPtr<Gtk::UIManager> m_refUIManager;
-  Glib::RefPtr<Gtk::ActionGroup> m_refActionGroup;
-  Gtk::Menu* m_pMenuPopup;
-  SharedPointers* sharedPointers;
-  
-  IEvent* currentCursorPosition;//this thing record the original activated row. after right click is done, it switch back to this row
-  
+    void on_cursor_changed();
+    void switchBackToPreviousCursor(IEvent* _ifDeleteOnCursor);
 
+    // these three are for setting up pop up menu
+    Glib::RefPtr<Gtk::UIManager> m_refUIManager;
+    Glib::RefPtr<Gtk::ActionGroup> m_refActionGroup;
+    Gtk::Menu* m_pMenuPopup;
+    SharedPointers* sharedPointers;
+
+    IEvent* currentCursorPosition;  // this thing record the original activated
+                                    // row. after right click is done, it switch
+                                    // back to this row
 };
 
-#endif //PALETTE_VIEW_CONTROLLER_H
-
-
-
+#endif  // PALETTE_VIEW_CONTROLLER_H

@@ -26,53 +26,43 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef __SPATIALIZER_CPP
 #define __SPATIALIZER_CPP
 
-
 //----------------------------------------------------------------------------//
 
 #include "Spatializer.h"
 
 //----------------------------------------------------------------------------//
 
-
-Spatializer::~Spatializer(){
-  // nothing to do
+Spatializer::~Spatializer() {
+    // nothing to do
 }
 
-MultiTrack* Spatializer::spatialize(Track& t, int numTracks)
-{
-
-
+MultiTrack* Spatializer::spatialize(Track& t, int numTracks) {
     Track* scaledTrack = new Track(t);
-    scaledTrack->scale( 1.0/float(numTracks) );
-    
+    scaledTrack->scale(1.0 / float(numTracks));
+
     // create a new multitrack:
     MultiTrack* mt = new MultiTrack;
-    
+
     // add copies of the scaled track to this multitrack
-    for (int i=0; i<numTracks; i++)
-    {
-        mt->add( new Track(*scaledTrack) );
+    for (int i = 0; i < numTracks; i++) {
+        mt->add(new Track(*scaledTrack));
     }
-    
+
     // delete the scaled track
     delete scaledTrack;
-    
+
     // return:
     return mt;
 }
 
 //----------------------------------------------------------------------------//
-Spatializer* Spatializer::clone()
-{
-    return new Spatializer(*this);
-}
+Spatializer* Spatializer::clone() { return new Spatializer(*this); }
 
-void Spatializer::xml_print( ofstream& xmlOutput )
-{
-	xmlOutput << "\t\t<spatializer>" << endl;
-	
-	xmlOutput << "\t\t</spatializer>" << endl;
+void Spatializer::xml_print(ofstream& xmlOutput) {
+    xmlOutput << "\t\t<spatializer>" << endl;
+
+    xmlOutput << "\t\t</spatializer>" << endl;
 }
 
 //----------------------------------------------------------------------------//
-#endif //__SPATIALIZER_CPP
+#endif  //__SPATIALIZER_CPP

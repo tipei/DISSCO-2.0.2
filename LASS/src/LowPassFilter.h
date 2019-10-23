@@ -23,18 +23,18 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 //----------------------------------------------------------------------------//
 
-// Best if viewed with 4-space tabs 
+// Best if viewed with 4-space tabs
 
 #ifndef __LOW_PASS_FILTER_H
 #define __LOW_PASS_FILTER_H
 
 //----------------------------------------------------------------------------//
 
-#include "SoundSample.h"
 #include "Collection.h"
-#include "Track.h"
-#include "MultiTrack.h"
 #include "Filter.h"
+#include "MultiTrack.h"
+#include "SoundSample.h"
+#include "Track.h"
 
 //----------------------------------------------------------------------------//
 
@@ -57,53 +57,50 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
  * \author Jim LIndstrom
  **/
-class LowPassFilter : public Filter
-{
+class LowPassFilter : public Filter {
 public:
+    /**
+     * This is a constructor.
+     * \param gain The low-pass feedback gain
+     **/
+    LowPassFilter(float gain);
 
-	/**
-	 * This is a constructor.
-	 * \param gain The low-pass feedback gain
-	 **/
-	LowPassFilter(float gain);
+    /**
+     * This is a destructor.
+     **/
+    ~LowPassFilter();
 
-	/**
-	 * This is a destructor.
-	 **/
-	~LowPassFilter();
+    /**
+     * This method applies a low-pass filter to a single sample
+     * \param x_t The input sample
+     * \return The filtered sample
+     **/
+    m_sample_type do_filter(m_sample_type x_t);
 
-	/**
-	 * This method applies a low-pass filter to a single sample
-	 * \param x_t The input sample
-	 * \return The filtered sample
-	 **/
-	m_sample_type do_filter(m_sample_type x_t);
+    /**
+     * This method should be redefined by each class derived from Filter to
+     * reset the filter to an initial state.  It should have the same effect
+     * as deleting the filter and creating a new one.
+     **/
+    void reset(void);
 
-	/**
-	 * This method should be redefined by each class derived from Filter to
-	 * reset the filter to an initial state.  It should have the same effect
-	 * as deleting the filter and creating a new one.
-	 **/
-	void reset(void);
-
-	/**
-	 *	\deprecated
-         *   This outputs an XML representation of the object to STDOUT
-        **/
-	void xml_print();
+    /**
+     *	\deprecated
+     *   This outputs an XML representation of the object to STDOUT
+     **/
+    void xml_print();
 
 private:
+    /**
+     * The gain for the filter
+     **/
+    float g;
 
-	/**
-	 * The gain for the filter
-	 **/
-	float g;
-
-	/**
-	 * This queue holds past samples to implement the delay
-	 **/
-	Filter::hist_queue<m_sample_type> *y_hist;
+    /**
+     * This queue holds past samples to implement the delay
+     **/
+    Filter::hist_queue<m_sample_type> *y_hist;
 };
 
 //----------------------------------------------------------------------------//
-#endif //__LOW_PASS_FILTER_H
+#endif  //__LOW_PASS_FILTER_H

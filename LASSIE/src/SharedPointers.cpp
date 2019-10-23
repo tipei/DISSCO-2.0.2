@@ -4,7 +4,7 @@
  *  Date created  : May.17 2010
  *  Authors       : Ming-ching Chiu, Sever Tipei
  *  Organization  : Music School, University of Illinois at Urbana Champaign
- *  Description   : This file contains the of class "SharedPointers" of 
+ *  Description   : This file contains the of class "SharedPointers" of
  *                  LASSIE. Each SharedPointer holds the pointers to important
  *                  objects so that can be accessed by other objects easily.
  *
@@ -32,14 +32,14 @@
 #include "SharedPointers.h"
 
 #include "MainWindow.h"
-#include "ProjectViewController.h"
 #include "PaletteViewController.h"
+#include "ProjectViewController.h"
 
-SharedPointers::SharedPointers(){
-  mainWindow= NULL;
-  paletteView = NULL;
-  projectView = NULL;
-  projectTreeView = NULL;
-  eventAttributesView = NULL;
+SharedPointers::SharedPointers() {
+    mainWindow = NULL;
+    paletteView = NULL;
+    projectView = NULL;
+    projectTreeView = NULL;
+    eventAttributesView = NULL;
 }
-SharedPointers::~SharedPointers(){}
+SharedPointers::~SharedPointers() {}
