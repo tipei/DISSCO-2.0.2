@@ -815,11 +815,8 @@ void MainWindow::menuProjectSynthesize(){
       //if (fork() == 0){
       //cout<<"this is the child. execute cmod"<<endl;
 
-      string command = "gnome-terminal -e \"bash -c \\\"./cmod " + projectPath
-                         + projectName + ".dissco";
-      command = command + " ; exec bash\\\"\"";
-      system(command.c_str()) ;
-      //yy_delete_buffer(newParserBuffer);
+    string command = "./cmod " + projectPath + projectName + ".dissco";
+    system(command.c_str());
 
       projectView->setSeed(""); //reset seed
     }
