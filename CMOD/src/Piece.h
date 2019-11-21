@@ -130,6 +130,7 @@ class Piece {
   Utilities* utilities;
 
   bool soundSynthesis;
+  bool scorePrinting;
   int numChannels;
   int sampleRate;
   int sampleSize;

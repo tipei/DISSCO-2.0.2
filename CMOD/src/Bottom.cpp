@@ -139,7 +139,6 @@ void Bottom::buildChildren(){
 
     }
     else if (method == "2") {  //discrete
-
       checkEvent(buildDiscrete());
     }
     else {
@@ -196,11 +195,19 @@ void Bottom::constructChild(SoundAndNoteWrapper* _soundNoteWrapper) {
   //Just to get the checkpoint. Not used any other time.
   checkPoint = (_soundNoteWrapper->ts.start - ts.start) / ts.duration;
   if (name.substr(0,1) == "s"){
-    return buildSound(_soundNoteWrapper);
+    // buildNote(_soundNoteWrapper);
+    buildSound(_soundNoteWrapper);
+    return;
   }
   else if (name.substr(0,1) == "n"){
-    return buildNote(_soundNoteWrapper);
+    buildNote(_soundNoteWrapper);
+    return;
   }
+  // else if (name.substr(0,2) == "ns" || name.substr(0,2) == "sn"){
+  //   buildSound(_soundNoteWrapper);
+  //   buildNote(_soundNoteWrapper);
+  //   return;
+  // }
 }
 
 //----------------------------------------------------------------------------//
@@ -330,6 +337,7 @@ void Bottom::buildNote(SoundAndNoteWrapper* _soundNoteWrapper) {
     Output::addProperty("End Time", _soundNoteWrapper-> ts.start +
 	_soundNoteWrapper->ts.duration, "sec.");
     Output::addProperty("Duration",_soundNoteWrapper-> ts.duration, "sec.");
+    // cout << "Bottom::buildNote: " << _soundNoteWrapper-> ts.duration << endl;
     Output::addProperty("Tempo Start Time",
 	_soundNoteWrapper->tempo.getStartTime(), "sec.");
     Output::addProperty("EDU Start Time",
@@ -390,7 +398,7 @@ float Bottom::computeBaseFreq() {
   DOMElement* valueElement2 = valueElement->GNES();
   if (utilities->evaluate(XMLTC(freqFlagElement),(void*) this)==2) {//contiruum
     /* 2nd arg is a string (HERTZ or POW2) */
-     
+
     if (utilities->evaluate(XMLTC(continuumFlagElement), NULL)==0) { //Hertz
       float expVal = 0;
       for(int i = 0; i < 10; i++){
