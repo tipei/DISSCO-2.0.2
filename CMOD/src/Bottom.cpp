@@ -447,19 +447,19 @@ float Bottom::computeBaseFreq() {
 
   } else  {// fundamental
     /* 2nd arg is (float)fundamental_freq, 3rd arg is (int)overtone_num */
-    float expVal = 0;
-    for(int i = 0; i < 10; i++){
-      float fund_freq = utilities->evaluate(XMLTC(valueElement), (void*)this);
-      int overtone_step = utilities->evaluate(XMLTC(valueElement2), (void*)this);
-      expVal += fund_freq * overtone_step;
-    }
-    expVal /= 10;
+    // float expVal = 0;
+    // for(int i = 0; i < 10; i++){
+    //   float fund_freq = utilities->evaluate(XMLTC(valueElement), (void*)this);
+    //   int overtone_step = utilities->evaluate(XMLTC(valueElement2), (void*)this);
+    //   expVal += fund_freq * overtone_step;
+    // }
+    // expVal /= 10;
     float fund_freq = utilities->evaluate(XMLTC(valueElement), (void*)this);
     int overtone_step = utilities->evaluate(XMLTC(valueElement2), (void*)this);
     baseFreqResult = fund_freq * overtone_step;
 
-    float diff = baseFreqResult - expVal;
-    baseFreqResult -= 0.4 * diff;
+    // float diff = baseFreqResult - expVal;
+    // baseFreqResult -= 0.4 * diff;
   }
   return baseFreqResult;
 }
