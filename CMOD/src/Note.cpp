@@ -199,6 +199,7 @@ void Note::setLoudnessSones(float sones) {
     loudnessMark = "fff";
   }
 
+  cout << "Note::setLoudnessSones - loudnessMark=" << loudnessMark << endl;
   Output::addProperty("Loudness", loudnessMark);
   loudness_out = char(92) + loudnessMark;
 
@@ -502,7 +503,8 @@ void Note::make_valid(){
   add_rests();
   // adjusting the duration of notes and notate them
   adjust_notes();
-  // print_all_notes();
+  print_all_notes();
+
 
   return;
 }
@@ -638,7 +640,7 @@ void Note::construct_tuplet_names(int uplimit){
 void Note::notateDurations( string aName, string startEDU, string durationEDU)
 {
   int stime, dur, endTime, bar, beat;
-
+cout << "Note::notateDuration: " << aName << " " << durationEDU  << endl;
   // Get needed parameters
   string attributeName = aName;
   std::stringstream ss(startEDU);
@@ -804,12 +806,13 @@ void print_all_notes(){ //helper function added by Haorong
   vector<Note*>::iterator it;
   for (it = all_notes.begin(); it!=all_notes.end(); it++){
     Note* cur = *it;
-    if (cur -> pitch_out == "r" || cur -> type_out == "\\bar\"|\" \n" || cur -> type_out == " "){
+    if (cur -> pitch_out == "r111" || cur -> type_out == "\\bar\"|\" \n" || cur -> type_out == " "){
       continue;
     }
-
+/*
       cout << " pitch: " << cur -> pitch_out << " start time: " << cur -> start_t
         << " end_time: "<< cur -> end_t << " dur: " << cur -> end_t - cur -> start_t << endl;
+*/
   }
 }
 

@@ -36,7 +36,7 @@ Sound::Sound()
 {
     setParam(DURATION, 1.0);
     setParam(START_TIME, 0.0);
-    setParam(LOUDNESS, 100.0);
+    setParam(LOUDNESS, 44100.0);
     setParam(LOUDNESS_RATE, 44100.0);
 
     setParam(DETUNE_SPREAD, 0.0);
@@ -73,7 +73,7 @@ Sound::Sound(int numPartials, m_value_type baseFreq)
 
     setParam(DURATION, 1.0);
     setParam(START_TIME, 0.0);
-    setParam(LOUDNESS, 100.0);
+    setParam(LOUDNESS, 44100.0);
     setParam(LOUDNESS_RATE, 44100.0);
 
     setParam(DETUNE_SPREAD, 0.0);

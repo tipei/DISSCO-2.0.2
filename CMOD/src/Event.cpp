@@ -1248,9 +1248,9 @@ bool Event::buildDiscrete() {
   if(durEDU > (int)maxChildDur)
     durEDU = maxChildDur;
   tsChild.startEDU = stimeEDU;
-cout << "Event::buildDiscrete - stimeEDU=" << stimeEDU << endl;
+  //cout << "Event::buildDiscrete - stimeEDU=" << stimeEDU << endl;
   tsChild.durationEDU = durEDU;
-cout << "Event::buildDiscrete - durEDU=" << durEDU << endl;
+  //cout << "Event::buildDiscrete - durEDU=" << durEDU << endl;
 
   tsChild.start = (float)stimeEDU *
     tempo.getEDUDurationInSeconds().To<float>();

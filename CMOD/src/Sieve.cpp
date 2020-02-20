@@ -422,3 +422,12 @@ void Sieve::NormalizeWList() {
     iter++;
   }
 }
+
+void Sieve::print_elist(){
+  list<int>::iterator iter = eList.begin();
+  while (iter != eList.end()) {
+    cout << *iter << " ";
+    iter++;
+  }
+  cout << endl;
+}

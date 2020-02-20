@@ -363,8 +363,9 @@ cout << "Bottom::buildNote - baseFrequency=" << baseFrequency << endl;
   newNote->notateDurations( (string)_soundNoteWrapper->name,
  			    _soundNoteWrapper->ts.startEDU.toPrettyString(),
 			    _soundNoteWrapper->ts.durationEDU.toPrettyString());
-
-  Output::endSubLevel();
+  if (utilities->getOutputParticel()){
+      Output::endSubLevel();
+  }
   // cout << "note's data: " << newNote -> pitch_out << " " << newNote -> start_t << " " << newNote -> end_t << endl;
 
   childNotes.push_back(newNote);
@@ -425,8 +426,7 @@ float Bottom::computeBaseFreq() {
     float expVal = 0;
     for(int i = 0; i < 10; i++){
       wellTempPitch = utilities->evaluate(XMLTC(valueElement), (void*)this);
-      // cout << " Bottom - wellTempPitch=" << wellTempPitch << endl;
-
+//cout << " Bottom - wellTempPitch=" << wellTempPitch << endl;
       expVal += C0 * pow(WELL_TEMP_INCR, wellTempPitch);
     }
 
@@ -440,19 +440,32 @@ float Bottom::computeBaseFreq() {
 
   } else  {// fundamental
     /* 2nd arg is (float)fundamental_freq, 3rd arg is (int)overtone_num */
+
+/*
     float expVal = 0;
     for(int i = 0; i < 10; i++){
       float fund_freq = utilities->evaluate(XMLTC(valueElement), (void*)this);
       int overtone_step = utilities->evaluate(XMLTC(valueElement2), (void*)this);
       expVal += fund_freq * overtone_step;
+      cout << "Bottom::computeBaseFreq - i=" << i << " fund_freq=" << fund_freq
+    	 << " overtone_step=" << overtone_step << " expVal=" << expVal << endl;
+      expVal /= 10;
+      cout << "	expVal=" << expVal << endl;
     }
     expVal /= 10;
+*/
     float fund_freq = utilities->evaluate(XMLTC(valueElement), (void*)this);
     int overtone_step = utilities->evaluate(XMLTC(valueElement2), (void*)this);
     baseFreqResult = fund_freq * overtone_step;
 
+/*
+    cout << "     fund_freq=" << fund_freq << " overtone_step=" << overtone_step 
+	<< endl;
     float diff = baseFreqResult - expVal;
     baseFreqResult -= 0.4 * diff;
+    cout << "		baseFreqResult=" << baseFreqResult << endl;
+    int sever; cin >> sever;
+*/
   }
   return baseFreqResult;
 }
@@ -1356,7 +1369,7 @@ double Bottom::calculateFreqPartial(double x1, double y1, double x2, double y2, 
   //the curve between two points (x1,y1) and (x2,y2) is modeled by y=a*2^(b*(x-x1))
   //assuming y2>y1
   if ((x > x2) || (x < x1)){
-    cout << "Bottom::error in caluclateFreqPartials" << endl;
+    cout << "Bottom::error in calculateFreqPartials" << endl;
     return 0;
   }
   double a, b, y;

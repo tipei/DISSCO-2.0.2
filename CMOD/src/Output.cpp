@@ -265,7 +265,7 @@ void Output::addProperty(string name, string value, string units) {
   OutputNode* current = getCurrentLevelNode();
   if(!current)
     cerr << "Warning: Top level does not exist. Property can not be added."
-      << endl;
+      "  name=" << name << endl;
   else
     current->addProperty(name, value, units);
 

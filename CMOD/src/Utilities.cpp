@@ -696,7 +696,9 @@ Sieve* Utilities::evaluateSieveFunction(string _functionString,void* _object){
     resultSieve = sieve_ChooseL(root, _object);
   }
   else if (functionName.compare("ValuePick")==0){
+//cout << "Sieve* Utilities::evaluateSieveFunction - resultSieve" << endl;
     resultSieve = sieve_ValuePick(root, _object);
+//resultSieve -> print_elist();
   }
 
   delete parser;
@@ -1041,6 +1043,7 @@ Sieve* Utilities::sieve_ValuePick(DOMElement* _functionElement, void* _object){
 
   DOMElement* elementIter = _functionElement->GFEC()->GNES();
 
+  //Range, low, high and distribution  envelopes
   double absRange =  evaluate (XMLTC(elementIter), _object);
 
   elementIter = elementIter->GNES();
@@ -1090,15 +1093,26 @@ Sieve* Utilities::sieve_ValuePick(DOMElement* _functionElement, void* _object){
 
   Sieve si;
   if (eMethod == "MODS") {
+//cout << "Sieve* Utilities::sieve_ValuePick - eMethod: " << eMethod << endl;
       si.BuildFromExpr(minVal, maxVal,
                          eMethod.c_str(), wMethod.c_str(),
                          eArgs[0], wArgVect,
                          offsetVect);
+/*
+cout << "    after si.BuildFromExpr - elist: " << endl; 
+si.print_elist();
+int sever; cin >> sever;
+*/
   } else {
     si.Build(minVal, maxVal, eMethod.c_str(), wMethod.c_str(), eArgVect, wArgVect, offsetVect);
   }
 
   si.Modify(envDist, modifyMethod);
+/*
+cout << "Sieve* Utilities::sieve_ValuePick - elist:" << endl;
+si.print_elist(); 
+int sever; cin >> sever;
+*/
   delete envLow;
   delete envHigh;
   delete envDist;
@@ -1419,8 +1433,6 @@ Sieve* Utilities::getSieveHelper(void* _object, DOMElement* _SIVFunction){
     DOMDocument* xmlDocument = parser->getDocument();
     DOMElement* root = xmlDocument->getDocumentElement();
 
-    cout <<"	before Sieve* sieve =  getSieveHelper(_object, root);" << endl;
-
     Sieve* sieve =  getSieveHelper(_object, root);
     delete parser;
     return sieve;
@@ -1432,6 +1444,7 @@ Sieve* Utilities::getSieveHelper(void* _object, DOMElement* _SIVFunction){
   return NULL;
 }
 
+    
 
 //----------------------------------------------------------------------------//
 
@@ -1455,7 +1468,8 @@ Patter* Utilities::getPattern(string _functionString, void* _object){
   return pattern;
 }
 
-//----------------------------------------------------------------------------//
+//----------------------------------------------------------------------------/e {
+
 
 Patter* Utilities::getPatternHelper(void* _object, DOMElement* _PATFunction){
   // Get the function name
@@ -1477,11 +1491,16 @@ Patter* Utilities::getPatternHelper(void* _object, DOMElement* _PATFunction){
   // those values.
   else if (XMLTranscode(functionNameElement).compare("MakePattern")==0){
 
+cout << "Patter* Utilities::getPatternHelper - MakePattern option" << endl;
     DOMElement* listElement = _PATFunction->GFEC()->GFEC()->GNES();
+cout << "	after listElement" << cout;
     vector<string> stringList =listElementToStringVector (listElement);
+cout <<			"after ElementToString" << "  " << endl;
     vector<int> intList;
+cout << "intList size: " << stringList.size() << "    " << endl; 
     for (int i = 0; i < stringList.size(); i ++){
       int num = (int) evaluate(stringList[i], _object);
+cout << "	i=" << i<< " num=" << num << endl;
       intList.push_back(num);
     }
 
