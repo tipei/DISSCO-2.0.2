@@ -176,6 +176,7 @@ ProjectViewController::ProjectViewController(MainWindow* _mainWindow){
   topEvent      = "0";
 //	measure       = "0.6";
   synthesis     = true;
+	score 				= false;
 
   sharedPointers = new SharedPointers();
       sharedPointers->mainWindow = _mainWindow;
@@ -269,6 +270,7 @@ ProjectViewController::ProjectViewController(
   topEvent      = "0";
 //	measure       = "0.6";
   synthesis     = true;
+	score 				= false;
   outputParticel= false;
 
 
@@ -1145,6 +1147,10 @@ void ProjectViewController::setProperties (){
 
   button->set_active(synthesis);
 
+	refBuilder->get_widget("ScoreCheckBox", button);
+
+  button->set_active(score);
+
   refBuilder->get_widget("generateParticelCheckBox", button);
 
   button->set_active(outputParticel);
@@ -1182,6 +1188,9 @@ void ProjectViewController::setProperties (){
     refBuilder->get_widget("synthesisCheckBox", button);
 
     synthesis = button->get_active();
+		refBuilder->get_widget("ScoreCheckBox", button);
+
+    score = button->get_active();
 
     refBuilder->get_widget("generateParticelCheckBox", button);
 
@@ -1263,6 +1272,15 @@ void ProjectViewController::refreshProjectDotDat(){
 
   fputs(stringbuffer.c_str(),dat);
 
+	if (score){
+    stringbuffer = "ScorePrint = TRUE;\n";
+  }
+  else{
+    stringbuffer = "ScorePrint = FALSE;\n";
+  }
+
+  fputs(stringbuffer.c_str(),dat);
+
   stringbuffer = "numChannels = " + numOfChannels + ";\n";
   yy_scan_string( stringbuffer.c_str());//set parser buffer
   if (yyparse()==0){
@@ -1331,6 +1349,15 @@ void ProjectViewController::refreshProjectDotDat(){
   }
   else{
     stringbuffer = "LASSIESOUNDSYNTHESIS = `FALSE`;\n";
+  }
+
+  fputs(stringbuffer.c_str(),dat);
+
+	if (score){
+    stringbuffer = "LASSIESCOREPRINT = `TRUE`;\n";
+  }
+  else{
+    stringbuffer = "LASSIESCOREPRINT = `FALSE`;\n";
   }
 
   fputs(stringbuffer.c_str(),dat);
@@ -1407,6 +1434,9 @@ void ProjectViewController::save(){
   fputs(stringBuffer.c_str(),file);
 
   stringBuffer = synthesis? "    <Synthesis>True</Synthesis>\n":"    <Synthesis>False</Synthesis>\n";
+  fputs(stringBuffer.c_str(),file);
+
+	stringBuffer = score? "    <Score>True</Score>\n":"    <Score>False</Score>\n";
   fputs(stringBuffer.c_str(),file);
 
   stringBuffer = "    <NumberOfChannels>"+ numOfChannels + "</NumberOfChannels>\n";
@@ -1816,8 +1846,16 @@ ProjectViewController::ProjectViewController(
   //synthesis
   element = element->getNextElementSibling();
   synthesis = (IEvent::getFunctionString(element)=="True")?true:false;
+
+
+	element = element->getNextElementSibling();
+
+	string temp = IEvent::getFunctionString(element);
+	if (temp == "True" || temp == "False") {
+		score = (temp =="True")?true:false;
+		element = element->getNextElementSibling();
+	}
   //numOfChannels
-  element = element->getNextElementSibling();
   numOfChannels = IEvent::getFunctionString(element);
 
   //sampleRate

@@ -231,6 +231,7 @@ private:
   std::string seed;
   std::string measure;
 
+  bool score;
   bool synthesis;
   bool outputParticel;
   bool emptyProject;

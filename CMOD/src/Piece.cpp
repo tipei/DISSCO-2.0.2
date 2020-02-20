@@ -348,13 +348,15 @@ Piece::Piece(string _workingPath, string _projectTitle){
 
   //get the final MultiTrack object and write it to disk
   if (soundSynthesis){
+    cout << "Piece::Piece: " << "soundSynthesis " << endl;
     MultiTrack* renderedScore = utilities->doneCMOD();
     string soundFilename = getNextSoundFile();
     //Write to file.
     AuWriter::write(*renderedScore, soundFilename);
     delete renderedScore;
-  } else {
 
+  } else {
+cout << "Piece::Piece: " << "Score output " << endl;
 		/* for score file */
 
      // output score to lilypond file
@@ -362,6 +364,7 @@ Piece::Piece(string _workingPath, string _projectTitle){
 
     // execute lilypond to create pdf file
     system(("lilypond " + projectName + ".ly").c_str());
+
   }
 
   if (outputParticel){

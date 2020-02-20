@@ -113,6 +113,12 @@ int main(int parameterCount, char **parameterList) {
   buffer2 = value->getString();
   stringbuffer = stringbuffer + "    <Synthesis>" + ((buffer2 =="TRUE")?"True":"False") + "</Synthesis>\n";
 
+  value = file_data["LASSIESCOREPRINT"];
+  buffer2 = value->getString();
+  stringbuffer = stringbuffer + "    <Score>" + ((buffer2 =="TRUE")?"True":"False") + "</Score>\n";
+
+
+
   value = file_data["LASSIENUMCHANNELS"];
   stringbuffer = stringbuffer + "    <NumberOfChannels>" + value->getString() + "</NumberOfChannels>\n";
 

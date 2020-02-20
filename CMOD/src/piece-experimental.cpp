@@ -248,12 +248,24 @@ Piece::Piece(string _workingPath, string _projectTitle){
   pieceDuration = XMLTC(element);
   element = element->GNES();
   soundSynthesis = (XMLTC(element).compare("True")==0)?true:false;
+
   element = element->GNES();
+
+  string temp = XMLTC(element);
+  if(temp == "True" || temp == "False"){
+    scorePrinting = (temp.compare("True")==0)?true:false;
+    element = element->GNES();
+  }
   numChannels = atoi(XMLTC(element).c_str());
+  cout << "Channel: " << numChannels << "\n";
   element = element->GNES();
+
   sampleRate = atoi(XMLTC(element).c_str());
+  cout << "Sample Rate: "<< sampleRate << "\n";
   element = element->GNES();
+
   sampleSize = atoi(XMLTC(element).c_str());
+  cout << "Sample Size: "<< sampleSize << "\n";
   element = element->GNES();
   numThreads = atoi(XMLTC(element).c_str());
   element = element->GNES();
@@ -322,12 +334,15 @@ Piece::Piece(string _workingPath, string _projectTitle){
 
   //get the final MultiTrack object and write it to disk
   if (soundSynthesis){
+    cout << "Piece::Piece: " << "soundSynthesis " << endl;
     MultiTrack* renderedScore = utilities->doneCMOD();
     string soundFilename = getNextSoundFile();
     //Write to file.
     AuWriter::write(*renderedScore, soundFilename);
     delete renderedScore;
-  } else {
+  }
+  if (scorePrinting) {
+    cout << "Piece::Piece: " << "Score output " << endl;
 
 		/* for score file */
 
@@ -336,7 +351,7 @@ Piece::Piece(string _workingPath, string _projectTitle){
 
     // execute lilypond to create pdf file
     system(("lilypond " + projectName + ".ly").c_str());
-  }
+  } else
 
   if (outputParticel){
     //Finish particel output and free up the Output class members.

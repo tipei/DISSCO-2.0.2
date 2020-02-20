@@ -139,7 +139,6 @@ void Bottom::buildChildren(){
 
     }
     else if (method == "2") {  //discrete
-
       checkEvent(buildDiscrete());
     }
     else {
@@ -196,11 +195,19 @@ void Bottom::constructChild(SoundAndNoteWrapper* _soundNoteWrapper) {
   //Just to get the checkpoint. Not used any other time.
   checkPoint = (_soundNoteWrapper->ts.start - ts.start) / ts.duration;
   if (name.substr(0,1) == "s"){
-    return buildSound(_soundNoteWrapper);
+    // buildNote(_soundNoteWrapper);
+    buildSound(_soundNoteWrapper);
+    return;
   }
   else if (name.substr(0,1) == "n"){
-    return buildNote(_soundNoteWrapper);
+    buildNote(_soundNoteWrapper);
+    return;
   }
+  // else if (name.substr(0,2) == "ns" || name.substr(0,2) == "sn"){
+  //   buildSound(_soundNoteWrapper);
+  //   buildNote(_soundNoteWrapper);
+  //   return;
+  // }
 }
 
 //----------------------------------------------------------------------------//
@@ -330,6 +337,7 @@ void Bottom::buildNote(SoundAndNoteWrapper* _soundNoteWrapper) {
     Output::addProperty("End Time", _soundNoteWrapper-> ts.start +
 	_soundNoteWrapper->ts.duration, "sec.");
     Output::addProperty("Duration",_soundNoteWrapper-> ts.duration, "sec.");
+    // cout << "Bottom::buildNote: " << _soundNoteWrapper-> ts.duration << endl;
     Output::addProperty("Tempo Start Time",
 	_soundNoteWrapper->tempo.getStartTime(), "sec.");
     Output::addProperty("EDU Start Time",
@@ -392,7 +400,7 @@ float Bottom::computeBaseFreq() {
   DOMElement* valueElement2 = valueElement->GNES();
   if (utilities->evaluate(XMLTC(freqFlagElement),(void*) this)==2) {//contiruum
     /* 2nd arg is a string (HERTZ or POW2) */
-     
+
     if (utilities->evaluate(XMLTC(continuumFlagElement), NULL)==0) { //Hertz
       float expVal = 0;
       for(int i = 0; i < 10; i++){
@@ -440,32 +448,19 @@ float Bottom::computeBaseFreq() {
 
   } else  {// fundamental
     /* 2nd arg is (float)fundamental_freq, 3rd arg is (int)overtone_num */
-
-/*
-    float expVal = 0;
-    for(int i = 0; i < 10; i++){
-      float fund_freq = utilities->evaluate(XMLTC(valueElement), (void*)this);
-      int overtone_step = utilities->evaluate(XMLTC(valueElement2), (void*)this);
-      expVal += fund_freq * overtone_step;
-      cout << "Bottom::computeBaseFreq - i=" << i << " fund_freq=" << fund_freq
-    	 << " overtone_step=" << overtone_step << " expVal=" << expVal << endl;
-      expVal /= 10;
-      cout << "	expVal=" << expVal << endl;
-    }
-    expVal /= 10;
-*/
+    // float expVal = 0;
+    // for(int i = 0; i < 10; i++){
+    //   float fund_freq = utilities->evaluate(XMLTC(valueElement), (void*)this);
+    //   int overtone_step = utilities->evaluate(XMLTC(valueElement2), (void*)this);
+    //   expVal += fund_freq * overtone_step;
+    // }
+    // expVal /= 10;
     float fund_freq = utilities->evaluate(XMLTC(valueElement), (void*)this);
     int overtone_step = utilities->evaluate(XMLTC(valueElement2), (void*)this);
     baseFreqResult = fund_freq * overtone_step;
 
-/*
-    cout << "     fund_freq=" << fund_freq << " overtone_step=" << overtone_step 
-	<< endl;
-    float diff = baseFreqResult - expVal;
-    baseFreqResult -= 0.4 * diff;
-    cout << "		baseFreqResult=" << baseFreqResult << endl;
-    int sever; cin >> sever;
-*/
+    // float diff = baseFreqResult - expVal;
+    // baseFreqResult -= 0.4 * diff;
   }
   return baseFreqResult;
 }

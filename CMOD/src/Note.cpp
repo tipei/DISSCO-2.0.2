@@ -503,7 +503,7 @@ void Note::make_valid(){
   add_rests();
   // adjusting the duration of notes and notate them
   adjust_notes();
-  print_all_notes();
+  // print_all_notes();
 
 
   return;
@@ -513,7 +513,6 @@ void Note::make_valid(){
 //---------------------------------------------------------------------------//
 
 // this function is to check if the input sound has valid start time and end time
-// TODO: this function needs improvenment, it only works for 60 beatEDUs now.
 void Note::verify_valid(int &stime, int &endTime) {
     // int start_time = stime % beatEDUs;
     // int end_time = endTime % beatEDUs;
