@@ -343,7 +343,6 @@ Piece::Piece(string _workingPath, string _projectTitle){
   utilities->currChild = 0;
   Event* topEvent = new Event(topElement,
         pieceSpan,0, mainTempo, utilities, NULL,NULL,NULL,NULL);
-  cout<<"topevent"<<endl;
   topEvent->buildChildren();
 
   //get the final MultiTrack object and write it to disk

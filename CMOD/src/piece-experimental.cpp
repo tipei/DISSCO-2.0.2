@@ -34,9 +34,24 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Random.h"
 #include "Utilities.h"
 #include <fstream>
+// #include <string>
 
 
 
+
+
+
+
+
+
+
+// //----------------------------------------------------------------------------//
+//
+// string int_to_str(int n){
+//   stringstream ss;
+//   ss << n;
+//   return ss.str();
+// }
 
 //----------------------------------------------------------------------------//
 
@@ -311,19 +326,20 @@ Piece::Piece(string _workingPath, string _projectTitle){
   }
 
 
-  /*//Modify the XML file - Eperimental
-  string evName = utilities->topEventnames.at(0);
-  EventType evType = (EventType)0;
-
-  for(int i = 0; i < 20; i++){
-  geneticOptimization("redundancy", 34);
-}
-
-  cout<<"GA DONE"<<endl;
+  //Modify the XML file - Eperimental
+  // string evName = utilities->topEventnames.at(0);
+  // EventType evType = (EventType)0;
+  //
+  // for(int i = 0; i < 20; i++){
+  //   geneticOptimization("redundancy", 34);
+  // }
+  //
+  // cout<<"GA DONE"<<endl;
 
   //int newSeed = rand();
   //Random::Seed((unsigned int)newSeed);
-//}*/
+//}
+
 
   //Create the Top event and recursively build its children.
   DOMElement* topElement = utilities->getEventElement(eventTop, fileList);
@@ -351,7 +367,22 @@ Piece::Piece(string _workingPath, string _projectTitle){
 
     // execute lilypond to create pdf file
     system(("lilypond " + projectName + ".ly").c_str());
-  } else
+
+    // generating score files with different suffixes instead of replacing the older files.
+    int suffix_rank = 0;
+    int exist = 1;
+    string suffix = "";
+    while (exist){
+      suffix = "_" + int_to_str(suffix_rank);
+      std::ifstream infile(( "ScoreFiles/" + projectName + suffix + ".pdf").c_str());
+      exist = infile.good();
+      infile.close();
+      suffix_rank++;
+    }
+
+    system(("mv " + projectName + ".pdf " + "ScoreFiles/" + projectName + suffix + ".pdf").c_str());
+
+  }
 
   if (outputParticel){
     //Finish particel output and free up the Output class members.
@@ -553,6 +584,8 @@ void Piece::geneticOptimization(string fitnessFunction, double optimum){
   DOMElement* topEvEl = utilities->getEventElement(evType, evName);
   vector<DOMElement*> children = calculateAesthetic(topEvEl);
 
+  cout << "EventValues: " << utilities->eventValues.size() << endl;
+
   for(int i = 0; i < children.size(); i++){
       vector<DOMElement*> currChildren = calculateAesthetic(children[i]);
 
@@ -560,8 +593,10 @@ void Piece::geneticOptimization(string fitnessFunction, double optimum){
         children.push_back(currChildren[j]);
       }
 
-      //cout<<"Child No: "<<i<<endl;
+      cout<<"Piece::geneticOptimization: Child No: "<<i<<endl;
   }
+
+    cout << "EventValues: " << utilities->eventValues.size() << endl;
 
   //(Only bottom events for now)
   double pieceAesthetic = 0.0;
@@ -572,17 +607,18 @@ void Piece::geneticOptimization(string fitnessFunction, double optimum){
 
   for(std::map<string, double>::iterator it = utilities->eventValues.begin(); it != utilities->eventValues.end(); ++it){
     names.push_back(it->first);
+    cout<<it->first<<", "<<it->second<<endl;
     if(it->second != 0.0){
       pieceAesthetic += it->second;
       numUniqueEvents++;
       bottoms.insert(std::pair<double, string>(it->second, it->first));
-      cout<<it->first<<", "<<it->second<<endl;
+      cout<< "CHOOSEN: "<<it->first<<", "<<it->second<<endl;
       fitnessSum += it->second;
     }
   }
 
   //pieceAesthetic /= numUniqueEvents;
-  cout<<"Piece aesthetic: "<<pieceAesthetic<<endl;
+  cout<<"Piece::geneticOptimization : Piece aesthetic: "<<pieceAesthetic<<endl;
 
 //---------------------------------------------------------------------------
 
@@ -619,12 +655,14 @@ if(pieceAesthetic < optimum){
 
   //Recalculating Probability
   for(int i = 0; i < sortedEvents.size(); i++){
+    cout<<"Piece::geneticOptimization :  Recalculating Probability "<< i <<endl;
     prange.push_back(runningSum + (utilities->eventValues[sortedEvents[i]] / fitnessSum));
     runningSum += utilities->eventValues[sortedEvents[i]] / fitnessSum;
   }
 
   //Selecting Second Parent
   randNum = Random::Rand();
+
   for(int i = 0; i < prange.size(); i++){
     if(prange[i] >= randNum){
       cout<<"P2: "<<sortedEvents[i]<<endl;
@@ -774,238 +812,6 @@ vector<DOMElement*> Piece::modifyPiece(DOMElement* eventElement){
 
   thisEventElement = thisEventElement->GNES(); //name
   string name = XMLTC(thisEventElement);
-
-  /*if(type <= 4){  //Top, High, Medium, Low, Bottom
-
-    thisEventElement = thisEventElement->GNES(); //maxChildDur
-    float maxChildDur = (float)utilities->evaluate(XMLTC(thisEventElement), (void*)this);
-
-    thisEventElement = thisEventElement->GNES(); //newEDUPerBeat
-    int newEDUPerBeat = (int) utilities->evaluate(XMLTC(thisEventElement),(void*)this);
-
-    thisEventElement = thisEventElement->GNES(); //Time Signature element
-
-    thisEventElement = thisEventElement->GNES(); //Tempo element
-
-    DOMElement* numChildrenElement = thisEventElement->GNES(); //Num children element
-
-    DOMElement* childEventDefElement = numChildrenElement->GNES();
-    DOMElement* childStartTimeElement = childEventDefElement->GFEC();
-    DOMElement* childTypeElement = childStartTimeElement->GNES();
-    DOMElement* childDurationElement = childTypeElement->GNES();
-    DOMElement* AttackSieveElement = childDurationElement->GNES();
-    DOMElement* DurationSieveElement = AttackSieveElement->GNES();
-    DOMElement* methodFlagElement = DurationSieveElement->GNES();
-    DOMElement* childStartTypeFlag = methodFlagElement->GNES();
-    DOMElement* childDurationTypeFlag = childStartTypeFlag->GNES();
-
-    //Read Flag values (Needed for modification)
-    string defFlag = XMLTC(methodFlagElement);
-    int definitionVal = atoi(defFlag.c_str());
-
-    if(definitionVal == 0 || definitionVal == 1){
-      //Modifying start time
-      string startFlag = XMLTC(childStartTypeFlag);
-      int startFlagVal = atoi(startFlag.c_str());
-
-      if(childStartTimeElement->GFEC() != NULL){
-        DOMElement* funcElement = childStartTimeElement->GFEC();
-        if(startFlagVal == 2){
-        //functionModifier(funcElement,30); //Figure max out later
-      }
-
-        else if(startFlagVal == 0){
-        //functionModifier(funcElement, 1);
-      }
-
-        else if(startFlagVal == 1){
-         //functionModifier(funcElement, 10); //Dont know
-        }
-      }
-
-      else{
-        string typeString = XMLTC(childStartTimeElement);
-        int val = atoi(typeString.c_str());
-        int startTime;
-
-        if(startFlagVal == 2){
-          //startTime = (val + Random::RandInt(0, 10)) % 30;
-        }
-
-        else if(startFlagVal == 0){
-          //startTime = (val + Random::RandInt(0, 10)) % 30;
-        }
-
-        else if(startFlagVal == 1){
-           //startTime = (val + Random::RandInt(0, 10)) % 30;
-        }
-
-        char lval[33];
-        sprintf(lval, "%d", startTime);
-
-        XMLCh *start;
-        start = XMLString::transcode(lval);
-        childStartTimeElement->getFirstChild()->setNodeValue(start);
-        XMLString::release(&start);
-      }
-      //Modifying Duration
-
-      string durationFlag = XMLTC(childDurationTypeFlag);
-      int durationFlagVal = atoi(durationFlag.c_str());
-
-      if(childDurationElement->GFEC() != NULL){
-        DOMElement* funcElement = childDurationElement->GFEC();
-        if(durationFlagVal == 2){
-        //functionModifier(funcElement,30); //Figure max out later
-      }
-
-        else if(durationFlagVal == 0){
-        //functionModifier(funcElement, 1);
-      }
-
-        else if(durationFlagVal == 1){
-         //functionModifier(funcElement, 10); //Dont know
-        }
-      }
-
-      else{
-        string typeString = XMLTC(childDurationElement);
-        int val = atoi(typeString.c_str());
-        int duration;
-
-        if(durationFlagVal == 2){
-          //int startTime = (val + Random::RandInt(0, 10)) % 30;
-        }
-
-        else if(durationFlagVal == 0){
-          //int startTime = (val + Random::RandInt(0, 10)) % 30;
-        }
-
-        else if(durationFlagVal == 1){
-           //int startTime = (val + Random::RandInt(0, 10)) % 30;
-        }
-
-        char lval[33];
-        sprintf(lval, "%d", duration);
-
-        XMLCh *dur;
-        dur = XMLString::transcode(lval);
-        childDurationElement->getFirstChild()->setNodeValue(dur);
-        XMLString::release(&dur);
-      }
-
-    }
-    else{
-      //discrete case
-
-      //Modifying Attack Sieve
-
-      if(AttackSieveElement->GFEC() != NULL){
-        DOMElement* funcElement = AttackSieveElement->GFEC();
-        //functionModifier(funcElement, 10); //Dont know
-      }
-
-      else{
-        string typeString = XMLTC(AttackSieveElement);
-        int val = atoi(typeString.c_str());
-        //val =
-
-        char lval[33];
-        sprintf(lval, "%d", val);
-
-        XMLCh *att;
-        att = XMLString::transcode(lval);
-        AttackSieveElement->getFirstChild()->setNodeValue(att);
-        XMLString::release(&att);
-      }
-
-      //Modifying Duration Sieve
-
-      if(DurationSieveElement->GFEC() != NULL){
-        DOMElement* funcElement = DurationSieveElement->GFEC();
-        //functionModifier(funcElement, 10); //Dont know
-      }
-
-      else{
-        string typeString = XMLTC(DurationSieveElement);
-        int val = atoi(typeString.c_str());
-        //val =
-
-        char lval[33];
-        sprintf(lval, "%d", val);
-
-        XMLCh *durSieve;
-        durSieve = XMLString::transcode(lval);
-        DurationSieveElement->getFirstChild()->setNodeValue(durSieve);
-        XMLString::release(&durSieve);
-      }
-    }
-
-
-    //layers, initialize child names
-    thisEventElement = childEventDefElement->GNES();
-    DOMElement* layerElement = thisEventElement->GFEC();
-    vector<DOMElement*> layerElements;
-    vector<DOMElement*> childTypeElements;
-
-    while (layerElement){
-
-      layerElements.push_back(layerElement);
-      DOMElement* childPackage = layerElement->GFEC()->GNES()->GFEC();
-
-      while(childPackage){
-        childTypeElements.push_back(childPackage);
-        childPackage = childPackage->GNES();
-      }
-      layerElement = layerElement->GNES();
-    }
-
-    int numChildren;
-    DOMElement* flagElement = numChildrenElement->GFEC();
-    if (XMLTC(flagElement) =="0"){ // Continuum
-      DOMElement* entry1Element = flagElement->GNES();
-      if (XMLTC(entry1Element)==""){
-        numChildren = childTypeElements.size();
-      }
-      else {
-        numChildren =(int) utilities->evaluate(XMLTC(entry1Element), (void*)this);
-      }
-    }
-    else if (XMLTC(flagElement) == "1"){ // Density
-      DOMElement* densityElement = numChildrenElement->GFEC()->GNES();
-      DOMElement* areaElement = densityElement->GNES();
-      DOMElement* underOneElement = areaElement->GNES();
-      double density = utilities->evaluate( XMLTC(densityElement),(void*)this);
-      double area = utilities->evaluate( XMLTC(areaElement),(void*)this);
-      double underOne = utilities->evaluate( XMLTC(underOneElement),(void*)this);
-      double soundsPsec = pow(2, density * area - underOne); //this can't be right..
-  //  cout<<"density:"<< density<<", area:"<<area<<", underOne:"<<underOne<<endl;
-
-      //not sure which version is the correct one. ask sever
-      //Check if this is correct!!!
-      numChildren = (int)(soundsPsec * utilities->evaluate(pieceDuration, NULL) + underOne/area);
-  //  cout << "     numChildren=" << numChildren << endl;
-      //numChildren = (int)(soundsPsec * layerElements * ts.duration + 0.5);
-
-    }
-    else {// by layer
-    numChildren = 0;
-      for (int i = 0; i < layerElements.size(); i ++){
-        numChildren +=utilities->evaluate(XMLTC(layerElements[i]->GFEC()),(void*)this);
-      }
-    }
-
-    if (type <=3){ //top, high, mid, low
-
-      thisEventElement = thisEventElement->GNES(); // Spatialization element
-
-      thisEventElement = thisEventElement->GNES(); // Reverb element
-
-      thisEventElement = thisEventElement->GNES(); // Filter element
-
-      thisEventElement = thisEventElement->GNES(); // Modifier element
-
-    } */
 
      if(type == 4){ //Bottom
       XMLCh* extraInfoString = XMLString::transcode("ExtraInfo");

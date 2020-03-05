@@ -330,7 +330,6 @@ void Sieve::HierarchicWeights(const std::vector<int>& eArgVect,
     eIter++;
     wIter++;
   }
-  Sieve::CumulWeights();
 }
 
 //---------------------------------------------------------------------------//

@@ -23,7 +23,12 @@ string rest_ratios[SIZE2] = {"1/6","1/5","2/5","3/5","4/5","1/3","2/3", "5/6"};
 
 string pow_of_2[10] = {"4", "2","1", "1/2","1/4","1/8","1/16","1/32", "1/64", "1/128"};
 
+// string modifiers[40] = {"accent", "espressivo", "marcato", "portato", "staccatissimo", "staccato", "tenuto",
+// "prall", "prallup", "pralldown", "upprall", "downprall", "prallprall", "lineprall", "prallmordent", "mordent", "upmordent", "downmordent", "trill", "turn", "reverseturn",
+// "shortfermata", "fermata", "longfermata", "verylongfermata",
+// "upbow", "downbow", "flageolet", "open", "halfopen", "lheel", "rheel", "ltoe", "rtoe", "snappizzicato", "stopped", "segno", "coda", "varcoda"  };
+
 string modifiers[40] = {"accent", "espressivo", "marcato", "portato", "staccatissimo", "staccato", "tenuto",
 "prall", "prallup", "pralldown", "upprall", "downprall", "prallprall", "lineprall", "prallmordent", "mordent", "upmordent", "downmordent", "trill", "turn", "reverseturn",
 "shortfermata", "fermata", "longfermata", "verylongfermata",
-"upbow", "downbow", "flageolet", "open", "halfopen", "lheel", "rheel", "ltoe", "rtoe", "snappizzicato", "stopped", "segno", "coda", "varcoda" };
+"upbow", "downbow", "flageolet", "open", "halfopen", "lheel", "rheel", "ltoe", "rtoe", "snappizzicato", "stopped", "segno", "coda", "varcoda", "null"  };
