@@ -4556,13 +4556,6 @@ void EventAttributesViewController::attributesStandardSpaButtonClicked(){
 
 
 
-
-
-
-
-
-
-
 void EventAttributesViewController::BSLoudnessButtonClicked(){
   Gtk::Entry* entry;
 

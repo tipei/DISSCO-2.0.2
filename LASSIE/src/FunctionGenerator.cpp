@@ -3353,11 +3353,11 @@ void FunctionGenerator::function_list_combo_changed(){
 
         attributesRefBuilder->get_widget(
           "MakeSieveLowEntry", entry);
-        entry->set_text("");
+        entry->set_text("ENV");
 
         attributesRefBuilder->get_widget(
           "MakeSieveHighEntry", entry);
-        entry->set_text("");
+        entry->set_text("ENV");
 
 
 
@@ -6073,8 +6073,10 @@ void FunctionGenerator::makeSieveLowFunButtonClicked(){
   attributesRefBuilder->get_widget(
     "MakeSieveLowEntry", entry);
 
+  // FunctionGenerator* generator =
+  //   new FunctionGenerator(functionReturnInt,entry->get_text());
   FunctionGenerator* generator =
-    new FunctionGenerator(functionReturnInt,entry->get_text());
+    new FunctionGenerator(functionReturnENV,entry->get_text());
   generator->run();
 
   if (generator->getResultString() !=""){
@@ -6090,8 +6092,10 @@ void FunctionGenerator::makeSieveHighFunButtonClicked(){
   attributesRefBuilder->get_widget(
     "MakeSieveHighEntry", entry);
 
+  // FunctionGenerator* generator =
+  //   new FunctionGenerator(functionReturnInt,entry->get_text());
   FunctionGenerator* generator =
-    new FunctionGenerator(functionReturnInt,entry->get_text());
+    new FunctionGenerator(functionReturnENV,entry->get_text());
   generator->run();
 
   if (generator->getResultString() !=""){

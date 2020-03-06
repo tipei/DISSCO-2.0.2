@@ -1308,8 +1308,9 @@ Sieve* Utilities::getSieve(string _functionString, void* _object){
   parser->parse(myxml_buf);
   DOMDocument* xmlDocument = parser->getDocument();
   DOMElement* root = xmlDocument->getDocumentElement();
-
+  cout << "Utilities::getSieve. before helper" << endl;
   Sieve* sieve = getSieveHelper (_object, root);
+    cout << "Utilities::getSieve. after helper" << endl;
   delete parser;
   return sieve;
 }
@@ -1318,6 +1319,12 @@ Sieve* Utilities::getSieve(string _functionString, void* _object){
 
 Sieve* Utilities::getSieveHelper(void* _object, DOMElement* _SIVFunction){
 
+  double checkpoint = 0;
+
+  if (_object != NULL) {
+    checkpoint = ((Event*)_object)->getCheckPoint();
+  }
+  cout << "Utilities::getSieve. checkpoint: " << checkpoint << endl;
   // Get the function name
   DOMElement* functionNameElement = _SIVFunction->GFEC()->GFEC();
 
@@ -1334,7 +1341,7 @@ Sieve* Utilities::getSieveHelper(void* _object, DOMElement* _SIVFunction){
   // Read each of the values from _SIVFunction and create a new Sieve with
   // those values.
   else if (XMLTranscode(functionNameElement).compare("MakeSieve")==0){
-
+  /*
     // Get minVal
     DOMElement* elementIter = _SIVFunction->GFEC()->GFEC()->GNES();
     int minVal = evaluate(XMLTC(elementIter), _object);
@@ -1342,7 +1349,18 @@ Sieve* Utilities::getSieveHelper(void* _object, DOMElement* _SIVFunction){
     // Get maxVal
     elementIter = elementIter->GNES();
     int maxVal = evaluate(XMLTC(elementIter), _object);
+  */
+    // Get minVal
+    DOMElement* elementIter = _SIVFunction->GFEC()->GFEC()->GNES();
 
+    Envelope *envLow = (Envelope*)evaluateObject(XMLTC(elementIter), _object, eventEnv);
+    int minVal = (int)floor( envLow->getScaledValueNew(checkpoint, 1) + 0.5);
+
+    // Get maxVal
+    elementIter = elementIter->GNES();
+    Envelope *envHigh = (Envelope*)evaluateObject(XMLTC(elementIter), _object, eventEnv);
+    int maxVal = (int)floor( envHigh->getScaledValueNew(checkpoint, 1) + 0.5);
+    cout << "Utilities::getSieve. min: " << minVal << " max: " << maxVal << endl;
     // Get eMethod
     elementIter = elementIter->GNES();
     string eMethod = XMLTC(elementIter);
