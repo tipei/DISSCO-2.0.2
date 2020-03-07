@@ -199,7 +199,7 @@ void Note::setLoudnessSones(float sones) {
     loudnessMark = "fff";
   }
 
-  cout << "Note::setLoudnessSones - loudnessMark=" << loudnessMark << endl;
+//cout << "Note::setLoudnessSones - loudnessMark=" << loudnessMark << endl;
   Output::addProperty("Loudness", loudnessMark);
   loudness_out = char(92) + loudnessMark;
 

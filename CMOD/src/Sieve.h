@@ -134,7 +134,9 @@ class Sieve {
      **/
     int ChooseL();
 
-    void print_elist();
+    void print_eList();
+
+    void print_wList();
 
 //---------------------------------------------------------------------------//
 
@@ -246,7 +248,7 @@ class Sieve {
     **/
 //  void CumulArray(int size);
 
-    void NormalizeWList();
+    void NormalizewList();
 
 };
 #endif

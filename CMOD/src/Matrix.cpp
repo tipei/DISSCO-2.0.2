@@ -104,15 +104,12 @@ void Matrix::setAttacks(Sieve* attackSieve, vector<Envelope*> attackEnvs) {
   bool hasEnv = attackEnvs.size() >= matr.size();
 
   // add the results into the matrix
-  for (int type = 0; type < matr.size(); type++) {
     // do for each type
+  for (int type = 0; type < matr.size(); type++) {
 
-    for (int attNum = 0; attNum < matr[type].size(); attNum++) {
       // do for each attack
+    for (int attNum = 0; attNum < matr[type].size(); attNum++) {
       double attackSieveValue = attProbs[attNum];
-
-//    cout << "Matrix::setAttacks - attNum=" << attNum << " attackSieveValue="
-//         << attackSieveValue << endl;
 
       if (attNum < 0 || attNum >= matr[type].size()) {
         cerr << "Matrix::setAttacks -- error - getValue out of bounds;" << endl;
@@ -122,7 +119,7 @@ void Matrix::setAttacks(Sieve* attackSieve, vector<Envelope*> attackEnvs) {
 
       int attackStime = attTimes[attNum];
       att.insert(attackStime);
-      //cout << "ATTS " << attackStime << endl;
+
       for (int durNum = 0; durNum < matr[type][attNum].size(); durNum++) {
         matr[type][attNum][durNum].attdurprob += attackSieveValue;
         if (hasEnv) {
@@ -130,25 +127,22 @@ void Matrix::setAttacks(Sieve* attackSieve, vector<Envelope*> attackEnvs) {
           matr[type][attNum][durNum].attdurprob *= attackEnvValue;
         }
         matr[type][attNum][durNum].stime = attackStime;
-/*
-        cout << "Matrix::setAttacks - matr[" << type << "][" << attNum << "]["
-             << durNum << "].attdurprob=" << matr[type][attNum][durNum].attdurprob
-             << endl;
-*/
       }
     }
   }
 
-  cout <<  "Matrix::setAttacks valid time: " ;
   for(int i = 0; i < attTimes.size(); i++){
     if(attTimes[i] > beatEDUs){
       break;
     }
     short_attime.push_back(attTimes[i]);
-    cout << attTimes[i] << " , ";
+//  cout << "	attTimes.size=" << attTimes.size() << endl;
+//  cout << attTimes[i] << " , ";
   }
-  cout << endl;
+//cout << endl;
+
 }
+
 
 //----------------------------------------------------------------------------//
 
@@ -288,14 +282,14 @@ MatPoint Matrix::choose() {
   }
 
   // find the nearest prob to that random in the matrix
-  for (int type = 0; !found && type < matr.size(); type++) {
     // do for each type
+  for (int type = 0; !found && type < matr.size(); type++) {
 
-    for (int attNum = 0; !found && attNum < matr[type].size(); attNum++) {
       // do for each attack
+    for (int attNum = 0; !found && attNum < matr[type].size(); attNum++) {
 
-      for (int durNum = 0; !found && durNum < matr[type][attNum].size(); durNum++) {
         // do for each dur
+      for (int durNum = 0; !found && durNum < matr[type][attNum].size(); durNum++) {
 
         // look for the closest prob, greater than the rand num
         if (matr[type][attNum][durNum].normprob >= randNum) {
@@ -367,7 +361,6 @@ bool Matrix::normalizeMatrix() {
     return false; // indicate failure
   }
 
-
   // set the matrix probs to add up to 1
   for (int type = 0; type < matr.size(); type++) {
     // do for each type
@@ -406,14 +399,18 @@ void Matrix::recomputeTypeProbs(int chosenType, int remaining) {
 }
 
 //----------------------------------------------------------------------------//
+
 int Matrix::verify_valid(int endTime){
   int length = short_attime.size();
 
   int low = 0;
   int high = length - 1;
+  int mid;
   int eTime = endTime % beatEDUs;
+
   while(high > low+1){
-    int mid = (high+low) / 2;
+    mid = (high+low) / 2;
+
     if(short_attime[mid] < eTime){
       low = mid;
     } else if(short_attime[mid] > eTime) {
@@ -422,16 +419,19 @@ int Matrix::verify_valid(int endTime){
       return endTime;
     }
   }
-  //cout << "endTime: " << eTime << " high_n: " << valid_time[high] << " low_n: " << valid_time[low] <<  endl;
+//cout << "endTime: " << eTime << " high_n: " << valid_time[high] << " low_n: " << valid_time[low] <<  endl;
   int offset = short_attime[high] - eTime <= eTime - short_attime[low] ? short_attime[high] - eTime : short_attime[low] - eTime;
   //cout << "endTime: " << endTime << " choose: " << endTime + offset << endl;
   return endTime + offset;
 }
-//----------------------------------------------attackSieve------------------------------//
+
+
+//----------------------------------------------attackSieve-------------------//
 
 void Matrix::removeConflicts(MatPoint &chosenPt) {
   int chosenStart = chosenPt.stime;
   //int chosenEnd = chosenStart + chosenPt.dur;
+
   int chosenEnd = verify_valid(chosenStart + chosenPt.dur);
   chosenPt.dur = chosenEnd - chosenStart;
   int chosenLayer = typeLayers[chosenPt.type];

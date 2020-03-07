@@ -1314,10 +1314,11 @@ void Event::buildMatrix(bool discrete) {
     typeProbs.push_back(prob);
     weightSum += prob;
   }
+
   for (int i = 0; i < typeProbs.size(); i ++){
     typeProbs[i] = typeProbs[i] / weightSum;
-
   }
+
 
   if (discrete) {
     for (int i = 0; i < childTypeElements.size(); i ++){
@@ -1378,7 +1379,6 @@ void Event::buildMatrix(bool discrete) {
     matrix->setDurations(durSiv, parentEDUs);
   }
   matrix->setTypeProbs(typeProbs);
-//matrix->printMatrix(false);
 
   delete attackSiv;
   delete durSiv;

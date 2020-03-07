@@ -78,9 +78,7 @@ void Sieve::Build(int minVal, int maxVal,
 //---------------------------------------------------------------------------//
 
 void Sieve::FillInVectors(vector<int>& intVect, vector<double>& doubleVect) {
-  Sieve::CumulWeights();
 
-//cout << "Sieve::FillInVectors" << endl;
 
   list<int>::iterator eIter = eList.begin();
   list<double>::iterator wIter = wList.begin();
@@ -108,7 +106,6 @@ void Sieve::FillInVectors(vector<int>& intVect, vector<double>& doubleVect) {
 int Sieve::GetNumItems() {
   int result = 0;
 
-//cout << "Sieve::GetNumItems" << endl;
   if (eList.size() >= wList.size()) {
     result = eList.size();
   } else {
@@ -134,20 +131,6 @@ int Sieve::ChooseL() {
 
   list<int>::iterator eIter = eList.begin();
   list<double>::iterator wIter = wList.begin();
-
-/*
-   for (int i : eList) {
-     printf("%i ", i);
-   }
-   printf("\n");
-
-   printf("wList: ");
-   for (double i : wList) {
-     printf("%f ", i);
-   }
-   printf("\n");
-int sever; cin >> sever;
-*/
 
   while (eIter != eList.end() && (randomNumber > *wIter)) {
     eIter++;
@@ -271,13 +254,14 @@ void Sieve::Multiples(int minVal, int maxVal, vector<int> numMods, std::vector<i
   }
 
   eList.sort(); // sort into ascending order
-/*
+
   cout << "Sieve::Multiples - eList" << endl;
   for (list<int>::iterator it = eList.begin(); it != eList.end(); ++it) {
     cout << *it << ", ";
   }
   cout << endl;
-*/
+  int sever; cin >> sever;
+
   eList.unique();  //remove consecutive duplicate values
 }
 
@@ -337,7 +321,6 @@ void Sieve::HierarchicWeights(const std::vector<int>& eArgVect,
     eIter++;
     wIter++;
   }
-  Sieve::CumulWeights();
 }
 
 //---------------------------------------------------------------------------//
@@ -358,7 +341,7 @@ void Sieve::AddEnvelope(Envelope *env, string method) {
   double checkPoint;
   double probability;
 
-  NormalizeWList();
+  NormalizewList();
 
   int index = 0;
   list<double>::iterator iter = wList.begin();
@@ -393,7 +376,7 @@ void Sieve::AddEnvelope(Envelope *env, string method) {
 void Sieve::CumulWeights() {
     double cumul = 0;
 
-    NormalizeWList();
+    NormalizewList();
 
     list<double>::iterator iter = wList.begin();
     while (iter != wList.end()) {
@@ -405,7 +388,7 @@ void Sieve::CumulWeights() {
 
 //---------------------------------------------------------------------------//
 
-void Sieve::NormalizeWList() {
+void Sieve::NormalizewList() {
   double wListSum = 0;
 
   // get the sum of all the items
@@ -423,11 +406,27 @@ void Sieve::NormalizeWList() {
   }
 }
 
-void Sieve::print_elist(){
+//---------------------------------------------------------------------------//
+
+void Sieve::print_eList(){
   list<int>::iterator iter = eList.begin();
   while (iter != eList.end()) {
     cout << *iter << " ";
     iter++;
   }
   cout << endl;
+  int sever; cin >> sever;
 }
+
+//---------------------------------------------------------------------------//
+
+void Sieve::print_wList(){
+  list<double>::iterator iter = wList.begin();
+  while (iter != wList.end()) {
+    cout << *iter << " ";
+    iter++;
+  }
+  cout << endl;
+  int sever; cin >> sever;
+}
+

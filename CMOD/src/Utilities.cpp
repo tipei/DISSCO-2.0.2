@@ -692,14 +692,17 @@ Sieve* Utilities::evaluateSieveFunction(string _functionString,void* _object){
     XMLString::release(&functionNameChars);
   }
 
+  cout << "ATT: Sieve* Utilities::evaluateSieveFunction is it going here at all ?" << endl;
+
   if (functionName.compare("ChooseL")==0){
     resultSieve = sieve_ChooseL(root, _object);
+    cout << "Sieve* Utilities::evaluateSieveFunction - sieve_ChooseL" << endl;
   }
   else if (functionName.compare("ValuePick")==0){
-//cout << "Sieve* Utilities::evaluateSieveFunction - resultSieve" << endl;
+    cout << "Sieve* Utilities::evaluateSieveFunction - ValuePick" << endl;
     resultSieve = sieve_ValuePick(root, _object);
-//resultSieve -> print_elist();
   }
+  int sever; cin >> sever;
 
   delete parser;
   return resultSieve;
@@ -1352,6 +1355,12 @@ Sieve* Utilities::getSieveHelper(void* _object, DOMElement* _SIVFunction){
     // Get minVal
     DOMElement* elementIter = _SIVFunction->GFEC()->GFEC()->GNES();
     int minVal = evaluate(XMLTC(elementIter), _object);
+
+/*
+  elementIter = elementIter->GNES();
+  Envelope *envLow = (Envelope*)evaluateObject(XMLTC(elementIter), _object, eventEnv);
+
+*/
 
     // Get maxVal
     elementIter = elementIter->GNES();

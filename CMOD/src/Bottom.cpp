@@ -356,7 +356,6 @@ void Bottom::buildNote(SoundAndNoteWrapper* _soundNoteWrapper) {
 
   //Set the pitch.
   float baseFrequency = computeBaseFreq();
-cout << "Bottom::buildNote - baseFrequency=" << baseFrequency << endl;
 
   int absPitchNum;
 
