@@ -209,12 +209,18 @@ void Note::setLoudnessSones(float sones) {
 //----------------------------------------------------------------------------//
 
 bool is_attach_mark(string mod_name){
-    for (int i=0; i< 40; i++)
+    for (int i=0; i< 39; i++)
         if (mod_name == modifiers[i])
             return true;
     return false;
 }
 
+// bool is_attach_mark(string mod_name){
+//     for (int i=0; i< 40; i++)
+//         if (mod_name == modifiers[i])
+//             return true;
+//     return false;
+// }
 
 //----------------------------------------------------------------------------//
 

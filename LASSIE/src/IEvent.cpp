@@ -801,7 +801,7 @@ IEvent::BottomEventExtraInfo::BottomEventExtraInfo(){
   frequencyEntry2 = "";
   loudness = "";
   spatialization = "";
-  reverb = "";
+  reverb = "";    
   modifiers = NULL;
   childTypeFlag =-1;
 

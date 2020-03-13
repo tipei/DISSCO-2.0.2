@@ -1939,6 +1939,7 @@ ProjectViewController::ProjectViewController(
 	defaultNoteModifiers.insert(pair<string,bool>("segno",true));
 	defaultNoteModifiers.insert(pair<string,bool>("coda",true));
 	defaultNoteModifiers.insert(pair<string,bool>("varcoda",true));
+	defaultNoteModifiers.insert(pair<string,bool>("null",true));
 
 
   DOMElement* noteModifiers = configuration->getNextElementSibling();
