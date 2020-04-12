@@ -1064,6 +1064,7 @@ Sieve* Utilities::sieve_ValuePick(DOMElement* _functionElement, void* _object){
   elementIter = elementIter->GNES();
   vector<std::string> eArgs = listElementToStringVector( elementIter);
   vector<int> eArgVect;
+
   if (eMethod != "MODS") {
     for (int i = 0; i < eArgs.size(); i ++){
       eArgVect.push_back((int)evaluate(eArgs[i], _object));
@@ -1078,7 +1079,6 @@ Sieve* Utilities::sieve_ValuePick(DOMElement* _functionElement, void* _object){
   for (int i = 0; i < wArgs.size(); i ++){
     wArgVect.push_back((int)evaluate(wArgs[i], _object));
   }
-
 
   elementIter = elementIter->GNES();
   string modifyMethod = XMLTC(elementIter);
@@ -1101,11 +1101,6 @@ Sieve* Utilities::sieve_ValuePick(DOMElement* _functionElement, void* _object){
                          eMethod.c_str(), wMethod.c_str(),
                          eArgs[0], wArgVect,
                          offsetVect);
-/*
-cout << "    after si.BuildFromExpr - elist: " << endl; 
-si.print_elist();
-int sever; cin >> sever;
-*/
   } else {
     si.Build(minVal, maxVal, eMethod.c_str(), wMethod.c_str(), eArgVect, wArgVect, offsetVect);
   }
@@ -1113,7 +1108,7 @@ int sever; cin >> sever;
   si.Modify(envDist, modifyMethod);
 /*
 cout << "Sieve* Utilities::sieve_ValuePick - elist:" << endl;
-si.print_elist(); 
+si.print_elist();
 int sever; cin >> sever;
 */
   delete envLow;
@@ -1363,11 +1358,6 @@ Sieve* Utilities::getSieveHelper(void* _object, DOMElement* _SIVFunction){
     DOMElement* elementIter = _SIVFunction->GFEC()->GFEC()->GNES();
     int minVal = evaluate(XMLTC(elementIter), _object);
 
-/*
-  elementIter = elementIter->GNES();
-  Envelope *envLow = (Envelope*)evaluateObject(XMLTC(elementIter), _object, eventEnv);
-
-*/
 
     // Get maxVal
     elementIter = elementIter->GNES();
@@ -1471,7 +1461,7 @@ Sieve* Utilities::getSieveHelper(void* _object, DOMElement* _SIVFunction){
   return NULL;
 }
 
-    
+
 
 //----------------------------------------------------------------------------//
 
@@ -1524,7 +1514,7 @@ cout << "	after listElement" << cout;
     vector<string> stringList =listElementToStringVector (listElement);
 cout <<			"after ElementToString" << "  " << endl;
     vector<int> intList;
-cout << "intList size: " << stringList.size() << "    " << endl; 
+cout << "intList size: " << stringList.size() << "    " << endl;
     for (int i = 0; i < stringList.size(); i ++){
       int num = (int) evaluate(stringList[i], _object);
 cout << "	i=" << i<< " num=" << num << endl;
