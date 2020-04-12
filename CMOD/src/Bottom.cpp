@@ -123,7 +123,7 @@ void Bottom::buildChildren(){
     cerr << "There may be a bug in the code. Please report." << endl;
     exit(1);
   }
-  cout << "Building event: 111111111111111 " << endl;
+
   //Create the child events.
   for (currChildNum = 0; currChildNum < numChildren; currChildNum++) {
     if (method == "0") //continuum
@@ -146,7 +146,7 @@ void Bottom::buildChildren(){
       exit(1);
     }
   }
-cout << "Building event: 222222222222 " << endl;
+
   //Using the temporary events that were created, construct the actual children.
   //The code below is different from buildchildren in Event class.
   for (int i = 0; i < childSoundsAndNotes.size(); i++) {
