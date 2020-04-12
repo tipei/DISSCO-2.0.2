@@ -35,12 +35,10 @@ std::list<int> ModParser::modList(int mod, int min, int max, int offset) {
   std::list<int> result;
   int startNum = min + offset + (mod - (min % mod)) % mod;
   startNum -= mod * ((startNum - min)/mod);
-//cout << "std::list<int>& ModParser::modList " << endl;
+       
   for (int i = startNum; i <= max; i += mod) {
-//cout << i << " ";
     result.push_back(i);
   }
-//cout << endl;
 
   return result;
 }
