@@ -1308,9 +1308,9 @@ Sieve* Utilities::getSieve(string _functionString, void* _object){
   parser->parse(myxml_buf);
   DOMDocument* xmlDocument = parser->getDocument();
   DOMElement* root = xmlDocument->getDocumentElement();
-  cout << "Utilities::getSieve. before helper" << endl;
+  //cout << "Utilities::getSieve. before helper" << endl;
   Sieve* sieve = getSieveHelper (_object, root);
-    cout << "Utilities::getSieve. after helper" << endl;
+    //cout << "Utilities::getSieve. after helper" << endl;
   delete parser;
   return sieve;
 }
@@ -1324,7 +1324,7 @@ Sieve* Utilities::getSieveHelper(void* _object, DOMElement* _SIVFunction){
   if (_object != NULL) {
     checkpoint = ((Event*)_object)->getCheckPoint();
   }
-  cout << "Utilities::getSieve. checkpoint: " << checkpoint << endl;
+  //cout << "Utilities::getSieve. checkpoint: " << checkpoint << endl;
   // Get the function name
   DOMElement* functionNameElement = _SIVFunction->GFEC()->GFEC();
 
@@ -1360,7 +1360,7 @@ Sieve* Utilities::getSieveHelper(void* _object, DOMElement* _SIVFunction){
     elementIter = elementIter->GNES();
     Envelope *envHigh = (Envelope*)evaluateObject(XMLTC(elementIter), _object, eventEnv);
     int maxVal = (int)floor( envHigh->getScaledValueNew(checkpoint, 1) + 0.5);
-    cout << "Utilities::getSieve. min: " << minVal << " max: " << maxVal << endl;
+    //cout << "Utilities::getSieve. min: " << minVal << " max: " << maxVal << endl;
     // Get eMethod
     elementIter = elementIter->GNES();
     string eMethod = XMLTC(elementIter);
