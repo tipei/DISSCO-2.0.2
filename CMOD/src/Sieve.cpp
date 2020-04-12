@@ -304,8 +304,14 @@ void Sieve::HierarchicWeights(const std::vector<int>& eArgVect,
   list<int>::iterator eIter = eList.begin();
   list<double>::iterator wIter = wList.begin();
 
+/*
+cout << "Sieve::Hierarchic - eList.end=" << eList.end() << " eArgVect.size()="
+     << eArgVect.size() << " wArgVect.size=" << wArgVect.size() << endl;
+  print_eList();
+*/
+
   while (eIter != eList.end()) {
-    whichMod = 0;
+     whichMod = 0;
     probability = 0;
 
     while (whichMod < wArgVect.size()) {
@@ -313,6 +319,7 @@ void Sieve::HierarchicWeights(const std::vector<int>& eArgVect,
       if((*eIter - offsetVect[whichMod]) % eArgVect[whichMod] == 0) {
          probability += wArgVect[whichMod];
       }
+
       whichMod++;
     }
 
