@@ -690,9 +690,20 @@ bool Event::buildSweep() {
     rawChildStartTime =
       utilities->evaluate(XMLTC(childStartTimeElement),(void*)this);
 
+    if (currChildNum == 0) {
+      rawChildStartTime = 0;
+      tsChild.start = 0;
+      tsChild.startEDU = 0;
+      tsPrevious.start = 0;
+    }
+
+cout << "Event::buildSweep - rawChildStartTime=" << rawChildStartTime << endl;
+
     if (startType == "1" ) {		//EDU
       tsChild.start = rawChildStartTime *
         tempo.getEDUDurationInSeconds().To<float>() + tsPrevious.start;
+cout << "	tsPrevious.start=" << tsPrevious.start<< " tsChild.start="
+     << tsChild.start<< endl;
       tsChild.startEDU = Ratio((int)rawChildStartTime, 1) + tsPrevious.startEDU;
     } else if (startType == "2") {	//seconds
       tsChild.start = rawChildStartTime + tsPrevious.start; // no conversion needed
@@ -711,9 +722,11 @@ bool Event::buildSweep() {
       tsChild.start = 0;
       tsChild.startEDU = 0;
     }
+
     // get the duration
+cout << "Event::buildSweep - duration" << endl;
     rawChildDuration = utilities->evaluate(XMLTC(childDurationElement),(void*)this);
-cout << "Event.cpp -buildSweep - rawChildDuration=" << rawChildDuration << endl;
+cout << "Event.cpp -buildSweep1 - rawChildDuration=" << rawChildDuration << endl;
 int sever; cin>> sever;
 
     //assign previousChild Duration here so that the next child can use it
@@ -727,7 +740,7 @@ int sever; cin>> sever;
 
     if (durType == "1") {
       tsChild.durationEDU = Ratio(rawChildDurationInt, 1);
-cout << "Event.cpp -buildSweep - rawChildDurationInt=" << rawChildDurationInt << endl;
+cout << "Event.cpp -buildSweep2  - rawChildDurationInt=" << rawChildDurationInt << endl;
 int sever; cin>> sever;
       tsChild.duration = 					// convert to seconds
         (float)rawChildDurationInt * tempo.getEDUDurationInSeconds().To<float>();
@@ -746,6 +759,7 @@ int sever; cin>> sever;
 
   // set checkpoint to the start of this child event
   checkPoint = tsChild.start / ts.duration;
+cout << "Event::Sweep3 - checkPoint=" << checkPoint << endl;
 
   if (checkPoint > 1) {
     cerr << "Event::Sweep -- Error2: tsChild.start outside range of "
