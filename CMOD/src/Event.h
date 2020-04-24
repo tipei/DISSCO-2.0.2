@@ -407,5 +407,7 @@ protected:
     string getTimeSignatureStringFromDOMElement(DOMElement* _element);
 
     void buildMatrix(bool discrete);
+    
+    int verify_valid(int endTime); 
 };
 #endif

@@ -32,6 +32,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 //----------------------------------------------------------------------------//
 //Checked
+static Sieve* sieveSweep = NULL;
+static vector<int> attackSweep;
+
 
 Event::Event(DOMElement* _element,
              TimeSpan _timeSpan,
@@ -639,7 +642,7 @@ bool Event::buildContinuum() {
 
 //----------------------------------------------------------------------------//
 
-bool Event::buildSweep() {
+bool Event::buildSweep() { 
   string startType = XMLTC(childStartTypeFlag);
   string durType = XMLTC(childDurationTypeFlag);
 
@@ -1387,4 +1390,44 @@ void Event::buildMatrix(bool discrete) {
   durEnvs.clear();
 
 
+}
+
+int Event::verify_valid(int endTime){
+  
+  int beatEDUs = tempo.getEDUPerTimeSignatureBeat().Num();
+  if (sieveSweep == NULL){
+     sieveSweep = utilities->evaluateSieve(XMLTC(childStartTimeElement), (void*) this);
+     vector<double> attProbs;
+     vector<int> attTimes;
+     sieveSweep->FillInVectors(attTimes, attProbs);
+     attackSweep.clear();
+	cout << "Event::buildSweep " << beatEDUs << " attacks: ";
+     for (int i = 0; i < attTimes.size(); i++){
+     	if (attTimes[i] >= beatEDUs){
+	   break;
+	}
+	cout << attTimes[i] << " ";
+	attackSweep.push_back(attTimes[i]);
+     }
+	cout << endl;
+  }
+  int length = attackSweep.size();
+
+  int low = 0;
+  int high = length - 1;
+  int eTime = endTime % beatEDUs;
+  while(high > low+1){
+    int mid = (high+low) / 2;
+    if(attackSweep[mid] < eTime){
+      low = mid;
+    } else if(attackSweep[mid] > eTime) {
+      high = mid;
+    } else {
+      return endTime;
+    }
+  }
+  //cout << "endTime: " << eTime << " high_n: " << valid_time[high] << " low_n: " << valid_time[low] <<  endl;
+  int offset = attackSweep[high] - eTime <= eTime - attackSweep[low] ? attackSweep[high] - eTime : attackSweep[low] - eTime;
+  //cout << "endTime: " << endTime << " choose: " << endTime + offset << endl;
+  return endTime + offset;
 }
