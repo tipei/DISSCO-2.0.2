@@ -377,7 +377,7 @@ int Note::notate(int tuplet_dur){
         string s = int_to_str(unit_note * pre_tuplet / unit);
         this -> type_out += this -> pitch_out + s;
       }
-      if(dur > tuplet_dur && this -> pitch_out != "r"){
+      if(dur > tuplet_dur && (this -> pitch_out != "r")){
         this -> type_out += "~ ";
       } else {
         this -> type_out += " ";
@@ -388,7 +388,7 @@ int Note::notate(int tuplet_dur){
       // write in the lilypond and close the tuplet
       // this -> type_out += note_in_tuplet(pre_tuplet, tuplet_dur, this->pitch_out);
       this -> note_in_tuplet(pre_tuplet, tuplet_dur);
-      if(dur > tuplet_dur && this -> pitch_out != "r"){
+      if((dur > tuplet_dur || this -> split == 1) && (this -> pitch_out != "r")){
         this -> type_out += "~ ";
       } else {
         // this -> loudness_and_modifiers();
@@ -536,10 +536,10 @@ void Note::make_valid(){
   // adding rests
   add_rests();
 
- // print_all_notes();
+  //print_all_notes();
   // adjusting the duration of notes and notate them
   adjust_notes();
-  // print_all_notes();
+  //print_all_notes();
 
 
   return;
@@ -850,7 +850,7 @@ void print_all_notes(){ //helper function added by Haorong
     }
 
       cout << " pitch: " << cur -> pitch_out << " start time: " << cur -> start_t
-        << " end_time: "<< cur -> end_t << " dur: " << cur -> end_t - cur -> start_t << endl;
+        << " end_time: "<< cur -> end_t << " dur: " << cur -> end_t - cur -> start_t << " Split: " << cur -> split  << endl;
   }
 	/*
   vector<vector<Note*>*>::iterator out_it;
