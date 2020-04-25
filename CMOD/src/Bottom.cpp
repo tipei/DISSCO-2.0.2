@@ -111,7 +111,7 @@ void Bottom::buildChildren(){
     outputProperties();
   }
   //Build the event's children.
-  cout << "Building event: --------B : "<< name << endl;
+
   string method = XMLTC(methodFlagElement);
 
   //Set the number of possible restarts (for buildDiscrete)
@@ -967,7 +967,7 @@ void Bottom::applyModifiers(Sound *s, int numPartials) {
       case 6: modType = "FREQTRANS"; break;
       case 7: modType = "WAVE_TYPE"; break;
     }
-    cout<<"Mod Type: "<<modType<<endl;
+    //cout<<"Mod Type: "<<modType<<endl;
     arg = arg->GNES();
     string applyHow = ((int)utilities->evaluate(XMLTC(arg), this)==0)?"SOUND":"PARTIAL";
 
@@ -1130,7 +1130,7 @@ vector<string> Bottom::applyNoteModifiersOld() {
       case 3: modType = "BEND"; break;
       case 4: modType = "DETUNE"; break;
     }
-    cout<<"Mod Type: "<<modType<<endl;
+    //cout<<"Mod Type: "<<modType<<endl;
 
     arg = arg->GNES();
     string applyHow =

@@ -57,6 +57,7 @@ vector<Note*> all_notes;
 vector<vector<Note*>*> all_notes_bar;
 // string array for tuplet names
 // string tuplet_types[8] = {"invalid", "invalid", "invalid", "\\tuplet 3/2{","invalid", "\\tuplet 5/4 {", "\\tuplet 6/4 {", "\\tuplet 7/4 {"};//added by haorong
+vector<int> valid_divider;
 vector<string> tuplet_types;
 // the note which represent one beat
 static int unit_note;
@@ -298,6 +299,27 @@ void Note::sort_notes(Note * n){
 //---------------------------------------------------------------------------//
 
 void Note::sort_notes_orig(Note * n){
+  int dur = n -> end_t % beatEDUs;
+	int before = n->end_t;
+  int min_diff = beatEDUs;
+  bool flag = true;
+  for (int i = 0; i < valid_divider.size(); i++){
+//    	cout << " " << valid_divider[i];
+      if (dur % valid_divider[i] == 0){
+//	cout << valid_divider[i] << " ";
+      flag = false;
+      break;
+    } else {
+      if (min_diff > dur % valid_divider[i]){
+        min_diff = dur % valid_divider[i];
+//	 	cout << " dur " << dur << " mindiff " << min_diff;
+      }
+    }
+  }
+  if (flag) {
+    n -> end_t -= min_diff;
+  }
+//	cout << "before: " << before << " adjusted " << n -> end_t << endl;
   insert_note(n);
 }
 
@@ -356,7 +378,7 @@ int Note::notate(int tuplet_dur){
         string s = int_to_str(unit_note * pre_tuplet / unit);
         this -> type_out += this -> pitch_out + s;
       }
-      if(dur > tuplet_dur){
+      if(dur > tuplet_dur && this -> pitch_out != "r"){
         this -> type_out += "~ ";
       } else {
         this -> type_out += " ";
@@ -367,7 +389,7 @@ int Note::notate(int tuplet_dur){
       // write in the lilypond and close the tuplet
       // this -> type_out += note_in_tuplet(pre_tuplet, tuplet_dur, this->pitch_out);
       this -> note_in_tuplet(pre_tuplet, tuplet_dur);
-      if(dur > tuplet_dur){
+      if(dur > tuplet_dur && this -> pitch_out != "r"){
         this -> type_out += "~ ";
       } else {
         // this -> loudness_and_modifiers();
@@ -398,11 +420,15 @@ int Note::notate(int tuplet_dur){
       p--;
     }
 
-    if( mainDur > 0 ||remaind > 0){
-      this -> type_out += "~ ";
+    if( mainDur > 0 ||remaind > 0 ){
+	if ( this -> pitch_out != "r") {
+	   this -> type_out += "~ ";
+	}
     } else {
       if(this -> split == 1){
-        this -> type_out += "~";
+	if ( this -> pitch_out != "r") {
+           this -> type_out += "~ ";
+        }
         this -> split = 0;
       }
       this -> type_out += " ";
@@ -476,8 +502,11 @@ void Note::adjust_notes(){
           int best_fit = (int) round(a) * t;
           cur -> end_t = cur -> start_t + dur_beats * beatEDUs + best_fit;
           Note* next = *(it+1);
-
-          // cout << "original : "<< next -> start_t << " current: " << cur -> end_t << endl;
+	  if(next == NULL){
+	     continue;
+	  }
+	  //cout << "current info: " << cur -> end_t - cur -> start_t << endl;
+           //cout << "original : "<< next -> start_t << " current: " << cur -> end_t << endl;
           next -> start_t = cur -> start_t + dur_beats * beatEDUs + best_fit;
         }
       }
@@ -507,6 +536,8 @@ void Note::make_valid(){
   add_bars();
   // adding rests
   add_rests();
+
+ // print_all_notes();
   // adjusting the duration of notes and notate them
   adjust_notes();
   // print_all_notes();
@@ -666,13 +697,14 @@ cout << "Note::notateDuration: " << aName << " " << durationEDU  << endl;
 
   int i = 1;
   while (beatEDUs % i == 0){
+    valid_divider.push_back(beatEDUs/i);
     i++;
   }
   tuplet_limit = i;
   construct_tuplet_names(tuplet_limit);
-  // check if start time and end time are valid
-  //verify_valid(stime, endTime);
-  //cout <<  " Note: start " << stime << " end " << endTime << endl;
+    //check if start time and end time are valid
+    verify_valid(stime, endTime);
+    cout <<  " Note: start " << stime << " end " << endTime << endl;
   start_t = stime;
   end_t = endTime;
 
@@ -687,9 +719,12 @@ cout << "Note::notateDuration: " << aName << " " << durationEDU  << endl;
 // it will determine the position of the Note, and split Note if it goes across the bar
 void Note::insert_note(Note* n){
   // cout << "note's data: " << n -> pitch_out << " " << n -> start_t << " " << n -> end_t << endl;
-  if (n -> end_t <= n -> start_t){
-    // discard 0 duration sound
-    return;
+ // if (n -> end_t <= n -> start_t +  (beatEDUs/(tuplet_limit-1)) ){
+    // discard extreme short sound duration sound
+   // return;
+ // }
+   if (n -> end_t <= n -> start_t ){
+	return;
   }
   // int barLength = barEDUs;
   int barNum = n -> start_t / barEDUs;
@@ -819,8 +854,24 @@ void print_all_notes(){ //helper function added by Haorong
         << " end_time: "<< cur -> end_t << " dur: " << cur -> end_t - cur -> start_t << endl;
 */
   }
+	/*
+  vector<vector<Note*>*>::iterator out_it;
+  int count = 1;
+  for (out_it = all_notes_bar.begin(); out_it != all_notes_bar.end(); out_it++) {
+    cout << "Bar: " << count << endl;
+    count ++ ;
+    vector<Note*>::iterator it;
+    vector<Note*>* bar = *out_it;
+    for (it = bar->begin(); it!=bar->end(); it++){
+      Note* cur = *it;
+      //if (cur -> pitch_out == "r111" || cur -> type_out == "\\bar\"|\" \n" || cur -> type_out == " "){
+        //continue;
+     // }
+        cout << " pitch: " << cur -> pitch_out << " start time: " << cur -> start_t
+          << " end_time: "<< cur -> end_t << " dur: " << cur -> end_t - cur -> start_t << endl;
+    }
+  }	*/
 }
-
 
 // this is the part to notate inside the tuplet
 // added by Haorong
@@ -849,7 +900,7 @@ void Note::note_in_tuplet(int tup_type, int dur){
       }
       p--;
     }
-    if (beat > 0){
+    if (beat > 0 && this -> pitch_out != "r"){
       this -> type_out += "~ ";
     } else {
       this -> type_out += " ";

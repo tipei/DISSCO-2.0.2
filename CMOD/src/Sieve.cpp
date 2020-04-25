@@ -422,7 +422,6 @@ void Sieve::print_eList(){
     iter++;
   }
   cout << endl;
-  int sever; cin >> sever;
 }
 
 //---------------------------------------------------------------------------//
@@ -434,6 +433,5 @@ void Sieve::print_wList(){
     iter++;
   }
   cout << endl;
-  int sever; cin >> sever;
 }
 

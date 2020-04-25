@@ -692,16 +692,15 @@ Sieve* Utilities::evaluateSieveFunction(string _functionString,void* _object){
     XMLString::release(&functionNameChars);
   }
 
-  cout << "ATT: Sieve* Utilities::evaluateSieveFunction is it going here at all ?" << endl;
-
   if (functionName.compare("ChooseL")==0){
     resultSieve = sieve_ChooseL(root, _object);
-    cout << "Sieve* Utilities::evaluateSieveFunction - sieve_ChooseL" << endl;
+//  cout << "Sieve* Utilities::evaluateSieveFunction - sieve_ChooseL" << endl;
   }
   else if (functionName.compare("ValuePick")==0){
-    cout << "Sieve* Utilities::evaluateSieveFunction - ValuePick" << endl;
+//  cout << "Sieve* Utilities::evaluateSieveFunction - ValuePick" << endl;
     resultSieve = sieve_ValuePick(root, _object);
   }
+cout << "Sieve* Utilities::evaluateSieveFunction - sever1" << endl;
   int sever; cin >> sever;
 
   delete parser;
@@ -803,6 +802,8 @@ if (_object !=NULL){
     double resultNum = ((Event*)_object)->getPreviousChildDuration();
     char result [50];
     sprintf(result, "%f",  resultNum);
+cout << "Utilities::static_function_PREVIOUS_CHILD_DURATION - resultNum=" 
+     << resultNum << endl;
     return string(result);
   }
   else {
@@ -1037,6 +1038,7 @@ Sieve* Utilities::sieve_ValuePick(DOMElement* _functionElement, void* _object){
 //  <Offsets>0,0,0,0</Offsets>
 //</Fun>
 
+//cout << "		Sieve* Utilities::sieve_ValuePick" << endl;
 // setup routine vars
   double checkpoint = 0;
 
@@ -1101,16 +1103,36 @@ Sieve* Utilities::sieve_ValuePick(DOMElement* _functionElement, void* _object){
                          eMethod.c_str(), wMethod.c_str(),
                          eArgs[0], wArgVect,
                          offsetVect);
+
+/*			added by Sever
+  vector<int> attTimes;
+  vector<double> attProbs;
+
+  si.FillInVectors(attTimes, attProbs);
+cout << "   sieve_ValuePick - attTimes.size()=" << attTimes.size() << endl;
+  int beatEDUs;
+  beatEDUs = _tempo.getEDUPerTimeSignatureBeat().Num();
+cout << "      beatEDUs=" << beatEDUs << endl;
+
+  for(int i = 0; i < attTimes.size(); i++){
+
+    if(attTimes[i] > eArgs.size()){
+      break;
+    }
+
+ // short_attime.push_back(attTimes[i]);
+    cout << "   attTimes.size=" << attTimes.size() << endl;
+    cout << attTimes[i] << " , ";
+  }
+  cout << endl;
+*/
+
   } else {
     si.Build(minVal, maxVal, eMethod.c_str(), wMethod.c_str(), eArgVect, wArgVect, offsetVect);
   }
-
+  
   si.Modify(envDist, modifyMethod);
-/*
-cout << "Sieve* Utilities::sieve_ValuePick - elist:" << endl;
-si.print_elist();
-int sever; cin >> sever;
-*/
+
   delete envLow;
   delete envHigh;
   delete envDist;
@@ -1320,9 +1342,9 @@ Sieve* Utilities::getSieve(string _functionString, void* _object){
   parser->parse(myxml_buf);
   DOMDocument* xmlDocument = parser->getDocument();
   DOMElement* root = xmlDocument->getDocumentElement();
-  cout << "Utilities::getSieve. before helper" << endl;
+  //cout << "Utilities::getSieve. before helper" << endl;
   Sieve* sieve = getSieveHelper (_object, root);
-    cout << "Utilities::getSieve. after helper" << endl;
+    //cout << "Utilities::getSieve. after helper" << endl;
   delete parser;
   return sieve;
 }
@@ -1336,7 +1358,7 @@ Sieve* Utilities::getSieveHelper(void* _object, DOMElement* _SIVFunction){
   if (_object != NULL) {
     checkpoint = ((Event*)_object)->getCheckPoint();
   }
-  cout << "Utilities::getSieve. checkpoint: " << checkpoint << endl;
+  //cout << "Utilities::getSieve. checkpoint: " << checkpoint << endl;
   // Get the function name
   DOMElement* functionNameElement = _SIVFunction->GFEC()->GFEC();
 
@@ -1373,7 +1395,7 @@ Sieve* Utilities::getSieveHelper(void* _object, DOMElement* _SIVFunction){
     elementIter = elementIter->GNES();
     Envelope *envHigh = (Envelope*)evaluateObject(XMLTC(elementIter), _object, eventEnv);
     int maxVal = (int)floor( envHigh->getScaledValueNew(checkpoint, 1) + 0.5);
-    cout << "Utilities::getSieve. min: " << minVal << " max: " << maxVal << endl;
+    //cout << "Utilities::getSieve. min: " << minVal << " max: " << maxVal << endl;
     // Get eMethod
     elementIter = elementIter->GNES();
     string eMethod = XMLTC(elementIter);

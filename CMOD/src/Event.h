@@ -147,6 +147,9 @@ protected:
     //Percentage of child start time divided by total parent duration
     double checkPoint;
 
+   //Previous start time for Sweep             //added by sever
+    double previousChildStartTime;
+
     //Previous start time
     TimeSpan tsPrevious;
 
@@ -404,8 +407,14 @@ protected:
     *  helper functions
     **/
     string getTempoStringFromDOMElement(DOMElement* _element);
+
     string getTimeSignatureStringFromDOMElement(DOMElement* _element);
 
     void buildMatrix(bool discrete);
+    
+    /**
+    *
+    */
+    int verify_valid(int endTime); 
 };
 #endif
