@@ -377,7 +377,7 @@ int Note::notate(int tuplet_dur){
         string s = int_to_str(unit_note * pre_tuplet / unit);
         this -> type_out += this -> pitch_out + s;
       }
-      if(dur > tuplet_dur && (this -> pitch_out != "r")){
+      if((dur > tuplet_dur || this -> split == 1) && (this -> pitch_out != "r")){
         this -> type_out += "~ ";
       } else {
         this -> type_out += " ";
@@ -703,7 +703,7 @@ void Note::notateDurations( string aName, string startEDU, string durationEDU)
   construct_tuplet_names(tuplet_limit);
   // check if start time and end time are valid
   //verify_valid(stime, endTime);
-  //cout <<  " Note: start " << stime << " end " << endTime << endl;
+  //cout <<  " Note: " << this->pitch_out  << " start " << stime << " end " << endTime << endl;
   start_t = stime;
   end_t = endTime;
 
@@ -898,7 +898,7 @@ void Note::note_in_tuplet(int tup_type, int dur){
       }
       p--;
     }
-    if (beat > 0 && this -> pitch_out != "r"){
+    if ((beat > 0) && (this -> pitch_out != "r")){
       this -> type_out += "~ ";
     } else {
       this -> type_out += " ";
