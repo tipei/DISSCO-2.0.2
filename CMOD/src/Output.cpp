@@ -422,10 +422,10 @@ void output_score(string projectname){
   Rational<int> temp; 		// temporary variable for print
   int t;
 
-  cout << "Output::output_score before make_valid" << endl;
+  //cout << "Output::output_score before make_valid" << endl;
   Note::make_valid();
-  cout << "Output::output_score AFTER make_valid" << endl;
-  int sever; cin >> sever;
+  //cout << "Output::output_score AFTER make_valid" << endl;
+  //int sever; cin >> sever;
 
   /* open the file stream and output the beginning */
   fout = new std::ofstream;

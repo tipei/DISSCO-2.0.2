@@ -197,9 +197,10 @@ string Piece::getNextSoundFile() {
 
   string soundPath =  "SoundFiles/";
   //cout<<"sound Path:"<<soundPath<<endl;
-  for(int i = 1; i < 1000000; i++) {
+  for(int i = 0; i < 1000000; i++) {
     stringstream oss;
-    oss << projectName << i << ".aiff";
+    oss << projectName << "_" << i << ".aiff";
+    //cout << oss.str() << endl;
     if(PieceHelper::doesFileExist(soundPath, oss.str()))
       continue;
     else

@@ -200,6 +200,7 @@ void Note::setLoudnessSones(float sones) {
     loudnessMark = "fff";
   }
 
+  // for particel
   Output::addProperty("Loudness", loudnessMark);
   loudness_out = char(92) + loudnessMark;
 
