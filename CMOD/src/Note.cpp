@@ -200,6 +200,7 @@ void Note::setLoudnessSones(float sones) {
     loudnessMark = "fff";
   }
 
+  // for particel
   Output::addProperty("Loudness", loudnessMark);
   loudness_out = char(92) + loudnessMark;
 
@@ -690,9 +691,14 @@ void Note::notateDurations( string aName, string startEDU, string durationEDU)
   tuplet_limit = i;
   construct_tuplet_names(tuplet_limit);
   // check if start time and end time are valid
+<<<<<<< HEAD
     verify_valid(stime, endTime);
 //  cout <<  " Note: " << this->pitch_out  << " start " << stime << " end " << endTime << endl;
 
+=======
+  //verify_valid(stime, endTime);
+  //cout <<  " Note: " << this->pitch_out  << " start " << stime << " end " << endTime << endl;
+>>>>>>> 1fa4095cb02344559443154f4311c20f506d7c0f
   start_t = stime;
   end_t = endTime;
 

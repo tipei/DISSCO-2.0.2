@@ -27,7 +27,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Event.h"
 #include "Output.h"
 #include "Sieve.h"
-#include "Random.h"
+#include "Random.h" #include "Bottom.h"
 #include "Bottom.h"
 
 //----------------------------------------------------------------------------//
@@ -1417,8 +1417,11 @@ void Event::buildMatrix(bool discrete) {
 
 }
 
+<<<<<<< HEAD
 //----------------------------------------------------------------------------//
 
+=======
+>>>>>>> 1fa4095cb02344559443154f4311c20f506d7c0f
 int Event::verify_valid(int endTime){
   
   int beatEDUs = tempo.getEDUPerTimeSignatureBeat().Num();
@@ -1428,14 +1431,25 @@ int Event::verify_valid(int endTime){
      vector<int> attTimes;
      sieveSweep->FillInVectors(attTimes, attProbs);
      attackSweep.clear();
+<<<<<<< HEAD
 	
+=======
+	cout << "Event::buildSweep " << beatEDUs << " attacks: ";
+>>>>>>> 1fa4095cb02344559443154f4311c20f506d7c0f
      for (int i = 0; i < attTimes.size(); i++){
      	if (attTimes[i] >= beatEDUs){
 	   break;
 	}
+<<<<<<< HEAD
         //cout << "Event::verify_valid - attTimes: "<< attTimes[i] << " ";
 	attackSweep.push_back(attTimes[i]);
      }
+=======
+	cout << attTimes[i] << " ";
+	attackSweep.push_back(attTimes[i]);
+     }
+	cout << endl;
+>>>>>>> 1fa4095cb02344559443154f4311c20f506d7c0f
   }
   int length = attackSweep.size();
 
