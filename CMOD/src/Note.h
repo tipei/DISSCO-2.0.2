@@ -2,14 +2,6 @@
 CMOD (composition module)
 Copyright (C) 2005  Sever Tipei (s-tipei@uiuc.edu)
 
-
-   Update:
-   This class is not yet implemented in the XML version of CMOD.
-
-                                            --Ming-ching Chiu May 06 2013
-
-
-
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
@@ -101,13 +93,19 @@ class Note {
     std::vector<std::string> modifiers_out;
 
 
-    //Simple constructor
+    /**
+     *  Simple constructor
+     **/
     Note();
 
-    //Constructor with timespan and tempo
+    /**
+     *  Constructor with timespan and tempo
+     **/
     Note(TimeSpan ts, Tempo tempo);
 
-    //Copy constructor
+    /**
+     *  Copy constructor
+     **/
     Note(const Note& other);
 
     /**
@@ -124,10 +122,10 @@ class Note {
 //----------------------------------------------------------------------------//
 
     /**
-      *  Assigns the pitch of a note
-      *  \param absPitchNum Pitch on the well-tempered scale, starting with 0=C0
-      *  \param pitchNames The names of the pitches (C, C#, D, Eb, ...)
-      *  \note: vector<string> pitchnames not available yet
+     *  Assigns the pitch of a note
+     * pitchNames: The names of the pitches (C, C#, D, Eb, ...) starting w C0=0
+     * octavePitch number of the octave
+     *  \param int pitchNum
      **/
     void setPitchWellTempered(int pitchNum);
 
@@ -157,15 +155,15 @@ class Note {
     void setLoudnessSones(float sones);
 
     /**
-      *  Assigns any modifiers to the sound: expressive mark attached to notes:
-      *   accent, espressivo, marcato, portato, staccatissimo, staccato, tenuto,
-      *   prall, prallup, pralldown, upprall, downprall, prallprall, lineprall,
-      *   prall mordent mordent upmordent downmordent trill turn reverseturn
-      *   shortfermata, fermata, longfermata, verylongfermata, upbow, downbow,
-      *   flageolet, open, halfopen, lheel, rheel, ltoe, rtoe, snappizzicato,
-      *    stopped, segno, coda, varcoda (LyliPond markings)
-      *  \param modNums
-      *  \param modNames
+     *  Assigns any modifiers to the sound: expressive mark attached to notes:
+     *   accent, espressivo, marcato, portato, staccatissimo, staccato, tenuto,
+     *   prall, prallup, pralldown, upprall, downprall, prallprall, lineprall,
+     *   prall mordent mordent upmordent downmordent trill turn reverseturn
+     *   shortfermata, fermata, longfermata, verylongfermata, upbow, downbow,
+     *   flageolet, open, halfopen, lheel, rheel, ltoe, rtoe, snappizzicato,
+     *    stopped, segno, coda, varcoda (LyliPond markings)
+     *  \param modNums
+     *  \param modNames
      **/
     void setModifiers(std::vector<std::string> modNames);
 
@@ -175,16 +173,17 @@ class Note {
      *   Spells note attributes: start time, duration in fractions equivalent
      *   to Traditional notation note values and marking bar lines.
      *   Adds pitch, dynamics and playing techniques.
-     *   \param
+     *   \param string aName
+     *   \param atring startEDU
+     *   \param string durationEDU
     **/
     void notateDurations( string aName, string startEDU, string durationEDU);
 
 
-
     /**
      * Main function that set up all variables for output score
-       \param none
-       \output: none
+     * \param: tuplet_dur
+     * \output: none
      **/
     int notate(int tuplet);
 
@@ -201,8 +200,6 @@ class Note {
 
 
    /**
-    *            not in use ?
-    *
     * Sorts the note into a vector and keep the vector in time
     *  increasing order
     *  \input: Note * n - pointer to a note
@@ -210,102 +207,156 @@ class Note {
   static void sort_notes(Note * n);
 
   /**
-  * Sorts individual note into a vector and keeps the vector in time
-  *  increasing order (for original notes). This function is similar to prev
-  *  one but sorts notes into another vector.
-  *  \param Note * n - pointer to a note
-  **/
+   * Sorts individual note into a vector and keeps the vector in time
+   *  increasing order (for original notes). This function is similar to prev
+   *  one but sorts notes into another vector.
+   *  \param Note * n - pointer to a note
+   **/
   static void sort_notes_orig(Note * n);
 
+  /**
+   *  Prepares the loudness and modifiers notation
+   **/
   void loudness_and_modifiers();
 
   /**
-   * Checks if the gap between two notes(dur of a rest sign) is valid. If not,
-   *  the beginning time of the second note will be modified to a valid value.
-   *  Then each note is converted to a corresponding notation
-   *								-shenyi
+   *  Processes the raw notes and gets them ready for LilyPond by calling 
+   *   add_bars, add_rests, adjust_notes (and print_all_notes)
+   *
    **/
   static void make_valid();
 
   /**
-   *
-   *  \param &time1  previous end time
-   *  \param &time2  current start time
-   *  \param loud    previous loudness
+   *  Adjusts the durations modifying the way a sound is split among tuplets 
+   *   if neccessary and gets them ready according to LilyPond sintax.
    **/
   static void adjust_notes ();
 
   /**
+   *		obsolete
+   *
    * Checks if time is valid, if it is not, change it to closest
    *  valid value
    *  \input: int &time - (reference) time to be verified
    **/
    void verify_valid(int &stime, int &endTime);
 
+
+
    //// ---- functions added by haorong at June 12 ---- ////
 
+    /**
+     *  Notates a note inside a tuplet
+     *  \param int tup_type
+     *  \param int dur
+     **/
     void note_in_tuplet(int tup_type, int dur);
 
     /**
-     * insert new note in to all_notes_bar in order.
+     * Inserst a new note into the all_notes_bar vector in order.
+     * Determines the position of the note and splits it across bar lines
+     * \param Note* n
      **/
     static void insert_note(Note* n);
 
     /**
-      * close every vector in all_notes_bar with bar;
-      **/
+     * Adds bars in the vector all_notes_bar
+     **/
     static void add_bars();
 
+    /**
+     * Adds rests between notes.  The rest is ont processed yet and it could
+     *  have an invalid duration
+     **/
     static void add_rests();
 
+    /**
+     * Deletes all notes
+     **/
     static void free_all_notes();
 
+    /**
+     * Initiate the tuplet_types according to the tuplet_limit
+     * \param int uplimit
+     **/
     static void construct_tuplet_names(int uplimit);
-    // ----------------------------------------------- ////
 
+    // ----------------------------------------------- ////
 
 };
 
-//extern string convert_dur_to_type(int dur);
+  //extern string convert_dur_to_type(int dur);
 
-extern int beatEDUs;
+  extern int beatEDUs;
 
-extern string timesignature;
+  extern string timesignature;
 
-//a vector holds the pointers to all the notes after processing
-extern vector<Note*> all_notes;
+  //a vector holds the pointers to all the notes after processing
+  extern vector<Note*> all_notes;
 
-//a 2D vector holds the notes divided by bars(added by haorong at June 12)
-extern vector<vector<Note*>*> all_notes_bar;
-
-
-
-//helper functions
-extern int str_to_int(string s);
-extern string int_to_str(int n);
-extern int power(int base, int p);
-extern int check_pow(int dur);
+  //a 2D vector holds the notes divided by bars(added by haorong at June 12)
+  extern vector<vector<Note*>*> all_notes_bar;
 
 
-/**
- * Checks if input rational number is a power of 2
-  \param temp - a rational number
-  \outpu: true or false
-**/
-bool is_valid(Rational<int> temp);
+  //		Helper functions
 
-// print all the elements in all_notes vector
-void print_all_notes();
+  /**
+   * Converts a string to an integer
+   *  eg: "123" ---> 123
+   *  \paam: string s
+   **/
+  extern int str_to_int(string s);
 
-// determine which type of tuplet will fit the input duration
-// eg: if it belongs to a triplet return value will be 3
-// -1 is return for invalid input
-int determine_tuplet(int dur);
-int check_lower(int value);
+  /**
+   * Convers an integer to a string
+   *  eg: 123 ---> "123"
+   * \param: int n
+   **/
+  extern string int_to_str(int n);
 
-// generate the string for notes inside the tuplet
-// sample output: r4~ r16
-// string note_in_tuplet(int tup_type, int dur, string pitch);
-// string note_in_tuplet(int tup_type, Note* n);
+  /**
+   * Calculates base^p
+   * \patam: int base
+   * \param: int p
+   **/
+  extern int power(int base, int p);
+
+  /*
+   * Calculates log2(dur) returning -1 if dur is not a power of 2
+   * \param: int dur
+   **/
+  extern int check_pow(int dur);
+
+
+  /**
+   * Checks if input rational number is a power of 2
+   *  \param temp - a rational number
+   *  \outpu: true or false
+   **/
+  bool is_valid(Rational<int> temp);
+
+  /*
+   * Prints all the elements in all_notes vector
+   **/
+  void print_all_notes();
+
+  /** 
+   * Determins which type of tuplet will fit the input duration
+   *  eg: if it belongs to a triplet return value will be 3
+   *  -1 is return for invalid input
+  **/
+  int determine_tuplet(int dur);
+
+  /**
+   * Finds the closest power of 2 which is less that value
+   *  eg: if value == 7, return 4, if value == 9 return 8
+   * \param: int value
+   **/
+  int check_lower(int value);
+
+  // generate the string for notes inside the tuplet
+  // sample output: r4~ r16
+  // string note_in_tuplet(int tup_type, int dur, string pitch);
+  // string note_in_tuplet(int tup_type, Note* n);
 
 #endif /* NOTE_H */

@@ -700,8 +700,6 @@ Sieve* Utilities::evaluateSieveFunction(string _functionString,void* _object){
 //  cout << "Sieve* Utilities::evaluateSieveFunction - ValuePick" << endl;
     resultSieve = sieve_ValuePick(root, _object);
   }
-cout << "Sieve* Utilities::evaluateSieveFunction - sever1" << endl;
-  int sever; cin >> sever;
 
   delete parser;
   return resultSieve;
@@ -1236,7 +1234,18 @@ string Utilities::function_Select(DOMElement* _functionElement, void* _object){
 
   int index = (int)evaluate(XMLTranscode(indexElement), _object);
   char result [50];
+/*
+for(int i=0; i<list.size(); ++i)
+std::cout << list[i] << ' ';
+*/
   sprintf(result, "%f",  evaluate( list[index], _object));
+/*
+cout << "  result= ";
+for(int i=0; i <= 2; i++ ) {
+cout << result[i];
+}
+cout << endl;
+*/
   return string(result);
 
 }

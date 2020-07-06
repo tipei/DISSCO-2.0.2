@@ -52,7 +52,6 @@ Event::Event(DOMElement* _element,
   matrix(0),
   type(_type),
   previousChildDuration(0),
-  previousChildStartTime(0),    //added by sever
   discreteFailedResponse(""),
   utilities( _utilities),
   modifiersIncludingAncestorsElement(NULL),
@@ -524,6 +523,10 @@ void Event::findLeafChildren(vector<Event*> & leafChildren){
 bool Event::buildContinuum() {
   string startType = XMLTC(childStartTypeFlag);
   string durType = XMLTC(childDurationTypeFlag);
+  string childName;
+
+//cout << " " << endl;
+//cout << "Event::buildContinuum - name: " << name << endl;
 
   // Whether we should align notes to sieves
   bool align = (   sieveAligned
@@ -573,6 +576,10 @@ bool Event::buildContinuum() {
       exit(1);
     }
 
+    // get the type
+    childType = utilities->evaluate(XMLTC(childTypeElement),(void*)this);
+    childName = XMLTC(childTypeElements[childType]->GFEC());
+
     // get the duration
     rawChildDuration = utilities->evaluate(XMLTC(childDurationElement),(void*)this);
 
@@ -608,11 +615,9 @@ bool Event::buildContinuum() {
     }
   }
 
-  // get the type
-  childType = utilities->evaluate(XMLTC(childTypeElement),(void*)this);
-  string childName = XMLTC(childTypeElements[childType]->GFEC());
-
   checkPoint = (double)tsChild.start / ts.duration;
+
+//cout << "EVENT::buildContinuum - childName: " << childName << endl;
 
   if (utilities->getOutputParticel()){
   //Output parameters in the different units available.
@@ -646,6 +651,7 @@ bool Event::buildContinuum() {
 bool Event::buildSweep() { 
   string startType = XMLTC(childStartTypeFlag);
   string durType = XMLTC(childDurationTypeFlag);
+  string childName;
 
   // Whether we should align notes to sieves
   bool align = (   sieveAligned
@@ -653,10 +659,6 @@ bool Event::buildSweep() {
                 && Utilities::isSieveFunction(childDurationElement)
                 && startType == "1"
                 && durType == "1");
-
-cout << " " << endl;
-cout << "Event::buildSweep - currChildNum=" << currChildNum << endl;
-cout << "Event::buildSweep - align=" << align << endl;
 
   // find start time and dur of last child
   if (currChildNum == 0) {
@@ -682,10 +684,8 @@ cout << "Event::buildSweep - align=" << align << endl;
   // get the start time
   float rawChildStartTime = 0.0;
   float rawChildDuration = 0.0;
-/*
-  if(currChildNum == 0 || align  == 1)
-        rawChildStartTime = 0;
-*/
+  int endTime = 0;
+
   if (align) {
     if (matrix == NULL) buildMatrix(false);
     MatPoint childPt = matrix->chooseSweep(numChildren - currChildNum - 1);
@@ -699,27 +699,19 @@ cout << "Event::buildSweep - align=" << align << endl;
     tsChild.duration = childPt.dur * tempo.getEDUDurationInSeconds().To<float>();
   } else {
     // get the start time
-    rawChildStartTime =
-      utilities->evaluate(XMLTC(childStartTimeElement),(void*)this);
-cout << "Event::buildSweep - rawChildStartTime=" << rawChildStartTime << endl;
+//  rawChildStartTime =
+//    utilities->evaluate(XMLTC(childStartTimeElement),(void*)this);
 
-    rawChildStartTime = previousChildStartTime + previousChildDuration;
-    previousChildStartTime = rawChildStartTime;
-
-cout << "                  - rawChildStartTime=" << rawChildStartTime
-     << " previousChildDuration=" << previousChildDuration << endl;
-
-    if (startType == "1" ) {		//EDU
+    rawChildStartTime = previousChildStartTime;			//actually endTime
+    if (startType == "1" ) {				//EDU
       tsChild.start = rawChildStartTime *
-        tempo.getEDUDurationInSeconds().To<float>() + tsPrevious.start;
-cout << "       tsPrevious.start=" << tsPrevious.start<< " tsChild.start="
-     << tsChild.start<< endl;
-      tsChild.startEDU = Ratio((int)rawChildStartTime, 1) + tsPrevious.startEDU;
-    } else if (startType == "2") {	//seconds
-      tsChild.start = rawChildStartTime + tsPrevious.start; // no conversion needed
+        tempo.getEDUDurationInSeconds().To<float>();
+      tsChild.startEDU = Ratio((int)rawChildStartTime, 1);
+    } else if (startType == "2") {			//seconds
+      tsChild.start = rawChildStartTime; 	// no conversion needed
       tsChild.durationEDU = Ratio(0, 0); // floating point is not exact: NaN
-    } else if (startType == "0") {	//fraction
-      tsChild.start = rawChildStartTime * ts.duration + tsPrevious.start; // convert to seconds
+    } else if (startType == "0") {			//fraction
+      tsChild.start = rawChildStartTime * ts.duration; 	// convert to seconds
       tsChild.durationEDU = Ratio(0, 0); // floating point is not exact: NaN
     }
 
@@ -732,12 +724,13 @@ cout << "       tsPrevious.start=" << tsPrevious.start<< " tsChild.start="
       tsChild.start = 0;
       tsChild.startEDU = 0;
     }
-cout << "Event::buildSweep - tsChild.start=" << tsChild.start << endl;
+
+  // get the type
+  childType = utilities->evaluate(XMLTC(childTypeElement),(void*)this);
+  childName = XMLTC(childTypeElements[childType]->GFEC());
 
     // get the duration
     rawChildDuration = utilities->evaluate(XMLTC(childDurationElement),(void*)this);
-cout << " " << endl;
-cout << "          Event::buildSweep - rawChildDuration=" << rawChildDuration << endl;
 
     //assign previousChild Duration here so that the next child can use it
     previousChildDuration = rawChildDuration;
@@ -753,7 +746,6 @@ cout << "          Event::buildSweep - rawChildDuration=" << rawChildDuration <<
       tsChild.durationEDU = Ratio(rawChildDurationInt, 1);
       tsChild.duration = 			// convert to seconds
         (float)rawChildDurationInt * tempo.getEDUDurationInSeconds().To<float>();
-cout << "               -  tsChild.duration=" << tsChild.duration << endl;
     } else if (durType == "2") {
       tsChild.duration = rawChildDuration;
       if(tsChild.duration > maxChildDur)
@@ -766,6 +758,24 @@ cout << "               -  tsChild.duration=" << tsChild.duration << endl;
       tsChild.durationEDU = Ratio(0, 0); // floating point is not exact: NaN
     }
   }
+
+  if(startType == "1" && durType == "1") {
+    endTime = Event::verify_valid(rawChildStartTime + rawChildDuration);
+    previousChildStartTime = endTime;
+
+    tsChild.start = rawChildStartTime *
+        tempo.getEDUDurationInSeconds().To<float>();
+    tsChild.startEDU = Ratio((int)rawChildStartTime, 1);
+
+  rawChildDuration = endTime - rawChildStartTime;
+  int rawChildDurationInt = (int)rawChildDuration;
+  tsChild.durationEDU = Ratio(rawChildDurationInt, 1);
+  tsChild.duration =                        // convert to seconds
+        (float)rawChildDurationInt * tempo.getEDUDurationInSeconds().To<float>();
+  }
+
+  tsPrevious.start = tsChild.start;
+  tsPrevious.startEDU = tsChild.startEDU;
 
   // set checkpoint to the start of this child event
   checkPoint = tsChild.start / ts.duration;
@@ -780,15 +790,6 @@ cout << "               -  tsChild.duration=" << tsChild.duration << endl;
     exit(1);
   }
 
-  // get the type
-  childType = utilities->evaluate(XMLTC(childTypeElement),(void*)this);
-  string childName = XMLTC(childTypeElements[childType]->GFEC());
-
-  tsPrevious.start = tsChild.start; //+ tsChild.duration;
-  tsPrevious.startEDU = tsChild.startEDU; //+ tsChild.durationEDU;
-cout << "Event::buildSweep - tsPrevious.start=" << tsPrevious.start << endl;
-int sever; cin>> sever;
-
   if (utilities->getOutputParticel()){
     //Output parameters in the different units available.
     Output::beginSubLevel("Sweep");
@@ -796,10 +797,8 @@ int sever; cin>> sever;
     Output::beginSubLevel("Parameters");
       Output::addProperty("Start", rawChildStartTime, unitTypeToUnits(startType));
       Output::addProperty("Duration", rawChildDuration, unitTypeToUnits(durType));
-      if(unitTypeToUnits(startType) == "EDU")
-        Output::addProperty("Max Duration", maxChildDur, "EDU");
-      else
-        Output::addProperty("Max Duration", maxChildDur, "sec.");
+  } else {
+      Output::addProperty("Max Duration", maxChildDur, "sec.");
     Output::endSubLevel();
     Output::beginSubLevel("Seconds");
       Output::addProperty("Start", tsChild.start, "sec.");
@@ -880,7 +879,6 @@ void Event::tryToRestart(void) {
     cout << "Failed to build child " << currChildNum << " of " << numChildren
       << " in file " << name << ". There are " << restartsRemaining
       << " tries remaining." << endl;
-//  int sever; cin >> sever;
   } else {
     //Ask for permission to build with less children.
     cout << "Event::tryToRestart - currChildNum=" << currChildNum
@@ -1419,7 +1417,7 @@ void Event::buildMatrix(bool discrete) {
 
 }
 
-//---------------------------------------------------------------------------//
+//----------------------------------------------------------------------------//
 
 int Event::verify_valid(int endTime){
   
@@ -1430,15 +1428,14 @@ int Event::verify_valid(int endTime){
      vector<int> attTimes;
      sieveSweep->FillInVectors(attTimes, attProbs);
      attackSweep.clear();
-	cout << "Event::verify_valid" << beatEDUs << " attacks: ";
+	
      for (int i = 0; i < attTimes.size(); i++){
      	if (attTimes[i] >= beatEDUs){
 	   break;
 	}
-	cout << attTimes[i] << " ";
+        //cout << "Event::verify_valid - attTimes: "<< attTimes[i] << " ";
 	attackSweep.push_back(attTimes[i]);
      }
-	cout << endl;
   }
   int length = attackSweep.size();
 

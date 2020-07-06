@@ -354,7 +354,7 @@ private:
   string static_function_CURRENT_TYPE(void* _object);
 
   /**
-   * Returns the number of children an event has.
+   * Returns the event's current child number
    * \param _object The event to analyse
    * \return The number of children the event has
    */

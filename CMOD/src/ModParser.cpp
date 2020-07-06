@@ -140,7 +140,8 @@ void ModParser::parseOperator(std::vector<ModParser::Token>& operands, std::stac
 
 int ModParser::precedence(char c) {
   switch (c) {
-    case 'U': case 'I': return 1;
+    case 'U': return 1;
+    case 'I': return 50;
     case '~': return 99;
     default: return -1;
   }

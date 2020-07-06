@@ -199,7 +199,7 @@ string Piece::getNextSoundFile() {
   //cout<<"sound Path:"<<soundPath<<endl;
   for(int i = 1; i < 1000000; i++) {
     stringstream oss;
-    oss << projectName << i << ".aiff";
+    oss << projectName << "_" << i << ".aiff";
     if(PieceHelper::doesFileExist(soundPath, oss.str()))
       continue;
     else
@@ -340,7 +340,6 @@ Piece::Piece(string _workingPath, string _projectTitle){
   //Random::Seed((unsigned int)newSeed);
 //}
 
-
   //Create the Top event and recursively build its children.
   DOMElement* topElement = utilities->getEventElement(eventTop, fileList);
   utilities->currChild = 0;
@@ -440,6 +439,8 @@ vector<DOMElement*> Piece::calcEventM(DOMElement* eventElement){
 	      DOMElement* childEventDefElement = numChildrenElement->GNES();
 	      DOMElement* childStartTimeElement = childEventDefElement->GFEC();
 	      DOMElement* childTypeElement = childStartTimeElement->GNES();
+cout << "pieceExperimental - childTypeElement=" << childTypeElement << endl;
+int sever; cin >> sever;
 	      DOMElement* childDurationElement = childTypeElement->GNES();
 	      DOMElement* AttackSieveElement = childDurationElement->GNES();
 	      DOMElement* DurationSieveElement = AttackSieveElement->GNES();

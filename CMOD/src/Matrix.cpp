@@ -297,7 +297,7 @@ MatPoint Matrix::choose() {
           chosenPt = matr[type][attNum][durNum];
 
           //printing stuff
-
+/*
           cout << endl << "MATRIX ---- PICKED: matr[" << type << "]["
               << attNum << "][" << durNum << "]  =  start:"
               << chosenPt.stime << ", dur:" << chosenPt.dur << ", type:"
@@ -308,7 +308,7 @@ MatPoint Matrix::choose() {
 	  cout << "  " << endl;
 //        printMatrix(true);
 	  int sever; cin >> sever;
-
+*/
         }
         prevPt = matr[type][attNum][durNum];
       }

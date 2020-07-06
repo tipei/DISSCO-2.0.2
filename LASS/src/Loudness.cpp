@@ -179,7 +179,7 @@ int Loudness::criticalBandIndex(m_value_type freq)
             return i;
     }
     
-    cout << "ERROR: didn't find a critical band for this frequency." << endl;
+    cout << "ERROR: didn't find a critical band for this frequency." << freq << endl;
     return NUM_BANDS-1;
 }
 

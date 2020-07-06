@@ -60,6 +60,7 @@ void Sieve::BuildFromExpr(int minVal, int maxVal,
   ModParser mp(offsetVect);
   mp.parseExpr(expr, minVal, maxVal);
   eList = mp.getElements();
+//Sieve::print_eList();
   Sieve::Weights(mp.getMods(), wMethod, wArgVect, mp.getOffsets());
 }
 
@@ -254,14 +255,14 @@ void Sieve::Multiples(int minVal, int maxVal, vector<int> numMods, std::vector<i
   }
 
   eList.sort(); // sort into ascending order
-
+/*
   cout << "Sieve::Multiples - eList" << endl;
   for (list<int>::iterator it = eList.begin(); it != eList.end(); ++it) {
     cout << *it << ", ";
   }
   cout << endl;
   int sever; cin >> sever;
-
+*/
   eList.unique();  //remove consecutive duplicate values
 }
 
