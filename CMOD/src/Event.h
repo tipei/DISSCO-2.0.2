@@ -412,15 +412,12 @@ protected:
 
     void buildMatrix(bool discrete);
     
-<<<<<<< HEAD
     /**
      * Checks if time is valid, if it is not, change it to closest
      *  valid value
      *  \param: int endTime time to be verified
      *  similar to a function in Note class
      **/
-=======
->>>>>>> 1fa4095cb02344559443154f4311c20f506d7c0f
     int verify_valid(int endTime); 
 };
 #endif
