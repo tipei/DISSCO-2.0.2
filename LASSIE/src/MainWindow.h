@@ -148,7 +148,7 @@ class MainWindow : public Gtk::Window {
 
     void changeCurrentProjectViewTo(ProjectViewController* _newProject);
     void menuProjectProperties();
-    void menuProjectRun();
+    void menuProjectSynthesize();
     void menuProjectGenerateSCFile();
     void menuProjectConfigureNoteModifiers();
 
