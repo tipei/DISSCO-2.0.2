@@ -427,7 +427,7 @@ void output_score(string projectname){
 //cout << "Output::output_score AFTER make_valid" << endl;
 //int sever; cin >> sever;
   //cout << "Output::output_score before make_valid" << endl;
-  Note::make_valid();
+  //Note::make_valid();
   //cout << "Output::output_score AFTER make_valid" << endl;
   //int sever; cin >> sever;
 

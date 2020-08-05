@@ -217,7 +217,8 @@ class Note {
   /**
    *  Prepares the loudness and modifiers notation
    **/
-  void loudness_and_modifiers();
+  void loudness_mark();
+  void modifiers_mark();
 
   /**
    *  Processes the raw notes and gets them ready for LilyPond by calling 
