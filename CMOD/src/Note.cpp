@@ -325,17 +325,17 @@ void Note::sort_notes_orig(Note * n){
 
 //---------------------------------------------------------------------------//
 
-void Note::loudness_and_modifiers(){
-
-  while (!this -> modifiers_out.empty()){
-    this -> type_out += this -> modifiers_out.back() + " ";
-    this -> modifiers_out.pop_back();
-  }
-
+void Note::loudness_mark(){
   if (this -> loudness_out != loudness_prev && this -> pitch_out != "r"){
     //cout<< "pitch: "<< this->pitch_out << " current: " << this -> loudness_out << " previous: " << loudness_prev << endl;
   	this -> type_out += this -> loudness_out + " ";
   	loudness_prev = this -> loudness_out;
+  }
+}
+void Note::modifiers_mark(){
+  while (!this -> modifiers_out.empty()){
+    this -> type_out += this -> modifiers_out.back() + " ";
+    this -> modifiers_out.pop_back();
   }
 }
 
@@ -903,7 +903,8 @@ void Note::note_in_tuplet(int tup_type, int dur){
       this -> type_out += " ";
     }
     if(first == 1){
-      this -> loudness_and_modifiers();
+      this -> modifiers_mark();
+      this -> loudness_mark();
       first = 0;
     }
   }
