@@ -267,8 +267,8 @@ MainWindow::MainWindow(){
     sigc::mem_fun(*this, &MainWindow::menuProjectProperties));
 
   menuRefActionGroup->add(
-    Gtk::Action::create("Synthesize", "Synthesize"),
-    sigc::mem_fun(*this, &MainWindow::menuProjectSynthesize));
+    Gtk::Action::create("Run", "Run"),
+    sigc::mem_fun(*this, &MainWindow::menuProjectRun));
 
 /*
   menuRefActionGroup->add(
@@ -299,7 +299,7 @@ MainWindow::MainWindow(){
   menuRefActionGroup->get_action("FileSave")->set_sensitive(false);
   menuRefActionGroup->get_action("FileSaveAs")->set_sensitive(false);
   menuRefActionGroup->get_action("ProjectProperties")->set_sensitive(false);
-  menuRefActionGroup->get_action("Synthesize")->set_sensitive(false);
+  menuRefActionGroup->get_action("Run")->set_sensitive(false);
 //  menuRefActionGroup->get_action("GenerateSCFile")->set_sensitive(false);
   menuRefActionGroup->get_action(
     "ConfigureNoteModifiers")->set_sensitive(false);
@@ -335,7 +335,7 @@ MainWindow::MainWindow(){
         "     <menu action='ProjectMenu'>"
         "      <menuitem action='FileNewObject'/>"
         "      <menuitem action='ProjectProperties'/>"
-        "      <menuitem action = 'Synthesize'/>"
+        "      <menuitem action = 'Run'/>"
         "      <menuitem action = 'ConfigureNoteModifiers'/>"
         "    </menu>"
         "    <menu action='HelpMenu'>"
@@ -447,7 +447,7 @@ void MainWindow::menuFileNewProject(){
     menuRefActionGroup->get_action("FileSave")->set_sensitive(true);
     menuRefActionGroup->get_action("FileSaveAs")->set_sensitive(true);
     menuRefActionGroup->get_action("ProjectProperties")->set_sensitive(true);
-    menuRefActionGroup->get_action("Synthesize")->set_sensitive(true);
+    menuRefActionGroup->get_action("Run")->set_sensitive(true);
 //    menuRefActionGroup->get_action("GenerateSCFile")->set_sensitive(true);
 
 
@@ -485,7 +485,7 @@ void MainWindow::menuFileOpen(){
     menuRefActionGroup->get_action("FileSave")->set_sensitive(true);
     menuRefActionGroup->get_action("FileSaveAs")->set_sensitive(true);
     menuRefActionGroup->get_action("ProjectProperties")->set_sensitive(true);
-    menuRefActionGroup->get_action("Synthesize")->set_sensitive(true);
+    menuRefActionGroup->get_action("Run")->set_sensitive(true);
     menuRefActionGroup->get_action(
       "ConfigureNoteModifiers")->set_sensitive(true);
     disableNewAndOpenProject();
@@ -517,7 +517,7 @@ void MainWindow::menuFileOpenXML(){
     menuRefActionGroup->get_action("FileSave")->set_sensitive(true);
     menuRefActionGroup->get_action("FileSaveAs")->set_sensitive(true);
     menuRefActionGroup->get_action("ProjectProperties")->set_sensitive(true);
-    menuRefActionGroup->get_action("Synthesize")->set_sensitive(true);
+    menuRefActionGroup->get_action("Run")->set_sensitive(true);
 //    menuRefActionGroup->get_action("GenerateSCFile")->set_sensitive(true);
     menuRefActionGroup->get_action(
       "ConfigureNoteModifiers")->set_sensitive(true);
@@ -738,18 +738,18 @@ int MainWindow::captureKeyStroke(
 
 //-----------------------------------------------------------------------------
 
-void MainWindow::menuProjectSynthesize(){
-  Gtk::Dialog* synthesizeDialog;
+void MainWindow::menuProjectRun(){
+  Gtk::Dialog* runDialog;
 
   //Load the GtkBuilder file and instantiate its widgets:
-  Glib::RefPtr<Gtk::Builder> synthesizeDialogRefBuilder =
+  Glib::RefPtr<Gtk::Builder> runDialogRefBuilder =
     Gtk::Builder::create();
 
 
   #ifdef GLIBMM_EXCEPTIONS_ENABLED
     try{
-      synthesizeDialogRefBuilder->add_from_file(
-        "./LASSIE/src/UI/SynthesizeDialog.ui");
+      runDialogRefBuilder->add_from_file(
+        "./LASSIE/src/UI/RunDialog.ui");
     }
     catch(const Glib::FileError& ex){
       std::cerr << "FileError: " << ex.what() << std::endl;
@@ -760,24 +760,24 @@ void MainWindow::menuProjectSynthesize(){
   #else
     std::auto_ptr<Glib::Error> error;
 
-    if (!synthesizeDialogRefBuilder->add_from_file(
-      "./LASSIE/src/UI/SynthesizeDialog.ui", error)){
+    if (!runDialogRefBuilder->add_from_file(
+      "./LASSIE/src/UI/RunDialog.ui", error)){
       std::cerr << error->what() << std::endl;
     }
   #endif // !GLIBMM_EXCEPTIONS_ENABLED
 
 
   //Get the GtkBuilder-instantiated Dialog:
-  synthesizeDialogRefBuilder->get_widget("SynthesizeDialog", synthesizeDialog);
+  runDialogRefBuilder->get_widget("RunDialog", runDialog);
 
   Gtk::Entry* randomSeedEntry;
-  synthesizeDialogRefBuilder->get_widget(
-    "SynthesizeDialogRandomSeedEntry", randomSeedEntry);
+  runDialogRefBuilder->get_widget(
+    "RunDialogRandomSeedEntry", randomSeedEntry);
 	randomSeedEntry->grab_focus();
 
-  int result = synthesizeDialog->run();
+  int result = runDialog->run();
 
-	synthesizeDialog->hide();
+	runDialog->hide();
 
   if(result == 1 && projectView) {
 
