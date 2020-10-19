@@ -7,31 +7,31 @@ ifndef verbose
   SILENT = @
 endif
 
-ifndef CC
-  CC = gcc
-endif
+CC = gcc
+CXX = g++
+AR = ar
 
-ifndef CXX
-  CXX = g++
-endif
-
-ifndef AR
-  AR = ar
+ifndef RESCOMP
+  ifdef WINDRES
+    RESCOMP = $(WINDRES)
+  else
+    RESCOMP = windres
+  endif
 endif
 
 ifeq ($(config),debug)
   OBJDIR     = obj/Debug/parser
   TARGETDIR  = lib
   TARGET     = $(TARGETDIR)/libparser.a
-  DEFINES   += 
-  INCLUDES  += 
-  CPPFLAGS  += -MMD -MP $(DEFINES) $(INCLUDES)
-  CFLAGS    += $(CPPFLAGS) $(ARCH) -g -gstabs
-  CXXFLAGS  += $(CFLAGS) 
-  LDFLAGS   += 
-  LIBS      += 
-  RESFLAGS  += $(DEFINES) $(INCLUDES) 
-  LDDEPS    += 
+  DEFINES   +=
+  INCLUDES  +=
+  ALL_CPPFLAGS  += $(CPPFLAGS) -MMD -MP $(DEFINES) $(INCLUDES)
+  ALL_CFLAGS    += $(CFLAGS) $(ALL_CPPFLAGS) $(ARCH) -g -gstabs
+  ALL_CXXFLAGS  += $(CXXFLAGS) $(ALL_CFLAGS)
+  ALL_RESFLAGS  += $(RESFLAGS) $(DEFINES) $(INCLUDES)
+  ALL_LDFLAGS   += $(LDFLAGS)
+  LDDEPS    +=
+  LIBS      += $(LDDEPS)
   LINKCMD    = $(AR) -rcs $(TARGET) $(OBJECTS)
   define PREBUILDCMDS
   endef
@@ -45,15 +45,15 @@ ifeq ($(config),release)
   OBJDIR     = obj/Release/parser
   TARGETDIR  = lib
   TARGET     = $(TARGETDIR)/libparser.a
-  DEFINES   += 
-  INCLUDES  += 
-  CPPFLAGS  += -MMD -MP $(DEFINES) $(INCLUDES)
-  CFLAGS    += $(CPPFLAGS) $(ARCH) -O2 -gstabs
-  CXXFLAGS  += $(CFLAGS) 
-  LDFLAGS   += -s
-  LIBS      += 
-  RESFLAGS  += $(DEFINES) $(INCLUDES) 
-  LDDEPS    += 
+  DEFINES   +=
+  INCLUDES  +=
+  ALL_CPPFLAGS  += $(CPPFLAGS) -MMD -MP $(DEFINES) $(INCLUDES)
+  ALL_CFLAGS    += $(CFLAGS) $(ALL_CPPFLAGS) $(ARCH) -O2 -gstabs
+  ALL_CXXFLAGS  += $(CXXFLAGS) $(ALL_CFLAGS)
+  ALL_RESFLAGS  += $(RESFLAGS) $(DEFINES) $(INCLUDES)
+  ALL_LDFLAGS   += $(LDFLAGS) -s
+  LDDEPS    +=
+  LIBS      += $(LDDEPS)
   LINKCMD    = $(AR) -rcs $(TARGET) $(OBJECTS)
   define PREBUILDCMDS
   endef
@@ -121,12 +121,14 @@ prelink:
 ifneq (,$(PCH))
 $(GCH): $(PCH)
 	@echo $(notdir $<)
-	-$(SILENT) cp $< $(OBJDIR)
-	$(SILENT) $(CC) $(CFLAGS) -o "$@" -c "$<"
+	$(SILENT) $(CC) -x c-header $(ALL_CFLAGS) -MMD -MP $(DEFINES) $(INCLUDES) -o "$@" -MF "$(@:%.gch=%.d)" -c "$<"
 endif
 
 $(OBJDIR)/lex.yy.o: CMOD/src/parser/lex.yy.c
 	@echo $(notdir $<)
-	$(SILENT) $(CC) $(CFLAGS) -o "$@" -c "$<"
+	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF $(@:%.o=%.d) -c "$<"
 
 -include $(OBJECTS:%.o=%.d)
+ifneq (,$(PCH))
+  -include $(OBJDIR)/$(notdir $(PCH)).d
+endif

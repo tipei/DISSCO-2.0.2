@@ -7,31 +7,31 @@ ifndef verbose
   SILENT = @
 endif
 
-ifndef CC
-  CC = gcc
-endif
+CC = gcc
+CXX = g++
+AR = ar
 
-ifndef CXX
-  CXX = g++
-endif
-
-ifndef AR
-  AR = ar
+ifndef RESCOMP
+  ifdef WINDRES
+    RESCOMP = $(WINDRES)
+  else
+    RESCOMP = windres
+  endif
 endif
 
 ifeq ($(config),debug)
   OBJDIR     = obj/Debug/muparser
   TARGETDIR  = lib
   TARGET     = $(TARGETDIR)/libmuparser.a
-  DEFINES   += 
-  INCLUDES  += 
-  CPPFLAGS  += -MMD -MP $(DEFINES) $(INCLUDES)
-  CFLAGS    += $(CPPFLAGS) $(ARCH) -g
-  CXXFLAGS  += $(CFLAGS) 
-  LDFLAGS   += 
-  LIBS      += 
-  RESFLAGS  += $(DEFINES) $(INCLUDES) 
-  LDDEPS    += 
+  DEFINES   +=
+  INCLUDES  +=
+  ALL_CPPFLAGS  += $(CPPFLAGS) -MMD -MP $(DEFINES) $(INCLUDES)
+  ALL_CFLAGS    += $(CFLAGS) $(ALL_CPPFLAGS) $(ARCH) -g
+  ALL_CXXFLAGS  += $(CXXFLAGS) $(ALL_CFLAGS)
+  ALL_RESFLAGS  += $(RESFLAGS) $(DEFINES) $(INCLUDES)
+  ALL_LDFLAGS   += $(LDFLAGS)
+  LDDEPS    +=
+  LIBS      += $(LDDEPS)
   LINKCMD    = $(AR) -rcs $(TARGET) $(OBJECTS)
   define PREBUILDCMDS
   endef
@@ -45,15 +45,15 @@ ifeq ($(config),release)
   OBJDIR     = obj/Release/muparser
   TARGETDIR  = lib
   TARGET     = $(TARGETDIR)/libmuparser.a
-  DEFINES   += 
-  INCLUDES  += 
-  CPPFLAGS  += -MMD -MP $(DEFINES) $(INCLUDES)
-  CFLAGS    += $(CPPFLAGS) $(ARCH) -O2
-  CXXFLAGS  += $(CFLAGS) 
-  LDFLAGS   += -s
-  LIBS      += 
-  RESFLAGS  += $(DEFINES) $(INCLUDES) 
-  LDDEPS    += 
+  DEFINES   +=
+  INCLUDES  +=
+  ALL_CPPFLAGS  += $(CPPFLAGS) -MMD -MP $(DEFINES) $(INCLUDES)
+  ALL_CFLAGS    += $(CFLAGS) $(ALL_CPPFLAGS) $(ARCH) -O2
+  ALL_CXXFLAGS  += $(CXXFLAGS) $(ALL_CFLAGS)
+  ALL_RESFLAGS  += $(RESFLAGS) $(DEFINES) $(INCLUDES)
+  ALL_LDFLAGS   += $(LDFLAGS) -s
+  LDDEPS    +=
+  LIBS      += $(LDDEPS)
   LINKCMD    = $(AR) -rcs $(TARGET) $(OBJECTS)
   define PREBUILDCMDS
   endef
@@ -64,12 +64,12 @@ ifeq ($(config),release)
 endif
 
 OBJECTS := \
+	$(OBJDIR)/muParserError.o \
+	$(OBJDIR)/muParserTokenReader.o \
 	$(OBJDIR)/muParserBase.o \
 	$(OBJDIR)/muParser.o \
 	$(OBJDIR)/muParserCallback.o \
-	$(OBJDIR)/muParserTokenReader.o \
 	$(OBJDIR)/muParserBytecode.o \
-	$(OBJDIR)/muParserError.o \
 
 RESOURCES := \
 
@@ -126,27 +126,34 @@ prelink:
 ifneq (,$(PCH))
 $(GCH): $(PCH)
 	@echo $(notdir $<)
-	-$(SILENT) cp $< $(OBJDIR)
-	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+	$(SILENT) $(CXX) -x c++-header $(ALL_CXXFLAGS) -MMD -MP $(DEFINES) $(INCLUDES) -o "$@" -MF "$(@:%.gch=%.d)" -c "$<"
 endif
+
+$(OBJDIR)/muParserError.o: CMOD/src/muParser/muParserError.cpp
+	@echo $(notdir $<)
+	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF $(@:%.o=%.d) -c "$<"
+
+$(OBJDIR)/muParserTokenReader.o: CMOD/src/muParser/muParserTokenReader.cpp
+	@echo $(notdir $<)
+	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF $(@:%.o=%.d) -c "$<"
 
 $(OBJDIR)/muParserBase.o: CMOD/src/muParser/muParserBase.cpp
 	@echo $(notdir $<)
-	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF $(@:%.o=%.d) -c "$<"
+
 $(OBJDIR)/muParser.o: CMOD/src/muParser/muParser.cpp
 	@echo $(notdir $<)
-	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF $(@:%.o=%.d) -c "$<"
+
 $(OBJDIR)/muParserCallback.o: CMOD/src/muParser/muParserCallback.cpp
 	@echo $(notdir $<)
-	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-$(OBJDIR)/muParserTokenReader.o: CMOD/src/muParser/muParserTokenReader.cpp
-	@echo $(notdir $<)
-	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF $(@:%.o=%.d) -c "$<"
+
 $(OBJDIR)/muParserBytecode.o: CMOD/src/muParser/muParserBytecode.cpp
 	@echo $(notdir $<)
-	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-$(OBJDIR)/muParserError.o: CMOD/src/muParser/muParserError.cpp
-	@echo $(notdir $<)
-	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF $(@:%.o=%.d) -c "$<"
 
 -include $(OBJECTS:%.o=%.d)
+ifneq (,$(PCH))
+  -include $(OBJDIR)/$(notdir $(PCH)).d
+endif

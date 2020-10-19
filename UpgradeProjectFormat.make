@@ -7,32 +7,32 @@ ifndef verbose
   SILENT = @
 endif
 
-ifndef CC
-  CC = gcc
-endif
+CC = gcc
+CXX = g++
+AR = ar
 
-ifndef CXX
-  CXX = g++
-endif
-
-ifndef AR
-  AR = ar
+ifndef RESCOMP
+  ifdef WINDRES
+    RESCOMP = $(WINDRES)
+  else
+    RESCOMP = windres
+  endif
 endif
 
 ifeq ($(config),debug)
   OBJDIR     = obj/Debug/UpgradeProjectFormat
   TARGETDIR  = .
   TARGET     = $(TARGETDIR)/UpgradeProjectFormat
-  DEFINES   += 
-  INCLUDES  += 
-  CPPFLAGS  += -MMD -MP $(DEFINES) $(INCLUDES)
-  CFLAGS    += $(CPPFLAGS) $(ARCH) -g -Wno-deprecated -gstabs
-  CXXFLAGS  += $(CFLAGS) 
-  LDFLAGS   += -lxerces-c -Llib -L/usr/local/lib
-  LIBS      += -llcmod -llass -lparser -lmuparser -lpthread -lsndfile
-  RESFLAGS  += $(DEFINES) $(INCLUDES) 
+  DEFINES   +=
+  INCLUDES  +=
+  ALL_CPPFLAGS  += $(CPPFLAGS) -MMD -MP $(DEFINES) $(INCLUDES)
+  ALL_CFLAGS    += $(CFLAGS) $(ALL_CPPFLAGS) $(ARCH) -g -Wno-deprecated -gstabs
+  ALL_CXXFLAGS  += $(CXXFLAGS) $(ALL_CFLAGS)
+  ALL_RESFLAGS  += $(RESFLAGS) $(DEFINES) $(INCLUDES)
+  ALL_LDFLAGS   += $(LDFLAGS) -Llib -L/usr/local/lib -L. -lxerces-c
   LDDEPS    += lib/liblcmod.a lib/liblass.a lib/libparser.a lib/libmuparser.a
-  LINKCMD    = $(CXX) -o $(TARGET) $(OBJECTS) $(LDFLAGS) $(RESOURCES) $(ARCH) $(LIBS)
+  LIBS      += $(LDDEPS) -lpthread -lsndfile
+  LINKCMD    = $(CXX) -o $(TARGET) $(OBJECTS) $(RESOURCES) $(ARCH) $(ALL_LDFLAGS) $(LIBS)
   define PREBUILDCMDS
   endef
   define PRELINKCMDS
@@ -45,16 +45,16 @@ ifeq ($(config),release)
   OBJDIR     = obj/Release/UpgradeProjectFormat
   TARGETDIR  = .
   TARGET     = $(TARGETDIR)/UpgradeProjectFormat
-  DEFINES   += 
-  INCLUDES  += 
-  CPPFLAGS  += -MMD -MP $(DEFINES) $(INCLUDES)
-  CFLAGS    += $(CPPFLAGS) $(ARCH) -O2 -Wno-deprecated -gstabs
-  CXXFLAGS  += $(CFLAGS) 
-  LDFLAGS   += -s -lxerces-c -Llib -L/usr/local/lib
-  LIBS      += -llcmod -llass -lparser -lmuparser -lpthread -lsndfile
-  RESFLAGS  += $(DEFINES) $(INCLUDES) 
+  DEFINES   +=
+  INCLUDES  +=
+  ALL_CPPFLAGS  += $(CPPFLAGS) -MMD -MP $(DEFINES) $(INCLUDES)
+  ALL_CFLAGS    += $(CFLAGS) $(ALL_CPPFLAGS) $(ARCH) -O2 -Wno-deprecated -gstabs
+  ALL_CXXFLAGS  += $(CXXFLAGS) $(ALL_CFLAGS)
+  ALL_RESFLAGS  += $(RESFLAGS) $(DEFINES) $(INCLUDES)
+  ALL_LDFLAGS   += $(LDFLAGS) -Llib -L/usr/local/lib -L. -s -lxerces-c
   LDDEPS    += lib/liblcmod.a lib/liblass.a lib/libparser.a lib/libmuparser.a
-  LINKCMD    = $(CXX) -o $(TARGET) $(OBJECTS) $(LDFLAGS) $(RESOURCES) $(ARCH) $(LIBS)
+  LIBS      += $(LDDEPS) -lpthread -lsndfile
+  LINKCMD    = $(CXX) -o $(TARGET) $(OBJECTS) $(RESOURCES) $(ARCH) $(ALL_LDFLAGS) $(LIBS)
   define PREBUILDCMDS
   endef
   define PRELINKCMDS
@@ -121,12 +121,14 @@ prelink:
 ifneq (,$(PCH))
 $(GCH): $(PCH)
 	@echo $(notdir $<)
-	-$(SILENT) cp $< $(OBJDIR)
-	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+	$(SILENT) $(CXX) -x c++-header $(ALL_CXXFLAGS) -MMD -MP $(DEFINES) $(INCLUDES) -o "$@" -MF "$(@:%.gch=%.d)" -c "$<"
 endif
 
 $(OBJDIR)/UpgradeProjectFormat.o: LASSIE/src/UpgradeProjectFormat.cpp
 	@echo $(notdir $<)
-	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF $(@:%.o=%.d) -c "$<"
 
 -include $(OBJECTS:%.o=%.d)
+ifneq (,$(PCH))
+  -include $(OBJDIR)/$(notdir $(PCH)).d
+endif
