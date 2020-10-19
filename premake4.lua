@@ -88,7 +88,7 @@ project "lassie"
   files {"LASSIE/src/**.h", "LASSIE/src/**.cpp"}
   excludes {"LASSIE/src/UpgradeProjectFormat.*", "LASSIE/src/test/**"}
   buildoptions {"`pkg-config --cflags gtkmm-2.4`",
-    "-Wno-deprecated", "-gstabs"}
+    "-Wno-deprecated", "-gstabs", "-std=c++11"}
   linkoptions {"`pkg-config --libs --cflags gtkmm-2.4`", "-Wno-deprecated", "-lxerces-c"}
   libdirs {"/usr/local/lib"}
   links {"lcmod", "lass", "parser", "pthread", "sndfile"}
