@@ -1002,7 +1002,7 @@ void Piece::functionModifier(DOMElement* functionElement, int maxValue){ //Needs
 
   if(functionName.compare("RandomInt") == 0){
 
-    //cout<<"RandomInt"<<endl;
+    // cout<<"RandomInt"<<endl;
 
     DOMElement* lowBoundElement = functionElement->GFEC()->GNES();
     DOMElement* highBoundElement = lowBoundElement->GNES();

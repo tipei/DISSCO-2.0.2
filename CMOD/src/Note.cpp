@@ -179,6 +179,7 @@ void Note::setLoudnessMark(int dynamicNum, vector<string> dynamicNames) {
 
 void Note::setLoudnessSones(float sones) {
   loudnessNum = -1;
+  // cout << " sones: " << sones << endl;
   if(sones < 0 || sones > 256) {
     cerr << "Note received invalid value for sones!" << endl;
     exit(1);
@@ -349,6 +350,7 @@ int Note::notate(int tuplet_dur){
     return tuplet_dur;
   }
   if(tuplet_dur > 0){
+
     // if the current duration is less than the duration of theatuplet,
     // the entire duration will be inserted in the tuplet and the tuplet will
     // be completed by the next sound or silence.
@@ -399,7 +401,6 @@ int Note::notate(int tuplet_dur){
   int mainDur = dur / beatEDUs;// * beatEDUs;
 
   while (mainDur > 0){
-
     int p = check_pow(unit_note);
     while(p >= 0){
       int beats = power(2, p);
@@ -414,21 +415,22 @@ int Note::notate(int tuplet_dur){
       }
       p--;
     }
-
+this->loudness_mark();
     if( mainDur > 0 ||remaind > 0 ){
-	if ( this -> pitch_out != "r") {
-	   this -> type_out += "~ ";
-	}
-    } else {
-      if(this -> split == 1){
-	if ( this -> pitch_out != "r") {
-           this -> type_out += "~ ";
+      if ( this -> pitch_out != "r") {
+        this -> type_out += "~ ";
         }
-        this -> split = 0;
-      }
-      this -> type_out += " ";
+      } else {
+        if(this -> split == 1){
+          if ( this -> pitch_out != "r") {
+            this -> type_out += "~ ";
+            }
+            this -> split = 0;
+          }
+          this -> type_out += " ";
       // this -> loudness_and_modifiers();
     }
+    // this->loudness_mark();
   }
 
   // the third part is constructing tuplet to fit the rest part of the note
@@ -462,7 +464,6 @@ int Note::notate(int tuplet_dur){
   //   this -> type_out += "~ ";
   //   this -> split = 0;
   // }
-
   return tuplet_dur;
 }
 
@@ -534,7 +535,7 @@ void Note::make_valid(){
   //print_all_notes();
   // adjusting the duration of notes and notate them
   adjust_notes();
-  //print_all_notes();
+  print_all_notes();
 
 
   return;
@@ -848,8 +849,10 @@ void print_all_notes(){ //helper function added by Haorong
       continue;
     }
 
-      cout << " pitch: " << cur -> pitch_out << " start time: " << cur -> start_t
-        << " end_time: "<< cur -> end_t << " dur: " << cur -> end_t - cur -> start_t << " Split: " << cur -> split  << endl;
+      // cout << " pitch: " << cur -> pitch_out << " start time: " << cur -> start_t
+      //   << " end_time: "<< cur -> end_t << " dur: " << cur -> end_t - cur -> start_t << " Split: " << cur -> split  << endl;
+      // cout << " pitch: " << cur -> pitch_out << " start time: " << cur -> start_t
+      //   << " end_time: "<< cur -> end_t << " dur: " << cur -> end_t - cur -> start_t << " loudness: " << cur -> loudness_out  << endl;
   }
 	/*
   vector<vector<Note*>*>::iterator out_it;

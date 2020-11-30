@@ -355,6 +355,7 @@ void Bottom::buildNote(SoundAndNoteWrapper* _soundNoteWrapper) {
 
   //Set the pitch.
   float baseFrequency = computeBaseFreq();
+  //cout << "base frequency" << baseFrequency << endl;
 
   int absPitchNum;
 
@@ -470,10 +471,12 @@ float Bottom::computeLoudness() {
   for(int i = 0; i < 10; i++){
       expVal += utilities->evaluate(XMLTC(loudnessElement), (void*)this);
   }
-  expVal /= 10;
+  // expVal /= 10;
   float loudval = utilities->evaluate(XMLTC(loudnessElement), (void*)this);
-  float diff = loudval - expVal;
-  loudval -= 0.4 * diff;
+  // float diff = loudval - expVal;
+  // loudval -= 0.4 * diff;
+  // cout << "bottom loudness: " << loudval << endl;
+  // cout << "bottom expval: " << expVal << endl;
   return loudval;
 }
 

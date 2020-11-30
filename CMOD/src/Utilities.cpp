@@ -366,7 +366,7 @@ double Utilities::evaluate(std::string _input, void* _object){
     string front = workingString.substr(0, locOfFun);
     string back = workingString.substr(((int)locOfEndFun) +6);
     workingString = front + evaluatedFunction + back;
-
+// cout << "utilities string: " << workingString << endl;
     // look for next function
     locOfFun = workingString.find("<Fun>");
   }
@@ -377,6 +377,7 @@ double Utilities::evaluate(std::string _input, void* _object){
 
   try {
     result = p.Eval();
+    // cout << "utilities result: " << result << endl;
   }
   catch (mu::ParserError){
     cerr<<"Oooops, we find a typo in your project."<<endl;
@@ -580,7 +581,7 @@ string Utilities::evaluateFunction(string _functionString,void* _object){
 
   // check the function name and call the proper method for evaluation
   if(functionName.compare("RandomInt")==0){
-    resultString = function_RandomInt(root, _object);
+     resultString = function_RandomInt(root, _object);
   }
 
   else if (functionName.compare("Random")==0){
@@ -1301,13 +1302,11 @@ string Utilities::function_GetPattern(DOMElement* _functionElement, void* _objec
 //----------------------------------------------------------------------------//
 
 string Utilities::function_RandomInt(DOMElement* _functionElement, void* _object){
-
   DOMElement* lowBoundElement = _functionElement->getFirstElementChild()->getNextElementSibling();
   DOMElement* highBoundElement = lowBoundElement->getNextElementSibling();
 
   int lowBound = (int)evaluate(XMLTranscode(lowBoundElement), _object);
   int highBound = (int)evaluate(XMLTranscode(highBoundElement), _object);
-
   char result [50];
   sprintf(result, "%d",  Random::RandInt(lowBound, highBound));
   return string(result);
