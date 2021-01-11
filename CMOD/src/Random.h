@@ -84,7 +84,16 @@ class Random {
     static int RandInt(int low, int high);
 
     /**
-     * Returns a random integer in the range [low, high] without repetition.
+     * (Experimental)
+     * TODO: find a way to support multiple RandomOrderInt functions of identical bounds.
+     * 
+     * Returns a random integer in the range [low, high].
+     * Avoids repetition, given that
+     * - number of children is greater than or equal to
+     *   range of [low, high]
+     * - every RandomOrderInt function with range [low, high] and
+     *   numChildren is unique
+     * 
      */
     static int RandOrderInt(int low, int high, int numChildren);
 

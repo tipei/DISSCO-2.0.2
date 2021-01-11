@@ -1316,8 +1316,8 @@ string Utilities::function_RandomInt(DOMElement* _functionElement, void* _object
   return string(result);
 }
 
+// TODO: find a way to support multiple RandomOrderInt functions of identical bounds.
 string Utilities::function_RandomOrderInt(DOMElement* _functionElement, void* _object) {
-  // TODO(Renzo, Tomoko): implement random order int
   DOMElement* lowBoundElement = _functionElement->getFirstElementChild()->getNextElementSibling();
   DOMElement* highBoundElement = lowBoundElement->getNextElementSibling();
 
@@ -1329,11 +1329,11 @@ string Utilities::function_RandomOrderInt(DOMElement* _functionElement, void* _o
   string eventName = currentEvent->getEventName();
 
   // Warn the user if the # of choices is less than # of children
-  // Eventually leads to segfault.
   if (highBound - lowBound + 1 < numChildren) {
-    cout << "WARNING: number of choices in [Lower bound, Higher bound] is less than\n"
-         << " number of children in event " << eventName << ".\n"
-         << "This will likely cause a runtime error."
+    cout << "WARNING: number of choices in RandomOrderInt [" 
+         << lowBound << ", " << highBound << "] is less than"
+         << " number of children in event " << eventName << "."
+         << " This will cause repeated values."
          << endl;
   }
 

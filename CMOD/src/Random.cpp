@@ -110,32 +110,20 @@ int Random::RandInt(int lowNum, int highNum) {
 int Random::RandOrderInt(int low, int high, int numChildren) {
   static map<int, vector<int> > choicesMap;
   int id = (low<<1) + (high<<2) + (numChildren<<3);
-
-  cout << "\nCalling RandOrderInt..." << endl;
-  cout << " low: " << low << endl;
-  cout << " high: " << high << endl;
-  cout << " choicesMap.size(): " << choicesMap.size() << endl;
   
-  if (choicesMap.find(id) == choicesMap.end()) {
-    cout << "\nInitializing choices..." << endl;
+  // Initialize choices if a new random order function is found, or
+  // an existing list of choices is empty (occurs when high - low + 1 < numChildren)
+  if (choicesMap.find(id) == choicesMap.end() || choicesMap[id].empty()) {
     choicesMap[id] = InitializeChoices(low, high);
   }
 
   vector<int>& choices = choicesMap[id];
 
-  cout << "Printing choices..." << endl;
-  for (vector<int>::iterator it = choices.begin(); it != choices.end(); ++it) {
-    cout << " " << (*it);
-  }
-  cout << '\n';
-
-  // Choose a random index of choices
+  // Choose a random element from available choices
   int randIndex = RandInt(0, choices.size() - 1);
   int result = choices[randIndex];
 
-  cout << "Result: " << result << endl;
-
-  // Remove element from choices
+  // Remove chosen element from choices
   choices.erase(choices.begin() + randIndex);
 
   return result;
