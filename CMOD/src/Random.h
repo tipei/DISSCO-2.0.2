@@ -122,6 +122,11 @@ class Random {
   private:
     static unsigned int seed;
     double * probArray;
+
+    /**
+     * Returns a vector containing ints [low, high]
+     */
+    static std::vector<int> InitializeChoices(int low, int high);
 };
 
 #endif // _RANDOM_H_

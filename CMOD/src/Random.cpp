@@ -108,31 +108,35 @@ int Random::RandInt(int lowNum, int highNum) {
 //----------------------------------------------------------------------------//
 
 int Random::RandOrderInt(int low, int high, int numChildren) {
-  static std::set<int> previousResults;
-  int result = RandInt(low, high);
+  static map<int, vector<int> > choicesMap;
+  int id = (low<<1) + (high<<2) + (numChildren<<3);
 
-  // If the result has previously been chosen, reroll
-  while (previousResults.find(result) != previousResults.end()) {
-    result = RandInt(low, high);
+  cout << "\nCalling RandOrderInt..." << endl;
+  cout << " low: " << low << endl;
+  cout << " high: " << high << endl;
+  cout << " choicesMap.size(): " << choicesMap.size() << endl;
+  
+  if (choicesMap.find(id) == choicesMap.end()) {
+    cout << "\nInitializing choices..." << endl;
+    choicesMap[id] = InitializeChoices(low, high);
   }
 
-  // Store previous results
-  previousResults.insert(result);
-  cout << "RandOrderInt result: " << result << endl;
+  vector<int>& choices = choicesMap[id];
 
-  // If we've stored as many results as number of children,
-  // we have iterated through all children.
-  // Clear all results in case RandomOrderInt is called again
-  if (previousResults.size() >= numChildren) {
-    previousResults.clear();
+  cout << "Printing choices..." << endl;
+  for (vector<int>::iterator it = choices.begin(); it != choices.end(); ++it) {
+    cout << " " << (*it);
   }
+  cout << '\n';
 
-  cout << "Printing results..." << endl;
-  std::set<int>::iterator it = previousResults.begin();
-  while (it != previousResults.end()) {
-    cout << " " << (*it) << endl;
-    ++it;
-  }
+  // Choose a random index of choices
+  int randIndex = RandInt(0, choices.size() - 1);
+  int result = choices[randIndex];
+
+  cout << "Result: " << result << endl;
+
+  // Remove element from choices
+  choices.erase(choices.begin() + randIndex);
 
   return result;
 }
@@ -200,4 +204,14 @@ double Random::PreferedValueDistribution(double value, double checkPoint) {
    pow(2, checkPoint));
 
   return probability;
+}
+
+//----------------------------------------------------------------------------//
+
+vector<int> Random::InitializeChoices(int low, int high) {
+  vector<int> choices;
+  for (int i = low; i <= high; i++) {
+    choices.push_back(i);
+  }
+  return choices;
 }

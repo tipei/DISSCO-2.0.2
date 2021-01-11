@@ -1323,7 +1323,19 @@ string Utilities::function_RandomOrderInt(DOMElement* _functionElement, void* _o
 
   int lowBound = (int)evaluate(XMLTranscode(lowBoundElement), _object);
   int highBound = (int)evaluate(XMLTranscode(highBoundElement), _object);
-  int numChildren = ((Event*)_object)->getNumberOfChildren();
+
+  Event* currentEvent = ((Event*)_object);
+  int numChildren = currentEvent->getNumberOfChildren();
+  string eventName = currentEvent->getEventName();
+
+  // Warn the user if the # of choices is less than # of children
+  // Eventually leads to segfault.
+  if (highBound - lowBound + 1 < numChildren) {
+    cout << "WARNING: number of choices in [Lower bound, Higher bound] is less than\n"
+         << " number of children in event " << eventName << ".\n"
+         << "This will likely cause a runtime error."
+         << endl;
+  }
 
   char result [50];
   sprintf(result, "%d",  Random::RandOrderInt(lowBound, highBound, numChildren));
