@@ -353,6 +353,7 @@ double Utilities::evaluate(std::string _input, void* _object){
   if (_input =="") return 0;
 
   string workingString = _input;
+  cout << "evaluate call. workingString: " << workingString << endl;
   // Test if there is any function in this string (look for <Fun>), if so,
   // replace the function with the evaluated number. Repeat until all the
   // functions are replaced by numbers.
@@ -582,6 +583,10 @@ string Utilities::evaluateFunction(string _functionString,void* _object){
   // check the function name and call the proper method for evaluation
   if(functionName.compare("RandomInt")==0){
      resultString = function_RandomInt(root, _object);
+  }
+
+  else if (functionName.compare("RandomOrderInt")==0) {
+    resultString = function_RandomOrderInt(root, _object);
   }
 
   else if (functionName.compare("Random")==0){
@@ -1307,6 +1312,20 @@ string Utilities::function_RandomInt(DOMElement* _functionElement, void* _object
 
   int lowBound = (int)evaluate(XMLTranscode(lowBoundElement), _object);
   int highBound = (int)evaluate(XMLTranscode(highBoundElement), _object);
+  char result [50];
+  sprintf(result, "%d",  Random::RandInt(lowBound, highBound));
+  return string(result);
+}
+
+string Utilities::function_RandomOrderInt(DOMElement* _functionElement, void* _object) {
+  // TODO(Renzo, Tomoko): implement random order int
+  DOMElement* lowBoundElement = _functionElement->getFirstElementChild()->getNextElementSibling();
+  DOMElement* highBoundElement = lowBoundElement->getNextElementSibling();
+
+  int lowBound = (int)evaluate(XMLTranscode(lowBoundElement), _object);
+  int highBound = (int)evaluate(XMLTranscode(highBoundElement), _object);
+  int numChildren = ((Event*)_object)->getNumberOfChildren();
+
   char result [50];
   sprintf(result, "%d",  Random::RandInt(lowBound, highBound));
   return string(result);

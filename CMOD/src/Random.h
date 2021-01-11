@@ -84,6 +84,11 @@ class Random {
     static int RandInt(int low, int high);
 
     /**
+     * Returns a random integer in the range [low, high] without repetition.
+     */
+    static int RandOrderInt(int low, int high, int numChildren);
+
+    /**
     *  Randomly chooses a value from a list.
     *  There are multiple versions for float, double, and integer lists
     **/

@@ -107,6 +107,32 @@ int Random::RandInt(int lowNum, int highNum) {
 
 //----------------------------------------------------------------------------//
 
+int Random::RandOrderInt(int low, int high, int numChildren) {
+  static std::set<int> previousResults;
+  
+  int range = (high - low) + 1;
+  int result = low + (int)( range * Rand() );
+
+  // If the result has previously been chosen, reroll
+  while (previousResults.find(result) != previousResults.end()) {
+    result = low + (int)( range * Rand() );
+  }
+
+  // Store previous results
+  previousResults.insert(result);
+
+  // If we've stored as many results as number of children,
+  // we have iterated through all children.
+  // Clear all results in case RandomOrderInt is called again
+  if (previousResults.size() >= numChildren) {
+    previousResults.clear();
+  }
+
+  return result;
+}
+
+//----------------------------------------------------------------------------//
+
 float Random::ChooseFromList(float array[], int size) {
 
   return array[RandInt(0, size-1)];
