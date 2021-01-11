@@ -109,23 +109,29 @@ int Random::RandInt(int lowNum, int highNum) {
 
 int Random::RandOrderInt(int low, int high, int numChildren) {
   static std::set<int> previousResults;
-  
-  int range = (high - low) + 1;
-  int result = low + (int)( range * Rand() );
+  int result = RandInt(low, high);
 
   // If the result has previously been chosen, reroll
   while (previousResults.find(result) != previousResults.end()) {
-    result = low + (int)( range * Rand() );
+    result = RandInt(low, high);
   }
 
   // Store previous results
   previousResults.insert(result);
+  cout << "RandOrderInt result: " << result << endl;
 
   // If we've stored as many results as number of children,
   // we have iterated through all children.
   // Clear all results in case RandomOrderInt is called again
   if (previousResults.size() >= numChildren) {
     previousResults.clear();
+  }
+
+  cout << "Printing results..." << endl;
+  std::set<int>::iterator it = previousResults.begin();
+  while (it != previousResults.end()) {
+    cout << " " << (*it) << endl;
+    ++it;
   }
 
   return result;

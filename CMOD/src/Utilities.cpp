@@ -353,7 +353,6 @@ double Utilities::evaluate(std::string _input, void* _object){
   if (_input =="") return 0;
 
   string workingString = _input;
-  cout << "evaluate call. workingString: " << workingString << endl;
   // Test if there is any function in this string (look for <Fun>), if so,
   // replace the function with the evaluated number. Repeat until all the
   // functions are replaced by numbers.
@@ -1327,7 +1326,7 @@ string Utilities::function_RandomOrderInt(DOMElement* _functionElement, void* _o
   int numChildren = ((Event*)_object)->getNumberOfChildren();
 
   char result [50];
-  sprintf(result, "%d",  Random::RandInt(lowBound, highBound));
+  sprintf(result, "%d",  Random::RandOrderInt(lowBound, highBound, numChildren));
   return string(result);
 }
 
