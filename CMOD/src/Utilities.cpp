@@ -1316,7 +1316,6 @@ string Utilities::function_RandomInt(DOMElement* _functionElement, void* _object
   return string(result);
 }
 
-// TODO: find a way to support multiple RandomOrderInt functions of identical bounds.
 string Utilities::function_RandomOrderInt(DOMElement* _functionElement, void* _object) {
   DOMElement* lowBoundElement = _functionElement->getFirstElementChild()->getNextElementSibling();
   DOMElement* highBoundElement = lowBoundElement->getNextElementSibling();
@@ -1326,7 +1325,6 @@ string Utilities::function_RandomOrderInt(DOMElement* _functionElement, void* _o
   int highBound = (int)evaluate(XMLTranscode(highBoundElement), _object);
   int id = (int) evaluate(XMLTranscode(idElement), _object);
   
-
   Event* currentEvent = ((Event*)_object);
   int numChildren = currentEvent->getNumberOfChildren();
   string eventName = currentEvent->getEventName();
