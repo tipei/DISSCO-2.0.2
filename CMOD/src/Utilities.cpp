@@ -1320,9 +1320,12 @@ string Utilities::function_RandomInt(DOMElement* _functionElement, void* _object
 string Utilities::function_RandomOrderInt(DOMElement* _functionElement, void* _object) {
   DOMElement* lowBoundElement = _functionElement->getFirstElementChild()->getNextElementSibling();
   DOMElement* highBoundElement = lowBoundElement->getNextElementSibling();
+  DOMElement* idElement = highBoundElement->getNextElementSibling();
 
   int lowBound = (int)evaluate(XMLTranscode(lowBoundElement), _object);
   int highBound = (int)evaluate(XMLTranscode(highBoundElement), _object);
+  int id = (int) evaluate(XMLTranscode(idElement), _object);
+  
 
   Event* currentEvent = ((Event*)_object);
   int numChildren = currentEvent->getNumberOfChildren();
@@ -1338,7 +1341,7 @@ string Utilities::function_RandomOrderInt(DOMElement* _functionElement, void* _o
   }
 
   char result [50];
-  sprintf(result, "%d",  Random::RandOrderInt(lowBound, highBound, numChildren));
+  sprintf(result, "%d",  Random::RandOrderInt(lowBound, highBound, numChildren, id));
   return string(result);
 }
 
