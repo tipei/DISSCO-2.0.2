@@ -32,6 +32,7 @@
 
 #include "FunctionGenerator.h"
 #include "IEvent.h"
+#include <ctime>
 
 
 
@@ -3129,9 +3130,12 @@ void FunctionGenerator::function_list_combo_changed(){
       else if (function == functionRandomOrderInt) {
         alignment->remove(); //remove the current parameter box
         attributesRefBuilder->get_widget("RandomOrderIntVBox", vbox);
-        alignment->add (*vbox); //add random vbox in
+        alignment->add (*vbox); //add random vbox ins
+        std::stringstream ss;
+        ss << std::time(0);
+        std::string ts = ss.str();
         //reset all data
-        textview->get_buffer()->set_text("<Fun><Name>RandomOrderInt</Name><LowBound>0</LowBound><HighBound>1</HighBound></Fun>");
+        textview->get_buffer()->set_text("<Fun><Name>RandomOrderInt</Name><LowBound>0</LowBound><HighBound>1</HighBound><Id>" + ts + "</Id></Fun>");
         attributesRefBuilder->get_widget(
           "RandomOrderIntLowBoundEntry", entry);
         entry->set_text("0");
@@ -3905,13 +3909,16 @@ void FunctionGenerator::randomOrderIntEntryChanged(){
   Gtk::TextView* textview;
   attributesRefBuilder->get_widget("resultStringTextView", textview);
   Gtk::Entry* entry;
+  std::stringstream ss;
+  ss << std::time(0);
+  std::string ts = ss.str();
   attributesRefBuilder->get_widget(
     "RandomOrderIntLowBoundEntry", entry);
   std::string stringbuffer = "<Fun><Name>RandomOrderInt</Name><LowBound>" + entry->get_text() + "</LowBound><HighBound>";
 
   attributesRefBuilder->get_widget(
     "RandomOrderIntHighBoundEntry", entry);
-  stringbuffer = stringbuffer + entry->get_text() + "</HighBound></Fun>";
+  stringbuffer = stringbuffer + entry->get_text() + "</HighBound><Id>"+ts+"</Id></Fun>";
 
   textview->get_buffer()->set_text(stringbuffer);
 

@@ -107,9 +107,9 @@ int Random::RandInt(int lowNum, int highNum) {
 
 //----------------------------------------------------------------------------//
 
-int Random::RandOrderInt(int low, int high, int numChildren) {
+int Random::RandOrderInt(int low, int high, int numChildren, int id) {
   static map<int, vector<int> > choicesMap;
-  int id = (low<<1) + (high<<2) + (numChildren<<3);
+  // int id = (low<<1) + (high<<2) + (numChildren<<3);
   
   // Initialize choices if a new random order function is found, or
   // an existing list of choices is empty (occurs when high - low + 1 < numChildren)
