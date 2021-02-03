@@ -584,6 +584,10 @@ string Utilities::evaluateFunction(string _functionString,void* _object){
      resultString = function_RandomInt(root, _object);
   }
 
+  else if (functionName.compare("RandomOrderInt")==0) {
+    resultString = function_RandomOrderInt(root, _object);
+  }
+
   else if (functionName.compare("Random")==0){
     resultString = function_Random(root, _object);
   }
@@ -1309,6 +1313,33 @@ string Utilities::function_RandomInt(DOMElement* _functionElement, void* _object
   int highBound = (int)evaluate(XMLTranscode(highBoundElement), _object);
   char result [50];
   sprintf(result, "%d",  Random::RandInt(lowBound, highBound));
+  return string(result);
+}
+
+string Utilities::function_RandomOrderInt(DOMElement* _functionElement, void* _object) {
+  DOMElement* lowBoundElement = _functionElement->getFirstElementChild()->getNextElementSibling();
+  DOMElement* highBoundElement = lowBoundElement->getNextElementSibling();
+  DOMElement* idElement = highBoundElement->getNextElementSibling();
+
+  int lowBound = (int)evaluate(XMLTranscode(lowBoundElement), _object);
+  int highBound = (int)evaluate(XMLTranscode(highBoundElement), _object);
+  int id = (int) evaluate(XMLTranscode(idElement), _object);
+  
+  Event* currentEvent = ((Event*)_object);
+  int numChildren = currentEvent->getNumberOfChildren();
+  string eventName = currentEvent->getEventName();
+
+  // Warn the user if the # of choices is less than # of children
+  if (highBound - lowBound + 1 < numChildren) {
+    cout << "WARNING: number of choices in RandomOrderInt [" 
+         << lowBound << ", " << highBound << "] is less than"
+         << " number of children in event " << eventName << "."
+         << " This will cause repeated values."
+         << endl;
+  }
+
+  char result [50];
+  sprintf(result, "%d",  Random::RandOrderInt(lowBound, highBound, numChildren, id));
   return string(result);
 }
 

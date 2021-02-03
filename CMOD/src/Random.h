@@ -84,6 +84,20 @@ class Random {
     static int RandInt(int low, int high);
 
     /**
+     * (Experimental)
+     * TODO: find a way to support multiple RandomOrderInt functions of identical bounds.
+     * 
+     * Returns a random integer in the range [low, high].
+     * Avoids repetition, given that
+     * - number of children is greater than or equal to
+     *   range of [low, high]
+     * - every RandomOrderInt function with range [low, high] and
+     *   numChildren is unique
+     * @param id - Distinguishes between unique calls of the randOrderInt function
+     */
+    static int RandOrderInt(int low, int high, int numChildren, int id);
+
+    /**
     *  Randomly chooses a value from a list.
     *  There are multiple versions for float, double, and integer lists
     **/
@@ -117,6 +131,11 @@ class Random {
   private:
     static unsigned int seed;
     double * probArray;
+
+    /**
+     * Returns a vector containing ints [low, high]
+     */
+    static std::vector<int> InitializeChoices(int low, int high);
 };
 
 #endif // _RANDOM_H_

@@ -293,6 +293,11 @@ protected:
     int getCurrentChild() {return currChildNum;};
 
     /**
+     * Returns the number of children under this event
+     */
+    int getNumberOfChildren() { return numChildren; };
+
+    /**
      *	Returns layer of the child this event is currently building
      **/
     int getCurrentLayer();

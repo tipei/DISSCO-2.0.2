@@ -32,6 +32,7 @@
 
 #include "FunctionGenerator.h"
 #include "IEvent.h"
+#include <ctime>
 
 
 
@@ -212,6 +213,10 @@ FunctionGenerator::FunctionGenerator(
     row[functionListColumns.m_col_name] = "RandomInt";
 
     row = *(functionListTreeModel->append());
+    row[functionListColumns.m_col_id] = functionRandomOrderInt;
+    row[functionListColumns.m_col_name] = "RandomOrderInt";
+
+    row = *(functionListTreeModel->append());
     row[functionListColumns.m_col_id] = functionStochos;
     row[functionListColumns.m_col_name] = "Stochos";
 
@@ -280,6 +285,10 @@ FunctionGenerator::FunctionGenerator(
     row = *(functionListTreeModel->append());
     row[functionListColumns.m_col_id] = functionRandomInt;
     row[functionListColumns.m_col_name] = "RandomInt";
+
+    row = *(functionListTreeModel->append());
+    row[functionListColumns.m_col_id] = functionRandomOrderInt;
+    row[functionListColumns.m_col_name] = "RandomOrderInt";
 
     row = *(functionListTreeModel->append());
     row[functionListColumns.m_col_id] = functionRandomizer;
@@ -374,6 +383,10 @@ FunctionGenerator::FunctionGenerator(
     row = *(functionListTreeModel->append());
     row[functionListColumns.m_col_id] = functionRandomInt;
     row[functionListColumns.m_col_name] = "RandomInt";
+
+    row = *(functionListTreeModel->append());
+    row[functionListColumns.m_col_id] = functionRandomOrderInt;
+    row[functionListColumns.m_col_name] = "RandomOrderInt";
 
     row = *(functionListTreeModel->append());
     row[functionListColumns.m_col_id] = functionRandomizer;
@@ -669,6 +682,28 @@ FunctionGenerator::FunctionGenerator(
   entry->signal_changed().connect(sigc::mem_fun(
     *this, & FunctionGenerator::randomIntEntryChanged));
 
+
+  //RandomOrderInt
+
+  attributesRefBuilder->get_widget(
+    "RandomOrderIntLowBoundFunButton", button);
+  button->signal_clicked().connect(sigc::mem_fun(
+    *this, & FunctionGenerator::randomOrderIntLowBoundFunButtonClicked));
+
+  attributesRefBuilder->get_widget(
+    "RandomOrderIntHighBoundFunButton", button);
+  button->signal_clicked().connect(sigc::mem_fun(
+    *this, & FunctionGenerator::randomOrderIntHighBoundFunButtonClicked));
+
+  attributesRefBuilder->get_widget(
+    "RandomOrderIntLowBoundEntry", entry);
+  entry->signal_changed().connect(sigc::mem_fun(
+    *this, & FunctionGenerator::randomOrderIntEntryChanged));
+
+  attributesRefBuilder->get_widget(
+    "RandomOrderIntHighBoundEntry", entry);
+  entry->signal_changed().connect(sigc::mem_fun(
+    *this, & FunctionGenerator::randomOrderIntEntryChanged));
 
   //Randomizer
 
@@ -1620,6 +1655,27 @@ FunctionGenerator::FunctionGenerator(
     entry->set_text(getFunctionString(thisElement));
 
   }
+
+  if(functionName.compare("RandomOrderInt")==0){
+    iter = combobox->get_model()->get_iter("0");
+    row = *iter;
+
+    while(row[functionListColumns.m_col_name]!= "RandomOrderInt"){
+      iter++;
+      row = *iter;
+    }
+    combobox->set_active(iter);
+
+    thisElement = functionNameElement->getNextElementSibling();
+    attributesRefBuilder->get_widget("RandomOrderIntLowBoundEntry",entry);
+    entry->set_text(getFunctionString(thisElement));
+
+    thisElement = thisElement->getNextElementSibling();
+    attributesRefBuilder->get_widget("RandomOrderIntHighBoundEntry",entry);
+    entry->set_text(getFunctionString(thisElement));
+
+  }
+
 
   if(functionName.compare("Stochos")==0){
     iter = combobox->get_model()->get_iter("0");
@@ -3071,6 +3127,26 @@ void FunctionGenerator::function_list_combo_changed(){
         set_position(Gtk::WIN_POS_CENTER_ALWAYS);
         resize(400,300);
       }
+      else if (function == functionRandomOrderInt) {
+        alignment->remove(); //remove the current parameter box
+        attributesRefBuilder->get_widget("RandomOrderIntVBox", vbox);
+        alignment->add (*vbox); //add random vbox ins
+        std::stringstream ss;
+        ss << std::time(0);
+        std::string ts = ss.str();
+        //reset all data
+        textview->get_buffer()->set_text("<Fun><Name>RandomOrderInt</Name><LowBound>0</LowBound><HighBound>1</HighBound><Id>" + ts + "</Id></Fun>");
+        attributesRefBuilder->get_widget(
+          "RandomOrderIntLowBoundEntry", entry);
+        entry->set_text("0");
+
+
+        attributesRefBuilder->get_widget(
+          "RandomOrderIntHighBoundEntry", entry);
+        entry->set_text("1");
+        set_position(Gtk::WIN_POS_CENTER_ALWAYS);
+        resize(400,300);
+      }
       else if (function == functionRandomSeed){
 
         //TODO: implement the right behavior
@@ -3762,9 +3838,6 @@ void FunctionGenerator::randomIntLowBoundFunButtonClicked(){
     entry->set_text(generator->getResultString());
   }
   delete generator;
-
-
-
 }
 void FunctionGenerator::randomIntHighBoundFunButtonClicked(){
   Gtk::Entry* entry;
@@ -3800,6 +3873,57 @@ void FunctionGenerator::randomIntEntryChanged(){
 
 }
 
+
+void FunctionGenerator::randomOrderIntLowBoundFunButtonClicked(){
+  Gtk::Entry* entry;
+  attributesRefBuilder->get_widget(
+    "RandomOrderIntLowBoundEntry", entry);
+
+  FunctionGenerator* generator =
+    new FunctionGenerator(functionReturnInt,entry->get_text());
+  generator->run();
+
+  if (generator->getResultString() !=""){
+    entry->set_text(generator->getResultString());
+  }
+  delete generator;
+}
+void FunctionGenerator::randomOrderIntHighBoundFunButtonClicked(){
+  Gtk::Entry* entry;
+  attributesRefBuilder->get_widget(
+    "RandomOrderIntHighBoundEntry", entry);
+
+  FunctionGenerator* generator =
+    new FunctionGenerator(functionReturnInt,entry->get_text());
+  generator->run();
+
+  if (generator->getResultString() !=""){
+    entry->set_text(generator->getResultString());
+  }
+  delete generator;
+
+
+}
+
+void FunctionGenerator::randomOrderIntEntryChanged(){
+  Gtk::TextView* textview;
+  attributesRefBuilder->get_widget("resultStringTextView", textview);
+  Gtk::Entry* entry;
+  std::stringstream ss;
+  ss << std::time(0);
+  std::string ts = ss.str();
+  attributesRefBuilder->get_widget(
+    "RandomOrderIntLowBoundEntry", entry);
+  std::string stringbuffer = "<Fun><Name>RandomOrderInt</Name><LowBound>" + entry->get_text() + "</LowBound><HighBound>";
+
+  attributesRefBuilder->get_widget(
+    "RandomOrderIntHighBoundEntry", entry);
+  stringbuffer = stringbuffer + entry->get_text() + "</HighBound><Id>"+ts+"</Id></Fun>";
+
+  textview->get_buffer()->set_text(stringbuffer);
+
+
+}
 
 
 

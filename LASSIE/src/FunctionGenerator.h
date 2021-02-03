@@ -40,6 +40,7 @@
 typedef enum {
   functionRandom,
   functionRandomInt,
+  functionRandomOrderInt,
   functionRandomSeed,
   functionRandomizer,
   functionRandomDensity,
@@ -256,6 +257,10 @@ private:
   void randomIntHighBoundFunButtonClicked();
   void randomIntEntryChanged();
 
+  //RandomOrderInt
+  void randomOrderIntLowBoundFunButtonClicked();
+  void randomOrderIntHighBoundFunButtonClicked();
+  void randomOrderIntEntryChanged();
 
   //Randomizer
   void randomizerBaseFunButtonClicked();

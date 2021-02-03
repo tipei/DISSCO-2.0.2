@@ -107,6 +107,29 @@ int Random::RandInt(int lowNum, int highNum) {
 
 //----------------------------------------------------------------------------//
 
+int Random::RandOrderInt(int low, int high, int numChildren, int id) {
+  static map<int, vector<int> > choicesMap;
+  
+  // Initialize choices if a new random order function is found, or
+  // an existing list of choices is empty (occurs when high - low + 1 < numChildren)
+  if (choicesMap.find(id) == choicesMap.end() || choicesMap[id].empty()) {
+    choicesMap[id] = InitializeChoices(low, high);
+  }
+
+  vector<int>& choices = choicesMap[id];
+
+  // Choose a random element from available choices
+  int randIndex = RandInt(0, choices.size() - 1);
+  int result = choices[randIndex];
+
+  // Remove chosen element from choices
+  choices.erase(choices.begin() + randIndex);
+
+  return result;
+}
+
+//----------------------------------------------------------------------------//
+
 float Random::ChooseFromList(float array[], int size) {
 
   return array[RandInt(0, size-1)];
@@ -168,4 +191,14 @@ double Random::PreferedValueDistribution(double value, double checkPoint) {
    pow(2, checkPoint));
 
   return probability;
+}
+
+//----------------------------------------------------------------------------//
+
+vector<int> Random::InitializeChoices(int low, int high) {
+  vector<int> choices;
+  for (int i = low; i <= high; i++) {
+    choices.push_back(i);
+  }
+  return choices;
 }

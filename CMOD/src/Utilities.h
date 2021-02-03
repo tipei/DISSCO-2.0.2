@@ -322,6 +322,7 @@ private:
    * \TODO: Figure out what _functionElement is
    */
   string function_RandomInt(DOMElement* _functionElement, void* _object);
+  string function_RandomOrderInt(DOMElement* _functionElement, void* _object);
   string function_Random(DOMElement* _functionElement, void* _object);
   string function_Select(DOMElement* _functionElement, void* _object);
   string function_SelectObject(DOMElement* _functionElement, void* _object);
@@ -337,6 +338,7 @@ private:
    */
   string function_Fibonacci(DOMElement* _functionElement, void* _object);
   string function_MakeList(DOMElement* _functionElement, void* _object);
+  
 // I believe the following ARE implemented (sever)
   string function_Decay(DOMElement* _functionElement, void* _object);
   string function_Stochos(DOMElement* _functionElement, void* _object);
