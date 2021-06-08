@@ -1571,7 +1571,7 @@ Patter* Utilities::getPatternHelper(void* _object, DOMElement* _PATFunction){
 
 cout << "Patter* Utilities::getPatternHelper - MakePattern option" << endl;
     DOMElement* listElement = _PATFunction->GFEC()->GFEC()->GNES();
-cout << "	after listElement" << cout;
+cout << "	after listElement" << endl;
     vector<string> stringList =listElementToStringVector (listElement);
 cout <<			"after ElementToString" << "  " << endl;
     vector<int> intList;
