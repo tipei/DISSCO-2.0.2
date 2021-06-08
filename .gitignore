@@ -1,3 +1,4 @@
+Makefile
 obj/*
 CMOD/src/ALTERNATE/
 CMOD/src/Event.h0
@@ -6,7 +7,7 @@ Documents/DetailedDoc/
 Documents/ForClass/
 Documents/ResIn18/
 Documents/Research/
-UpgradeProjectFormat
+UpgradeProjectFormat.make
 cmod
 cmod.make
 lass.make
@@ -14,5 +15,6 @@ lassie
 lassie.make
 lcmod.make
 muparser.make
+parser.make
 lib/*
 
