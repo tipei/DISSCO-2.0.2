@@ -13,5 +13,6 @@ lass.make
 lassie
 lassie.make
 lcmod.make
-
+muparser.make
+lib/*
 
