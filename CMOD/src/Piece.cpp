@@ -251,6 +251,9 @@ Piece::Piece(string _workingPath, string _projectTitle){
   element = element->GNES();
   soundSynthesis = (XMLTC(element).compare("True")==0)?true:false;
   element = element->GNES();
+  
+  element = element->GNES();
+
   numChannels = atoi(XMLTC(element).c_str());
   element = element->GNES();
   sampleRate = atoi(XMLTC(element).c_str());
@@ -258,6 +261,7 @@ Piece::Piece(string _workingPath, string _projectTitle){
   sampleSize = atoi(XMLTC(element).c_str());
   element = element->GNES();
   numThreads = atoi(XMLTC(element).c_str());
+  cout << numThreads << endl;
   element = element->GNES();
   bool outputParticel = (XMLTC(element).compare("True")==0)?true:false;
 
