@@ -18,4 +18,5 @@ lcmod.make
 muparser.make
 parser.make
 lib/*
+docs
 
