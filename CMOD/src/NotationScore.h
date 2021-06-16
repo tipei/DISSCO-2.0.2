@@ -11,6 +11,21 @@
 typedef vector<vector<Note*>*> Section;
 
 /**
+ * Stores metadata pertaining to sections of the Score
+**/
+struct SectionMetadata {
+  string time_signature;
+  int beat_edus;
+  int bar_edus;
+  int unit_note; // the note that represents one beat
+
+  vector<int> valid_dividers;
+
+  vector<string> tuplet_types;
+  int tuplet_limit; // the greatest allowed tuplet type (exclusive)
+};
+
+/**
  * A class representing a notated score for output using 
  * Lilypond (or something else in the future).
 **/
