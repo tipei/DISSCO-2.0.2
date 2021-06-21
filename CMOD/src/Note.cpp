@@ -39,17 +39,18 @@ using namespace std;
 
 string timesignature;
 int beatEDUs;
+// TODO - can't find these anywhere... not in use?
 static int sDiv;
 static int eDiv;
 static int sBar;
 static int eBar;
-static int barEDUs;
+static int barEDUs; // TODO - this needs to be somewhere else to accomodate changes in time signature
 //a integer variable to indicate the previous tuplet type in notation loop
 static int pre_tuplet = 0;
 static string loudness_prev = "";
-ofstream * outputFile;
-ofstream * outscore; // not sure is in use
-string outstring;
+ofstream * outputFile; // TODO - dark magic
+ofstream * outscore; // TODO - not really in use
+string outstring; // TODO - not in use either
 vector<Note*> all_notes;
 // vector<Note*> all_notes_orig;
 
@@ -300,27 +301,28 @@ void Note::sort_notes(Note * n){
 //---------------------------------------------------------------------------//
 
 void Note::sort_notes_orig(Note * n){
+  cout << n->start_t << " ";
   int dur = n -> end_t % beatEDUs;
 	int before = n->end_t;
   int min_diff = beatEDUs;
   bool flag = true;
   for (int i = 0; i < valid_divider.size(); i++){
-//    	cout << " " << valid_divider[i];
+    	cout << " " << valid_divider[i];
       if (dur % valid_divider[i] == 0){
-//	cout << valid_divider[i] << " ";
+    	cout << valid_divider[i] << " ";
       flag = false;
       break;
     } else {
       if (min_diff > dur % valid_divider[i]){
         min_diff = dur % valid_divider[i];
-//	 	cout << " dur " << dur << " mindiff " << min_diff;
+    	 	cout << " dur " << dur << " mindiff " << min_diff;
       }
     }
   }
   if (flag) {
     n -> end_t -= min_diff;
   }
-//	cout << "before: " << before << " adjusted " << n -> end_t << endl;
+  cout << "before: " << before << " adjusted " << n -> end_t << endl;
   insert_note(n);
 }
 
@@ -498,12 +500,12 @@ void Note::adjust_notes(){
           int best_fit = (int) round(a) * t;
           cur -> end_t = cur -> start_t + dur_beats * beatEDUs + best_fit;
           Note* next = *(it+1);
-	  if(next == NULL){
-	     continue;
-	  }
-	  //cout << "current info: " << cur -> end_t - cur -> start_t << endl;
+          if(next == NULL){
+            continue;
+          }
+          //cout << "current info: " << cur -> end_t - cur -> start_t << endl;
           //cout << "original : "<< next -> start_t << " current: " << cur -> end_t << endl;
-          next -> start_t = cur -> start_t + dur_beats * beatEDUs + best_fit;
+          next -> start_t = cur -> end_t;
         }
       }
       // force the closing of the tuplet before the bar line (not necessary if

@@ -32,6 +32,7 @@ struct SectionMetadata {
 class NotationScore {
 
 public:
+  
 
 
 private:

@@ -180,7 +180,7 @@ Event::Event(DOMElement* _element,
     if (_ancestorSpa != NULL) {
       spatializationElement = _ancestorSpa;
     }
-    else if (Utilities::removeSpaces(XMLTC(thisEventElement)) ==""){
+    else if (Utilities::removeSpaces(XMLTC(thisEventElement)) =="") {
         spatializationElement = NULL;
     }
     else {
@@ -191,7 +191,7 @@ Event::Event(DOMElement* _element,
     if (_ancestorRev != NULL) {
       reverberationElement = _ancestorRev;
     }
-    else if (Utilities::removeSpaces(XMLTC(thisEventElement)) ==""){
+    else if (Utilities::removeSpaces(XMLTC(thisEventElement)) =="") {
         reverberationElement = NULL;
     }
     else {
@@ -202,7 +202,7 @@ Event::Event(DOMElement* _element,
     if (_ancestorFil != NULL) {
       filterElement = _ancestorFil;
     }
-    else if (Utilities::removeSpaces(XMLTC(thisEventElement)) ==""){
+    else if (Utilities::removeSpaces(XMLTC(thisEventElement)) =="") {
         filterElement = NULL;
     }
     else {
@@ -372,7 +372,7 @@ string Event::getTimeSignatureStringFromDOMElement(DOMElement* _element){
 
 //----------------------------------------------------------------------------//
 
-void Event::buildChildren(){
+void Event::buildChildren() {
   if (utilities->getOutputParticel()){
   //Begin this sub-level in the output and write out its properties.
     Output::beginSubLevel(name);
@@ -551,6 +551,7 @@ bool Event::buildContinuum() {
 
     rawChildStartTime = childPt.stime;
     tsChild.startEDU = childPt.stime;
+    tsChild.startEDUAbsolute = ts.startEDUAbsolute + tsChild.startEDU;
     tsChild.start = childPt.stime * tempo.getEDUDurationInSeconds().To<float>();
 
     rawChildDuration = childPt.dur;
@@ -563,12 +564,15 @@ bool Event::buildContinuum() {
       tsChild.start = rawChildStartTime *
         tempo.getEDUDurationInSeconds().To<float>();
       tsChild.startEDU = Ratio((int)rawChildStartTime, 1);
+      tsChild.startEDUAbsolute = ts.startEDUAbsolute + tsChild.startEDU;
     } else if (startType == "2") { //second
       tsChild.start = rawChildStartTime; // no conversion needed
       tsChild.startEDU = Ratio(0, 0);  // floating point is not exact: NaN
+      tsChild.startEDUAbsolute = Ratio(0, 0);
     } else if (startType == "0") { //fraction
       tsChild.start = rawChildStartTime * ts.duration; // convert to seconds
       tsChild.startEDU = Ratio(0, 0);  // floating point is not exact: NaN
+      tsChild.startEDUAbsolute = Ratio(0, 0);
     } else {
       cerr << "Event::buildContinuum -- invalid or missing start type!" << endl;
       cerr << "      startType = " << startType << endl;
@@ -637,6 +641,7 @@ bool Event::buildContinuum() {
     Output::endSubLevel();
     Output::beginSubLevel("EDU");
       Output::addProperty("Start", tsChild.startEDU.toPrettyString(), "EDU");
+      Output::addProperty("Start Absolute", tsChild.startEDUAbsolute.toPrettyString(), "EDU");
       Output::addProperty("Duration", tsChild.durationEDU.toPrettyString(), "EDU");
     Output::endSubLevel();
     Output::addProperty("Checkpoint", checkPoint, "of parent");
@@ -647,7 +652,7 @@ bool Event::buildContinuum() {
 
 
 //----------------------------------------------------------------------------//
-
+// NOTE - this is all duplicated code from buildContinuum except for a few small sections... consider refactoring
 bool Event::buildSweep() { 
   string startType = XMLTC(childStartTypeFlag);
   string durType = XMLTC(childDurationTypeFlag);
@@ -664,6 +669,7 @@ bool Event::buildSweep() {
   if (currChildNum == 0) {
     tsPrevious.start = 0;
     tsPrevious.startEDU = 0;
+    tsPrevious.startEDUAbsolute = ts.startEDUAbsolute;
   }
 
   // Set checkpoint to the endpoint of the last event
@@ -692,6 +698,7 @@ bool Event::buildSweep() {
 
     rawChildStartTime = childPt.stime;
     tsChild.startEDU = childPt.stime;
+    tsChild.startEDUAbsolute = ts.startEDUAbsolute + tsChild.startEDU;
     tsChild.start = childPt.stime * tempo.getEDUDurationInSeconds().To<float>();
 
     rawChildDuration = childPt.dur;
@@ -707,17 +714,21 @@ bool Event::buildSweep() {
       tsChild.start = rawChildStartTime *
         tempo.getEDUDurationInSeconds().To<float>();
       tsChild.startEDU = Ratio((int)rawChildStartTime, 1);
+      tsChild.startEDUAbsolute = ts.startEDUAbsolute + tsChild.startEDU;
     } else if (startType == "2") {			//seconds
       tsChild.start = rawChildStartTime; 	// no conversion needed
       tsChild.durationEDU = Ratio(0, 0); // floating point is not exact: NaN
+      tsChild.startEDUAbsolute = Ratio(0, 0);
     } else if (startType == "0") {			//fraction
       tsChild.start = rawChildStartTime * ts.duration; 	// convert to seconds
       tsChild.durationEDU = Ratio(0, 0); // floating point is not exact: NaN
+      tsChild.startEDUAbsolute = Ratio(0, 0);
     }
 
-    if (tsChild.start < tsPrevious.start) {
+    if (tsChild.start < tsPrevious.start) { // Prevent events from overlapping
       tsChild.start = tsPrevious.start;
       tsChild.startEDU = tsPrevious.startEDU;
+      tsChild.startEDUAbsolute = tsPrevious.startEDUAbsolute;
     }
 
     if (currChildNum == 0) {
@@ -807,6 +818,7 @@ bool Event::buildSweep() {
     Output::endSubLevel();
     Output::beginSubLevel("EDU");
       Output::addProperty("Start", tsChild.startEDU, "EDU");
+      Output::addProperty("Start Absolute", tsChild.startEDUAbsolute.toPrettyString(), "EDU");
       Output::addProperty("Duration", tsChild.durationEDU, "EDU");
       Output::addProperty("Previous", tsPrevious.startEDU, "EDU");
     Output::endSubLevel();
@@ -1038,7 +1050,7 @@ void Event::checkEvent(bool buildResult) {
   that the two sections were not rhythmically related, even though they
   inherently are by virtue of them both being exact.*/
   if(ts.startEDU.isDeterminate() && tsChild.startEDU.isDeterminate()) {
-    tsChild.startEDU += ts.startEDU;
+    tsChild.startEDU += ts.startEDU; // NOTE - this already makes sure that the child has absolute edu's...
     /*We need to force child to have the same tempo, so that weird things do not
     happen. This is done below by explictly setting the tempo of the child. This
     will in turn be honored by initDiscreteInfo which will not override the
@@ -1081,39 +1093,24 @@ void Event::checkEvent(bool buildResult) {
 
   Event* e;
   if (childEventType == eventBottom){
-    e = (Event*)   new Bottom(childElement, tsChild, childType, tempo, utilities,
-                spatializationElement, reverberationElement, filterElement, modifiersIncludingAncestorsElement);
-
-
+    e = (Event*) new Bottom(childElement, tsChild, childType, tempo, utilities, spatializationElement, 
+                            reverberationElement, filterElement, modifiersIncludingAncestorsElement);
     if(tsChild.startEDU.isDeterminate()){
-    //cout<<"Child start EDU is determinate."<<endl;
       e->tempo = tempo;
     }
-  }
-
-  else if (childEventType == eventSound || childEventType == eventNote){
+  } else if (childEventType == eventSound || childEventType == eventNote){
     childSoundsAndNotes.push_back(new SoundAndNoteWrapper
-		  (childElement,tsChild, childEventName, childType, tempo));
-  }
-/*
-  else if (childEventType == eventNote) {
-    childSoundsAndNotes.push_back(new SoundAndNoteWrapper
-				    (childElement,tsChild, childType, tempo));
-  }
-*/
-  else {
+		  (childElement, tsChild, childEventName, childType, tempo));
+  } else {
     e = new Event( childElement, tsChild, childType, tempo, utilities,
                   spatializationElement, reverberationElement, filterElement,
 		    modifiersIncludingAncestorsElement);
     if(tsChild.startEDU.isDeterminate()){
-      //cout<<"Child start EDU is determinate."<<endl;
       e->tempo = tempo;
     }
   }
 
-  //Add the event to the temporary event list.
   temporaryChildEvents.push_back(e);
-
 }
 
 
@@ -1272,6 +1269,7 @@ bool Event::buildDiscrete() {
   if(durEDU > (int)maxChildDur)
     durEDU = maxChildDur;
   tsChild.startEDU = stimeEDU;
+  tsChild.startEDUAbsolute = ts.startEDUAbsolute + stimeEDU;
   tsChild.durationEDU = durEDU;
 
   tsChild.start = (float)stimeEDU *
@@ -1295,14 +1293,13 @@ bool Event::buildDiscrete() {
     Output::endSubLevel();
     Output::beginSubLevel("EDU");
       Output::addProperty("Start", tsChild.startEDU, "EDU");
+      Output::addProperty("Start Absolute", tsChild.startEDUAbsolute.toPrettyString(), "EDU");
       Output::addProperty("Duration", tsChild.durationEDU, "EDU");
     Output::endSubLevel();
     Output::endSubLevel();
   }
 
-  //Return success.
-
-  return true;
+  return true; // success!
 }
 
 

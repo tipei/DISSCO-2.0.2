@@ -150,7 +150,7 @@ protected:
    //Previous start time for Sweep             //added by sever
     double previousChildStartTime;
 
-    //Previous start time
+    //Previous start time (only used by sweep generation method)
     TimeSpan tsPrevious;
 
     //Previous child duration
@@ -211,7 +211,7 @@ protected:
 
     /*This stores the intermediate child timespan before it has been implemented
     an actual Event.*/
-    TimeSpan tsChild;
+    TimeSpan tsChild; // TODO - find all refs and add abs start time
 
     Utilities* utilities;
     DOMElement* childStartTimeElement ;
