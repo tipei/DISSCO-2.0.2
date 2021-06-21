@@ -386,7 +386,7 @@ void Bottom::buildNote(SoundAndNoteWrapper* _soundNoteWrapper) {
 
 //----------------------------------------------------------------------------//
 
-list<Note> Bottom::getNotes() {
+list<Note> Bottom::getNotes() { // FIXME - this can be removed
   list<Note> result;
   for(int i = 0; i < childNotes.size(); i++)
     result.push_back(*childNotes[i]);
