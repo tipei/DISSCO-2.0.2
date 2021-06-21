@@ -426,7 +426,6 @@ void Event::buildChildren() {
       checkEvent(buildContinuum());
     else if (method == "1")
       checkEvent(buildSweep());
-
     else if (method == "2")
       checkEvent(buildDiscrete());
     else {
@@ -564,15 +563,12 @@ bool Event::buildContinuum() {
       tsChild.start = rawChildStartTime *
         tempo.getEDUDurationInSeconds().To<float>();
       tsChild.startEDU = Ratio((int)rawChildStartTime, 1);
-      tsChild.startEDUAbsolute = ts.startEDUAbsolute + tsChild.startEDU;
     } else if (startType == "2") { //second
       tsChild.start = rawChildStartTime; // no conversion needed
       tsChild.startEDU = Ratio(0, 0);  // floating point is not exact: NaN
-      tsChild.startEDUAbsolute = Ratio(0, 0);
     } else if (startType == "0") { //fraction
       tsChild.start = rawChildStartTime * ts.duration; // convert to seconds
       tsChild.startEDU = Ratio(0, 0);  // floating point is not exact: NaN
-      tsChild.startEDUAbsolute = Ratio(0, 0);
     } else {
       cerr << "Event::buildContinuum -- invalid or missing start type!" << endl;
       cerr << "      startType = " << startType << endl;
@@ -641,7 +637,6 @@ bool Event::buildContinuum() {
     Output::endSubLevel();
     Output::beginSubLevel("EDU");
       Output::addProperty("Start", tsChild.startEDU.toPrettyString(), "EDU");
-      Output::addProperty("Start Absolute", tsChild.startEDUAbsolute.toPrettyString(), "EDU");
       Output::addProperty("Duration", tsChild.durationEDU.toPrettyString(), "EDU");
     Output::endSubLevel();
     Output::addProperty("Checkpoint", checkPoint, "of parent");
@@ -714,21 +709,17 @@ bool Event::buildSweep() {
       tsChild.start = rawChildStartTime *
         tempo.getEDUDurationInSeconds().To<float>();
       tsChild.startEDU = Ratio((int)rawChildStartTime, 1);
-      tsChild.startEDUAbsolute = ts.startEDUAbsolute + tsChild.startEDU;
     } else if (startType == "2") {			//seconds
       tsChild.start = rawChildStartTime; 	// no conversion needed
       tsChild.durationEDU = Ratio(0, 0); // floating point is not exact: NaN
-      tsChild.startEDUAbsolute = Ratio(0, 0);
     } else if (startType == "0") {			//fraction
       tsChild.start = rawChildStartTime * ts.duration; 	// convert to seconds
       tsChild.durationEDU = Ratio(0, 0); // floating point is not exact: NaN
-      tsChild.startEDUAbsolute = Ratio(0, 0);
     }
 
     if (tsChild.start < tsPrevious.start) { // Prevent events from overlapping
       tsChild.start = tsPrevious.start;
       tsChild.startEDU = tsPrevious.startEDU;
-      tsChild.startEDUAbsolute = tsPrevious.startEDUAbsolute;
     }
 
     if (currChildNum == 0) {
@@ -818,7 +809,6 @@ bool Event::buildSweep() {
     Output::endSubLevel();
     Output::beginSubLevel("EDU");
       Output::addProperty("Start", tsChild.startEDU, "EDU");
-      Output::addProperty("Start Absolute", tsChild.startEDUAbsolute.toPrettyString(), "EDU");
       Output::addProperty("Duration", tsChild.durationEDU, "EDU");
       Output::addProperty("Previous", tsPrevious.startEDU, "EDU");
     Output::endSubLevel();
@@ -1024,7 +1014,7 @@ void Event::checkEvent(bool buildResult) {
   Since both are inexact, nothing further is to be done. They will both only
   have global inexact time offsets.*/
   if(!ts.startEDU.isDeterminate() && !tsChild.startEDU.isDeterminate()) {
-    //Nothing to do here.
+    tsChild.startEDUAbsolute = ts.startEDUAbsolute + tempo.convertSecondsToEDUs(tsChild.start);
   }
 
   /*2) Parent exact, child inexact (Events 3-4)
@@ -1032,7 +1022,7 @@ void Event::checkEvent(bool buildResult) {
   simply have a global inexact time offset. The parent will already have
   calculated its tempo start time.*/
   if(ts.startEDU.isDeterminate() && !tsChild.startEDU.isDeterminate()) {
-    //Nothing to do here.
+    tsChild.startEDUAbsolute = ts.startEDUAbsolute + tempo.convertSecondsToEDUs(tsChild.start);
   }
 
   /*3) Parent exact, child exact (Events 2-3)
@@ -1050,7 +1040,8 @@ void Event::checkEvent(bool buildResult) {
   that the two sections were not rhythmically related, even though they
   inherently are by virtue of them both being exact.*/
   if(ts.startEDU.isDeterminate() && tsChild.startEDU.isDeterminate()) {
-    tsChild.startEDU += ts.startEDU; // NOTE - this already makes sure that the child has absolute edu's...
+    tsChild.startEDUAbsolute = ts.startEDUAbsolute + ts.startEDU;
+    tsChild.startEDU += ts.startEDU;
     /*We need to force child to have the same tempo, so that weird things do not
     happen. This is done below by explictly setting the tempo of the child. This
     will in turn be honored by initDiscreteInfo which will not override the
@@ -1075,6 +1066,7 @@ void Event::checkEvent(bool buildResult) {
     parent. If this is the second exact child of a parent, then it will merely
     set the start time to the same thing.*/
     tempo.setStartTime(ts.start);
+    tsChild.startEDUAbsolute = ts.startEDUAbsolute + ts.startEDU;
     //We need to force child to have the same tempo. See statement for 3).
   }
 
@@ -1120,6 +1112,7 @@ void Event::checkEvent(bool buildResult) {
 void Event::outputProperties() {
   Output::addProperty("Type", type);
   Output::addProperty("Start Time", ts.start, "sec.");
+  Output::addProperty("Start Absolute", tsChild.startEDUAbsolute.toPrettyString(), "EDU");
   Output::addProperty("Duration", ts.duration, "sec.");
   Output::addProperty("Tempo Start Time", tempo.getStartTime());
   Output::addProperty("Tempo",
@@ -1269,7 +1262,6 @@ bool Event::buildDiscrete() {
   if(durEDU > (int)maxChildDur)
     durEDU = maxChildDur;
   tsChild.startEDU = stimeEDU;
-  tsChild.startEDUAbsolute = ts.startEDUAbsolute + stimeEDU;
   tsChild.durationEDU = durEDU;
 
   tsChild.start = (float)stimeEDU *
@@ -1293,7 +1285,6 @@ bool Event::buildDiscrete() {
     Output::endSubLevel();
     Output::beginSubLevel("EDU");
       Output::addProperty("Start", tsChild.startEDU, "EDU");
-      Output::addProperty("Start Absolute", tsChild.startEDUAbsolute.toPrettyString(), "EDU");
       Output::addProperty("Duration", tsChild.durationEDU, "EDU");
     Output::endSubLevel();
     Output::endSubLevel();

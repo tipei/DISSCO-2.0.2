@@ -111,6 +111,15 @@ class Tempo {
   Ratio getEDUPerSecond(void);
   
   Ratio getEDUDurationInSeconds(void);
+
+  /**
+   * Using this Tempo's parameters, convert the given time in seconds
+   * to the nearest time in EDUs.
+   * 
+   * @param seconds the time in seconds
+   * @return the nearest time in EDUs
+  **/
+  int convertSecondsToEDUs(float seconds);
 };
 #endif /* TEMPO_H */
 
