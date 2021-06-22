@@ -343,7 +343,7 @@ void Bottom::buildNote(SoundAndNoteWrapper* _soundNoteWrapper) {
     Output::addProperty("EDU Start Time",
 	                      _soundNoteWrapper->ts.startEDU.toPrettyString(), "EDU");
     Output::addProperty("EDU Start Time Absolute", 
-                        _soundNoteWrapper->ts.startEDUAbsolute.toPrettyString(), "EDU");
+                        _soundNoteWrapper->ts.startEDUAbsolute, "EDU");
     Output::addProperty("EDU Duration",
 	                      _soundNoteWrapper->ts.durationEDU.toPrettyString(), "EDU");
   }
@@ -370,15 +370,13 @@ void Bottom::buildNote(SoundAndNoteWrapper* _soundNoteWrapper) {
   newNote->setPitchWellTempered(absPitchNum);
 
   //Bars and durations
-  cout << "Bottom event: " << name << endl; // TODO - remove
-  cout << "Initial note's data: " << (string)_soundNoteWrapper->name << " start: " << _soundNoteWrapper->ts.startEDU.toPrettyString() << " dur: " << _soundNoteWrapper->ts.durationEDU.toPrettyString() << endl; // TODO - remove
   newNote->notateDurations( (string)_soundNoteWrapper->name,
  			    _soundNoteWrapper->ts.startEDU.toPrettyString(),
 			    _soundNoteWrapper->ts.durationEDU.toPrettyString()); // TODO - this is where we need fixes
   if (utilities->getOutputParticel()){
       Output::endSubLevel();
   }
-  cout << "note's data: " << newNote -> pitch_out << " start: " << newNote -> start_t << " end: " << newNote -> end_t << endl;
+  // cout << "note's data: " << newNote -> pitch_out << " start: " << newNote -> start_t << " end: " << newNote -> end_t << endl;
 
   childNotes.push_back(newNote);
 }

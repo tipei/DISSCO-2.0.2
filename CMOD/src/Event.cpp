@@ -550,7 +550,7 @@ bool Event::buildContinuum() {
 
     rawChildStartTime = childPt.stime;
     tsChild.startEDU = childPt.stime;
-    tsChild.startEDUAbsolute = ts.startEDUAbsolute + tsChild.startEDU;
+    // tsChild.startEDUAbsolute = ts.startEDUAbsolute + tsChild.startEDU;
     tsChild.start = childPt.stime * tempo.getEDUDurationInSeconds().To<float>();
 
     rawChildDuration = childPt.dur;
@@ -664,7 +664,7 @@ bool Event::buildSweep() {
   if (currChildNum == 0) {
     tsPrevious.start = 0;
     tsPrevious.startEDU = 0;
-    tsPrevious.startEDUAbsolute = ts.startEDUAbsolute;
+    // tsPrevious.startEDUAbsolute = ts.startEDUAbsolute;
   }
 
   // Set checkpoint to the endpoint of the last event
@@ -693,7 +693,7 @@ bool Event::buildSweep() {
 
     rawChildStartTime = childPt.stime;
     tsChild.startEDU = childPt.stime;
-    tsChild.startEDUAbsolute = ts.startEDUAbsolute + tsChild.startEDU;
+    // tsChild.startEDUAbsolute = ts.startEDUAbsolute + tsChild.startEDU;
     tsChild.start = childPt.stime * tempo.getEDUDurationInSeconds().To<float>();
 
     rawChildDuration = childPt.dur;
@@ -946,6 +946,7 @@ void Event::tryToRestart(void) {
 //Checked
 
 void Event::checkEvent(bool buildResult) {
+  cout << "Parent Absolute Start EDU: " << ts.startEDUAbsolute << " Event: " << name << " Start time: " << ts.startEDU.toPrettyString() << endl;
 
   //If the build failed, restart if necessary.
   if (!buildResult) {
@@ -1040,7 +1041,7 @@ void Event::checkEvent(bool buildResult) {
   that the two sections were not rhythmically related, even though they
   inherently are by virtue of them both being exact.*/
   if(ts.startEDU.isDeterminate() && tsChild.startEDU.isDeterminate()) {
-    tsChild.startEDUAbsolute = ts.startEDUAbsolute + ts.startEDU;
+    tsChild.startEDUAbsolute = ts.startEDUAbsolute + tsChild.startEDU.To<int>();
     tsChild.startEDU += ts.startEDU;
     /*We need to force child to have the same tempo, so that weird things do not
     happen. This is done below by explictly setting the tempo of the child. This
@@ -1066,7 +1067,7 @@ void Event::checkEvent(bool buildResult) {
     parent. If this is the second exact child of a parent, then it will merely
     set the start time to the same thing.*/
     tempo.setStartTime(ts.start);
-    tsChild.startEDUAbsolute = ts.startEDUAbsolute + ts.startEDU;
+    tsChild.startEDUAbsolute = ts.startEDUAbsolute + tsChild.startEDU.To<int>();
     //We need to force child to have the same tempo. See statement for 3).
   }
 
@@ -1112,7 +1113,7 @@ void Event::checkEvent(bool buildResult) {
 void Event::outputProperties() {
   Output::addProperty("Type", type);
   Output::addProperty("Start Time", ts.start, "sec.");
-  Output::addProperty("Start Absolute", tsChild.startEDUAbsolute.toPrettyString(), "EDU");
+  Output::addProperty("Start Absolute", tsChild.startEDUAbsolute, "EDU");
   Output::addProperty("Duration", ts.duration, "sec.");
   Output::addProperty("Tempo Start Time", tempo.getStartTime());
   Output::addProperty("Tempo",
