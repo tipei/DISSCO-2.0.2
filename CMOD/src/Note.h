@@ -88,7 +88,7 @@ class Note {
 
     int tuplet;
     string tuplet_name;
-    int split; // Used to determine if a note is split (should be bool)
+    int split; // Used to determine if a note is split for ties (should be bool)
     int diff, first_half_dur, last_half_dur, tuplet_1, tuplet_2;
 
     std::vector<std::string> modifiers_out;
