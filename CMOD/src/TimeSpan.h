@@ -39,10 +39,10 @@ struct TimeSpan {
   float start;
   float duration;
   Ratio startEDU;
-  Ratio startEDUAbsolute;
+  unsigned long long int startEDUAbsolute;
   Ratio durationEDU;
   
-  TimeSpan() : start(0), duration(0), startEDU(0, 0), startEDUAbsolute(0, 1), durationEDU(0, 0) {}
+  TimeSpan() : start(0), duration(0), startEDU(0, 0), startEDUAbsolute(0), durationEDU(0, 0) {}
 };
 #endif /* TIMESPAN_H */
 
