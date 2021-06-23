@@ -701,6 +701,11 @@ void Note::notateDurations( string aName, string startEDU, string durationEDU)
   // start_t = stime;
   // end_t = endTime;
 
+  cout << endl;
+  cout << "NOTE START TIME: " << start_t << endl;
+  cout << "NOTE END TIME: " << end_t << endl;
+  cout << endl;
+
   //sort before processing
   sort_notes_orig(this);
 
