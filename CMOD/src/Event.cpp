@@ -550,7 +550,6 @@ bool Event::buildContinuum() {
 
     rawChildStartTime = childPt.stime;
     tsChild.startEDU = childPt.stime;
-    // tsChild.startEDUAbsolute = ts.startEDUAbsolute + tsChild.startEDU;
     tsChild.start = childPt.stime * tempo.getEDUDurationInSeconds().To<float>();
 
     rawChildDuration = childPt.dur;
@@ -647,7 +646,6 @@ bool Event::buildContinuum() {
 
 
 //----------------------------------------------------------------------------//
-// NOTE - this is all duplicated code from buildContinuum except for a few small sections... consider refactoring
 bool Event::buildSweep() { 
   string startType = XMLTC(childStartTypeFlag);
   string durType = XMLTC(childDurationTypeFlag);
@@ -664,7 +662,6 @@ bool Event::buildSweep() {
   if (currChildNum == 0) {
     tsPrevious.start = 0;
     tsPrevious.startEDU = 0;
-    // tsPrevious.startEDUAbsolute = ts.startEDUAbsolute;
   }
 
   // Set checkpoint to the endpoint of the last event
@@ -693,7 +690,6 @@ bool Event::buildSweep() {
 
     rawChildStartTime = childPt.stime;
     tsChild.startEDU = childPt.stime;
-    // tsChild.startEDUAbsolute = ts.startEDUAbsolute + tsChild.startEDU;
     tsChild.start = childPt.stime * tempo.getEDUDurationInSeconds().To<float>();
 
     rawChildDuration = childPt.dur;

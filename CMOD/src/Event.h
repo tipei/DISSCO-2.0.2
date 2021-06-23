@@ -211,7 +211,7 @@ protected:
 
     /*This stores the intermediate child timespan before it has been implemented
     an actual Event.*/
-    TimeSpan tsChild; // TODO - find all refs and add abs start time
+    TimeSpan tsChild;
 
     Utilities* utilities;
     DOMElement* childStartTimeElement ;

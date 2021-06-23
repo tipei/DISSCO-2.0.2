@@ -82,13 +82,13 @@ class Note {
     string type_out;
     string loudness_out;
 
-    int start_t; // start time
-    int start_t_absolute; // absolute start time
-    int end_t; // end time
+    int start_t;
+    int start_t_absolute;
+    int end_t;
 
     int tuplet;
     string tuplet_name;
-    int split; // Used to determine if a note is split (should be bool)
+    int split;
     int diff, first_half_dur, last_half_dur, tuplet_1, tuplet_2;
 
     std::vector<std::string> modifiers_out;
