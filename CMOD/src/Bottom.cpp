@@ -369,6 +369,14 @@ void Bottom::buildNote(SoundAndNoteWrapper* _soundNoteWrapper) {
   }
   newNote->setPitchWellTempered(absPitchNum);
 
+  // Set notation start, start absolute, and end times in edus
+  // NOTE - these parameters are currently overridden in notateDurations(), however it will make sense in the future to set them here
+  newNote->start_t = tsChild.startEDU.To<int>();
+  newNote->start_t_absolute = tsChild.startEDUAbsolute;
+  newNote->end_t = tsChild.startEDUAbsolute + tsChild.durationEDU;
+
+  // TODO - this is where we will insert the note into the score
+
   //Bars and durations
   newNote->notateDurations( (string)_soundNoteWrapper->name,
  			    _soundNoteWrapper->ts.startEDU.toPrettyString(),
