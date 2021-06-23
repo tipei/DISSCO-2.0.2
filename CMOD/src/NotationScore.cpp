@@ -20,7 +20,7 @@ NotationScore::InsertNote(Note* n) {
 
   int bar_num = n->start_t / bar_edus_;
 
-  if (bar_num >= notation_score_.size()) {
+  if (bar_num >= score_.size()) {
     ResizeScore(bar_num);
   }
 
@@ -28,16 +28,16 @@ NotationScore::InsertNote(Note* n) {
   // if note is completely inside the bar, insert it
   if(end <= bar_num) {
     vector<Note*>::iterator iter;
-    for (iter = notation_score_[bar_num]->begin(); 
-         iter != notation_score_[bar_num]->end(); 
+    for (iter = score_[bar_num]->begin(); 
+         iter != score_[bar_num]->end(); 
          iter++) {
       Note* cur = *iter;
       if (cur->start_t > n->start_t) {
-        notation_score_[bar_num]->insert(iter, n);
+        score_[bar_num]->insert(iter, n);
         return;
       }
     }
-    notation_score_[bar_num]->insert(iter, n);
+    score_[bar_num]->insert(iter, n);
   } else { // split note exceeding barline
     Note* second = new Note(*n);
     second->start_t = (bar_num+1) * bar_edus_;
@@ -45,20 +45,47 @@ NotationScore::InsertNote(Note* n) {
     n->split = 1;
 
     vector<Note*>::iterator iter;
-    for (iter = notation_score_[bar_num]->begin(); 
-         iter != notation_score_[bar_num]->end(); 
+    for (iter = score_[bar_num]->begin(); 
+         iter != score_[bar_num]->end(); 
          iter++) {
       Note* cur = *iter;
       if (cur->start_t > n->start_t) {
-        notation_score_[bar_num]->insert(iter, n);
+        score_[bar_num]->insert(iter, n);
         InsertNote(second);
         return;
       }
     }
     
-    notation_score_[bar_num]->insert(iter, n);
+    score_[bar_num]->insert(iter, n);
     InsertNote(second);
   }
+}
+
+// NotationScore::Build() // TODO - implement
+
+ostream& operator<<(ostream& output_stream, 
+                    const NotationScore& notation_score) {
+  if (!notation_score.is_built_) {
+    notation_score.Build();
+  }
+
+  output_stream << "\\new Voice \\with {" << endl;
+  output_stream << "\\remove \"Note_heads_engraver\"" << endl;
+  output_stream << "\\consists \"Completion_heads_engraver\"" << endl;
+  output_stream << "\\remove \"Rest_engraver\"" << endl;
+  output_stream << "\\consists \"Completion_rest_engraver\"" << endl;
+  output_stream << "}" << endl;
+
+  output_stream << "{" << endl;
+  output_stream << "\\time " << timesignature << endl;
+
+  for (Note* note : notation_score.score_flat_) {
+    output_stream << note->type_out;
+  }
+  
+  /* output one last thing and close file stream*/
+  output_stream << "\\bar \"|.\"" << endl;
+  output_stream << "}" << endl;
 }
 
 NotationScore::CalculateTupletLimit() {
@@ -104,13 +131,13 @@ NotationScore::EnsureNoteExpressible(Note* n) {
 }
 
 NotationScore::ResizeScore(size_t new_size) {
-  for(size_t bar_idx = notation_score_.size(); i <= new_size; i++) {
+  for(size_t bar_idx = score_.size(); i <= new_size; i++) {
     vector<Note*>* bar = new vector<Note*>();
     Note* n = new Note();
     n->start_t = bar_edus_ * bar_idx;
     n->end_t = bar_edus_ * bar_idx;
     n->type_out = " ";
     bar->push_back(n);
-    notation_score_.push_back(bar);
+    score_.push_back(bar);
   }
 }

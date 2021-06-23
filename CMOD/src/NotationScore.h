@@ -39,17 +39,20 @@ public:
   void InsertNote(Note* n);
   
   /**
-   * Build the text representation of this score.
+   * Build the text representation of this score by adding bars,
+   * rests, and adjusting durations.
   **/
-  void BuildScore();
+  void Build();
 
   /**
-   * Output the text representation of this score.
+   * Output the text representation of a score.
    * 
    * @param out_stream The stream to which the text will be appended
-   * @returns The appended stream
+   * @param notation_score The score whose text representation to output
+   * @returns The modified stream
   **/
-  ostream& operator>>(ostream& out_stream) const;
+  friend ostream& operator<<(ostream& output_stream, 
+                             const NotationScore& notation_score);
 
 private:
   size_t CalculateTupletLimit();
@@ -84,12 +87,13 @@ private:
   vector<string> tuplet_types_;
   int tuplet_limit_; // the greatest allowed tuplet type (exclusive)
 
-  Layer notation_score_;
-  stringstream score_;
+  Layer score_;
+  vector<Note*> score_flat_; // TODO - consolidate into score_flat_
+  bool is_built_ = false;
 
   //a integer variable to indicate the previous tuplet type in notation loop
-  static int pre_tuplet = 0;
-  static string loudness_prev = "";
+  static int pre_tuplet = 0; // TODO - do something with this
+  static string loudness_prev = ""; // TODO - do something with this
 };
 
 #endif
