@@ -77,6 +77,17 @@ private:
   **/
   void ResizeScore(size_t new_size);
 
+  /**
+   * Add bars to this score.
+  **/
+  void AddBars();
+
+  /**
+   * Add rests between notes. Rests are not processed and may have 
+   * invalid durations.
+  **/
+  void AddRests();
+
   string time_signature_; // NOTE - only need this for outputting the actual score
   int beat_edus_;
   int bar_edus_;

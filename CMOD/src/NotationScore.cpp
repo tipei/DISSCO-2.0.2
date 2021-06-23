@@ -12,6 +12,8 @@ NotationScore::NotationScore(Tempo& tempo) {
 }
 
 NotationScore::InsertNote(Note* n) {
+  is_built_ = false;
+
   EnsureNoteExpressible(n);
 
   if (n->end_t <= n->start_t ) {
@@ -61,7 +63,15 @@ NotationScore::InsertNote(Note* n) {
   }
 }
 
-// NotationScore::Build() // TODO - implement
+NotationScore::Build() {
+  if (!is_built_) {
+    score_flat_.clear();
+
+    // TODO - AddBars();
+    // TODO - AddRests();
+    // TODO - 
+  }
+}
 
 ostream& operator<<(ostream& output_stream, 
                     const NotationScore& notation_score) {
