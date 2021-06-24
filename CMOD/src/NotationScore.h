@@ -52,7 +52,7 @@ public:
    * @returns The modified stream
   **/
   friend ostream& operator<<(ostream& output_stream, 
-                             const NotationScore& notation_score);
+                             NotationScore& notation_score);
 
 private:
   size_t CalculateTupletLimit();
@@ -83,10 +83,11 @@ private:
   void AddBars();
 
   /**
-   * Add rests between notes. Rests are not processed and may have 
-   * invalid durations.
+   * Add rests between notes and flatten the score to score_flat_. 
+   * Rests are not processed and may have invalid (inexpressible) 
+   * durations.
   **/
-  void AddRests();
+  void AddRestsAndFlatten();
 
   string time_signature_; // NOTE - only need this for outputting the actual score
   int beat_edus_;
@@ -103,8 +104,8 @@ private:
   bool is_built_ = false;
 
   //a integer variable to indicate the previous tuplet type in notation loop
-  static int pre_tuplet = 0; // TODO - do something with this
-  static string loudness_prev = ""; // TODO - do something with this
+  // static int pre_tuplet = 0; // TODO - do something with this
+  // static string loudness_prev = ""; // TODO - do something with this
 };
 
 #endif

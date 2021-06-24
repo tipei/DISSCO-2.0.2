@@ -11,7 +11,7 @@ NotationScore::NotationScore(Tempo& tempo) {
   ConstructTupletNames();
 }
 
-NotationScore::InsertNote(Note* n) {
+void NotationScore::InsertNote(Note* n) {
   is_built_ = false;
 
   EnsureNoteExpressible(n);
@@ -63,7 +63,7 @@ NotationScore::InsertNote(Note* n) {
   }
 }
 
-NotationScore::Build() {
+void NotationScore::Build() {
   if (!is_built_) {
     score_flat_.clear();
 
@@ -74,7 +74,7 @@ NotationScore::Build() {
 }
 
 ostream& operator<<(ostream& output_stream, 
-                    const NotationScore& notation_score) {
+                    NotationScore& notation_score) {
   if (!notation_score.is_built_) {
     notation_score.Build();
   }
@@ -98,7 +98,7 @@ ostream& operator<<(ostream& output_stream,
   output_stream << "}" << endl;
 }
 
-NotationScore::CalculateTupletLimit() {
+size_t NotationScore::CalculateTupletLimit() {
   size_t tuplet_num = 1;
 
   while (beat_edus_ % tuplet_num == 0) {
@@ -109,23 +109,23 @@ NotationScore::CalculateTupletLimit() {
   return tuplet_num;
 }
 
-NotationScore::ConstructTupletNames() {
+void NotationScore::ConstructTupletNames() {
   for(size_t i = 0; i < tuplet_limit_; i++) {
     int l = check_lower(i);
     string t = "\\tuplet ";
-    t += stoi(i) + "/" + stoi(l) + "{ ";
+    t += std::to_string(i) + "/" + std::to_string(l) + "{ ";
     tuplet_types_.push_back(t);
   }
 }
 
-NotationScore::EnsureNoteExpressible(Note* n) {
+void NotationScore::EnsureNoteExpressible(Note* n) {
   int dur = n->end_t % beat_edus_;
 	int before = n->end_t;
   int min_diff = beat_edus_;
   bool note_needs_chop = true;
 
   for (int i = 0; i < valid_dividers_.size(); i++) {
-    if (dur % valid_divider[i] == 0) {
+    if (dur % valid_dividers_[i] == 0) {
       note_needs_chop = false;
       break;
     } else {
@@ -140,8 +140,8 @@ NotationScore::EnsureNoteExpressible(Note* n) {
   }
 }
 
-NotationScore::ResizeScore(size_t new_size) {
-  for(size_t bar_idx = score_.size(); i <= new_size; i++) {
+void NotationScore::ResizeScore(size_t new_size) {
+  for(size_t bar_idx = score_.size(); bar_idx <= new_size; ++bar_idx) {
     vector<Note*>* bar = new vector<Note*>();
     Note* n = new Note();
     n->start_t = bar_edus_ * bar_idx;
@@ -149,5 +149,18 @@ NotationScore::ResizeScore(size_t new_size) {
     n->type_out = " ";
     bar->push_back(n);
     score_.push_back(bar);
+  }
+}
+
+void NotationScore::AddBars() {
+  vector<vector<Note*>*>::iterator it;
+  int bar_idx = 1;
+  for (vector<Note*>* bar : score_){
+      Note* n = new Note(); // NOTE - the bars are added as __notes__
+      n->start_t = bar_edus_ * bar_idx;
+      n->end_t = bar_edus_ * bar_idx;
+      n->type_out = "\\bar\"|\" \n";
+      bar->push_back(n);
+      ++bar_idx;
   }
 }
