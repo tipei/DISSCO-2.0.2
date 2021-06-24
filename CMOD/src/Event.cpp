@@ -426,6 +426,7 @@ void Event::buildChildren() {
       checkEvent(buildContinuum());
     else if (method == "1")
       checkEvent(buildSweep());
+
     else if (method == "2")
       checkEvent(buildDiscrete());
     else {
