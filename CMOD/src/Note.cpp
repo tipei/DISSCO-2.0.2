@@ -39,18 +39,17 @@ using namespace std;
 
 string timesignature;
 int beatEDUs;
-// TODO - can't find these anywhere... not in use?
 static int sDiv;
 static int eDiv;
 static int sBar;
 static int eBar;
-static int barEDUs; // TODO - this needs to be somewhere else to accomodate changes in time signature
+static int barEDUs;
 //a integer variable to indicate the previous tuplet type in notation loop
 static int pre_tuplet = 0;
 static string loudness_prev = "";
-ofstream * outputFile; // TODO - dark magic
-ofstream * outscore; // TODO - not really in use
-string outstring; // TODO - not in use either
+ofstream * outputFile;
+ofstream * outscore;
+string outstring;
 vector<Note*> all_notes;
 // vector<Note*> all_notes_orig;
 
@@ -505,7 +504,7 @@ void Note::adjust_notes(){
           }
           //cout << "current info: " << cur -> end_t - cur -> start_t << endl;
           //cout << "original : "<< next -> start_t << " current: " << cur -> end_t << endl;
-          next -> start_t = cur -> end_t;
+          next -> start_t = cur -> start_t + dur_beats * beatEDUs + best_fit;
         }
       }
       // force the closing of the tuplet before the bar line (not necessary if
@@ -699,8 +698,13 @@ void Note::notateDurations( string aName, string startEDU, string durationEDU)
 
   //verify_valid(stime, endTime);
   //cout <<  " Note: " << this->pitch_out  << " start " << stime << " end " << endTime << endl;
-  start_t = stime;
-  end_t = endTime;
+  // start_t = stime;
+  // end_t = endTime;
+
+  cout << endl;
+  cout << "NOTE START TIME: " << start_t << endl;
+  cout << "NOTE END TIME: " << end_t << endl;
+  cout << endl;
 
   //sort before processing
   sort_notes_orig(this);
