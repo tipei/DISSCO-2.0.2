@@ -164,3 +164,35 @@ void NotationScore::AddBars() {
       ++bar_idx;
   }
 }
+
+void NotationScore::AddRestsAndFlatten() {
+  for(size_t i = 0; i < score_.size(); i++) {
+    vector<Note*>::iterator it;
+    Note* prev = *(score_[i]->begin());
+    score_flat_.push_back(prev);
+    Note* cur;
+
+    for (it = score_[i]->begin() + 1; it != score_[i]->end(); it++) {
+      cur = *it;
+      int gap = cur->start_t - prev->end_t;
+
+      // a rest will be placed only if gap is more than half of the
+      // smallest non-zero valid duration
+      if(gap > (beat_edus_ / (tuplet_limit_ - 1) / 2)) {
+        Note* rest = new Note(); // NOTE - now a note is a rest too!
+        rest->start_t = prev->end_t;
+        rest->end_t = cur->start_t;
+        rest->pitch_out = "r";
+        score_flat_.push_back(rest);
+      } else {
+        if(it+1 == score_[i]->end()){
+          prev->end_t = cur->start_t; // NOTE - Can't shorten current note because end of bar
+        } else {
+          cur->start_t = prev->end_t;
+        }
+      }
+      score_flat_.push_back(cur);
+      prev = cur;
+    }
+  }
+}
