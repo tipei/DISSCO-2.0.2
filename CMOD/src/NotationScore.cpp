@@ -67,9 +67,10 @@ void NotationScore::Build() {
   if (!is_built_) {
     score_flat_.clear();
 
-    // TODO - AddBars();
-    // TODO - AddRests();
-    // TODO - 
+    AddBars();
+    AddRestsAndFlatten();
+
+    // TODO - Adjust Notes
   }
 }
 
@@ -195,4 +196,58 @@ void NotationScore::AddRestsAndFlatten() {
       prev = cur;
     }
   }
+}
+
+void NotationScore::Notate() {
+  vector<Note*>::iterator it;
+  int prev_tuplet = 0; // the previous tuplet type
+  int tuplet_dur = 0; // the current tuplet duration in edus
+  for (it = all_notes.begin(); it!=all_notes.end(); it++) {
+    Note* cur = *it;
+
+    // adjust note duration according to the tuplet type
+    if(tuplet_dur > 0) {
+      int duration = cur -> end_t - cur -> start_t;
+      int dur_remainder = (duration) % beatEDUs;
+      int dur_beats = (duration) / beatEDUs;
+      int desire_type = prev_tuplet;
+      int cur_type = determine_tuplet(dur_remainder); // FIXME - implement 
+      int excess_tuplet_type = determine_tuplet(duration - tuplet_dur); // FIXME - implement
+      
+      // True if the note exceeds the current tuplet duration
+      // but the excess is expressible in another tuplet
+      bool note_is_valid = (duration > tuplet_dur) && (excess_tuplet_type != -1);
+
+      // if the current note's duration cannot be fitted in the tuplet
+      // find the closest value and change the end time of the note.
+      // Also change the start time of the next note
+      if((desire_type != cur_type) && !note_is_valid) {
+        int t = beatEDUs / desire_type;
+        double a = (double)dur_remainder / (double)t;
+        int best_fit = (int) round(a) * t;
+        cur->end_t = cur->start_t + dur_beats * beatEDUs + best_fit;
+
+        Note* next = *(it+1);
+        if(next == NULL){
+          continue;
+        }
+
+        next->start_t = cur->start_t + dur_beats * beatEDUs + best_fit;
+      }
+    }
+
+    // force the closing of the tuplet before the bar line (not necessary if
+    // the code is correct)
+    if(cur -> type_out == "\\bar\"|\" \n" || cur -> type_out == " "){
+      if(tuplet_dur > 0){
+        cur -> type_out = "} " + cur -> type_out;
+        tuplet_dur = 0;
+      }
+      continue;
+    }
+
+    // pass the note to notate function
+    tuplet_dur = TryFillDuration(&prev_tuplet, tuplet_dur);
+  }
+  prev_tuplet = 0; // FIXME - i don't think this is necessary anymore
 }

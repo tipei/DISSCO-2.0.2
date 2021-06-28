@@ -26,6 +26,14 @@ public:
   **/
   NotationScore(Tempo& tempo);
 
+  NotationScore(const NotationScore& notation_score);
+
+  NotationScore(NotationScore&& notation_score);
+
+  operator=(NotationScore&& notation_score);
+
+  ~NotationScore();
+
   // TODO - implement copy constructor
   // TODO - implement move constructor
   // TODO - implement assignment operator
@@ -56,6 +64,15 @@ public:
 
 private:
   size_t CalculateTupletLimit();
+
+  /** 
+   * Determine what type of tuplet will fit the input duration. Eg. if 
+   * a triplet fits the input duration return 3
+   * 
+   * @param dur The duration to evaluate
+   * @return The fitting tuplet; -1 if input invalid
+  **/
+  int DetermineTuplet(int dur);
 
   void ConstructTupletNames();
 
@@ -89,6 +106,35 @@ private:
   **/
   void AddRestsAndFlatten();
 
+  /**
+   * Run the notation loop for the score. 
+  **/
+  void Notate();
+
+  /**
+   * Try to fill the specified tuplet duration with the duration
+   * of the current note with 
+  **/
+  int TryFillDuration(int* prev_tuplet, int tuplet_dur);
+
+  /**
+   * Calculate log2(num).
+   * 
+   * @param num The number to evaluate
+   * @returns The exponent of 2 which gives num; -1 if 
+   * num is not a power of 2
+   **/
+  static int DiscreteLog2(int num);
+
+  /**
+   * Find the nearest power of 2 lower than the given number.
+   * E.g. if num = 7, return 4; if num = 9, return 8.
+   * 
+   * @param num The number to evaluate
+   * @returns The nearest power of 2 lower than num
+  **/
+  static int CalculateNearestPow2(int num);
+
   string time_signature_; // NOTE - only need this for outputting the actual score
   int beat_edus_;
   int bar_edus_;
@@ -104,7 +150,6 @@ private:
   bool is_built_ = false;
 
   //a integer variable to indicate the previous tuplet type in notation loop
-  // static int pre_tuplet = 0; // TODO - do something with this
   // static string loudness_prev = ""; // TODO - do something with this
 };
 
