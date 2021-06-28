@@ -375,9 +375,6 @@ void Bottom::buildNote(SoundAndNoteWrapper* _soundNoteWrapper) {
   newNote->start_t_absolute = _soundNoteWrapper->ts.startEDUAbsolute;
   newNote->end_t = _soundNoteWrapper->ts.startEDUAbsolute + stoi(_soundNoteWrapper->ts.durationEDU.toPrettyString());
 
-  cout << endl;
-  cout << "DURATION: " << stoi(_soundNoteWrapper->ts.durationEDU.toPrettyString()) << endl;
-
   //Bars and durations
   newNote->notateDurations( (string)_soundNoteWrapper->name,
  			    _soundNoteWrapper->ts.startEDU.toPrettyString(),

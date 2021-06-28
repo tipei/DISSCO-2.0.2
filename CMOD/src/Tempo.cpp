@@ -287,7 +287,7 @@ Ratio Tempo::getEDUDurationInSeconds(void) {
 //----------------------------------------------------------------------------//
 
 int Tempo::convertSecondsToEDUs(float seconds) {
-  float beats_per_second = tempoBeatsPerMinute.To<float>();
+  float beats_per_second = tempoBeatsPerMinute.To<float>() / 60.0f;
   float beats = seconds * beats_per_second;
   return static_cast<int>(lround(beats * EDUPerTimeSignatureBeat.To<float>()));
 }
