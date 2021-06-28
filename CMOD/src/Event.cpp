@@ -943,8 +943,6 @@ void Event::tryToRestart(void) {
 //Checked
 
 void Event::checkEvent(bool buildResult) {
-  cout << "Parent Absolute Start EDU: " << ts.startEDUAbsolute << " Event: " << name << " Start time: " << ts.startEDU.toPrettyString() << endl;
-
   //If the build failed, restart if necessary.
   if (!buildResult) {
     tryToRestart();
