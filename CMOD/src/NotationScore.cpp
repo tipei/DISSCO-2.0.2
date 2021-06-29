@@ -363,3 +363,27 @@ int NotationScore::FillCompleteBeats(Note* current_note, int remaining_dur) {
   return remainder;
 }
 
+int NotationScore::CreateTupletWithRests(Note* current_note, 
+                                         int* prev_tuplet,
+                                         int remaining_dur) {
+  int tuplet_dur = 0;
+  
+  int tuplet_type = DetermineTuplet(remaining_dur);
+  if(tuplet_type == 2 || tuplet_type == 4) {
+    if(remaining_dur / (beatEDUs / tuplet_type) == 3) {
+      string s = int_to_str(unit_note_ * 2);
+      current_note->type_out += current_note->pitch_out + s + ". ";
+    } else {
+      string s = int_to_str(unit_note_ * tuplet_type);
+      current_note->type_out += current_note->pitch_out + s + " ";
+    }
+    tuplet_dur = beatEDUs - remaining_dur;
+  } else if(tuplet_type != -1) {
+    current_note->type_out += tuplet_types_[tuplet_type];
+    current_note->note_in_tuplet(tuplet_type, remaining_dur); // FIXME - implement
+    tuplet_dur = beatEDUs - remaining_dur;
+  }
+
+  *prev_tuplet = tuplet_type;
+  return tuplet_dur;
+}
