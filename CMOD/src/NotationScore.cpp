@@ -149,6 +149,17 @@ size_t NotationScore::CalculateTupletLimit() {
   return tuplet_num;
 }
 
+int NotationScore::DetermineTuplet(int dur) {
+  for (int tuplet_num = 2; tuplet_num < tuplet_limit_; ++tuplet_num) {
+    int tuplet_beat_dur = beat_edus_ / tuplet_num;
+    if (dur % tuplet_beat_dur == 0) {
+      return tuplet_num;
+    }
+  }
+
+  return -1; // invalid tuplet
+}
+
 void NotationScore::ConstructTupletNames() {
   tuplet_types_.clear();
 
