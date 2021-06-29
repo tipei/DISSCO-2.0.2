@@ -1,6 +1,10 @@
 #include "NotationScore.h"
 
-NotationScore::NotationScore(const Tempo& tempo) {
+string NotationScore::prev_loudness;
+
+NotationScore::NotationScore() {
+  Tempo tempo;
+
   time_signature_ = tempo.getTimeSignature();
   beat_edus_ = stoi(tempo.getEDUPerTimeSignatureBeat().toPrettyString());
   bar_edus_ = stoi(tempo.getEDUPerBar().toPrettyString());
@@ -9,20 +13,35 @@ NotationScore::NotationScore(const Tempo& tempo) {
   tuplet_limit_ = CalculateTupletLimit();
 
   ConstructTupletNames();
+
+  prev_loudness = "";
+}
+
+NotationScore::NotationScore(Tempo& tempo) {
+  time_signature_ = tempo.getTimeSignature();
+  beat_edus_ = stoi(tempo.getEDUPerTimeSignatureBeat().toPrettyString());
+  bar_edus_ = stoi(tempo.getEDUPerBar().toPrettyString());
+  unit_note_ = tempo.getTimeSignatureBeat().Den(); // the note that represents one beat
+
+  tuplet_limit_ = CalculateTupletLimit();
+
+  ConstructTupletNames();
+
+  prev_loudness = "";
 }
 
 NotationScore::~NotationScore() {
   for (vector<Note*>* bar : score_){
       // Note pointers are not deleted because they are owned by the Bottom event
       // and thus deleted in the Bottom class.
-      bar->clear;
+      bar->clear();
       delete bar;
   }
   score_.clear();
   score_flat_.clear();
 }
 
-void NotationScore::SetTempo(const Tempo& tempo) {
+void NotationScore::SetTempo(Tempo& tempo) {
   time_signature_ = tempo.getTimeSignature();
   beat_edus_ = stoi(tempo.getEDUPerTimeSignatureBeat().toPrettyString());
   bar_edus_ = stoi(tempo.getEDUPerBar().toPrettyString());
@@ -269,7 +288,7 @@ void NotationScore::Notate() {
     }
 
     // pass the note to notate function
-    tuplet_dur = NotateCurrentNote(&prev_tuplet, tuplet_dur);
+    tuplet_dur = NotateCurrentNote(cur, &prev_tuplet, tuplet_dur);
   }
 }
 
@@ -283,7 +302,7 @@ int NotationScore::NotateCurrentNote(Note* current_note,
 
   int remaining_dur;
   if (tuplet_dur > 0) {
-    remaining_dur = FullCurrentTupletDur(current_note, *prev_tuplet, tuplet_dur);
+    remaining_dur = FillCurrentTupletDur(current_note, *prev_tuplet, tuplet_dur);
     if (remaining_dur < 0) { // Note fits inside the current tuplet
       return -remaining_dur; // Tuplet partially filled
     }

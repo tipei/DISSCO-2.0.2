@@ -3,7 +3,7 @@
 
 #include "Libraries.h"
 
-#include "Note.h" // TODO - remove
+#include "Note.h"
 #include "Rational.h"
 #include "Tempo.h"
 #include "TimeSpan.h"
@@ -22,11 +22,16 @@ class NotationScore {
 
 public:
   /**
+   * Construct a notation score with the default tempo.
+  **/
+  NotationScore();
+
+  /**
    * Construct a notation score with the provided tempo.
    * 
    * @param tempo The tempo of the score
   **/
-  NotationScore(const Tempo& tempo);
+  NotationScore(Tempo& tempo);
 
   /**
    * Destruct this notation score.
@@ -37,7 +42,7 @@ public:
    * Set this NotationScore's tempo.
    * // TODO - allow a score to have multiple tempos
   **/
-  void SetTempo(const Tempo& tempo);
+  void SetTempo(Tempo& tempo);
 
   /**
    * Insert a note into this score.
@@ -217,7 +222,7 @@ private:
   vector<Note*> score_flat_;
   bool is_built_ = false;
 
-  static string prev_loudness = ""; // the previous loudness mark in notation loop
+  static string prev_loudness; // the previous loudness mark in notation loop
 };
 
 #endif
