@@ -200,7 +200,7 @@ void NotationScore::AddRestsAndFlatten() {
 
 void NotationScore::Notate() {
   vector<Note*>::iterator it;
-  int prev_tuplet = 0; // the previous tuplet type
+  int prev_tuplet = 0; // TODO - make this an enum; the previous tuplet type
   int tuplet_dur = 0; // the current tuplet duration in edus
   for (it = all_notes.begin(); it!=all_notes.end(); it++) {
     Note* cur = *it;
@@ -213,7 +213,7 @@ void NotationScore::Notate() {
       int desire_type = prev_tuplet;
       int cur_type = determine_tuplet(dur_remainder); // FIXME - implement 
       int excess_tuplet_type = determine_tuplet(duration - tuplet_dur); // FIXME - implement
-      
+
       // True if the note exceeds the current tuplet duration
       // but the excess is expressible in another tuplet
       bool note_is_valid = (duration > tuplet_dur) && (excess_tuplet_type != -1);

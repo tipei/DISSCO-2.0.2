@@ -112,10 +112,46 @@ private:
   void Notate();
 
   /**
-   * Try to fill the specified tuplet duration with the duration
-   * of the current note with 
+   * Notate the current note's duration given the previous tuplet type and the current
+   * tuplet duration. This involves filling the current tuplet duration, filling the
+   * subsequent complete beats if the note extends past the tuplet, and then using
+   * rests to fill the remaining duration.
+   * 
+   * @param current_note The current note whose duration to notate
+   * @param prev_tuplet The type of the previous tuplet
+   * @param tuplet_dur The duration of the current tuplet to fill
+   * @return The remaining duration to carry over in the notation loop
   **/
-  int TryFillDuration(int* prev_tuplet, int tuplet_dur);
+  int NotateCurrentNote(Note* current_note, int* prev_tuplet, int tuplet_dur);
+
+  /**
+   * Fill the current tuplet duration using the current note's duration.
+   * 
+   * @param current_note The current note whose duration to notate
+   * @param prev_tuplet The type of the previous tuplet
+   * @param tuplet_dur The duration of the current tuplet to fill
+   * @return The remaining note duration
+  **/
+  int FillCurrentTupletDur(Note* current_note, int prev_tuplet, int tuplet_dur);
+  
+  /**
+   * Fill the complete beats of the remaining current note's duration.
+   * 
+   * @param current_note The current note whose duration to notate
+   * @param remaining_dur The remaining duration of the current note
+   * @return The final leftover duration to be notated with rests
+  **/
+  int FillCompleteBeats(Note* current_note, int remaining_dur);
+
+  /**
+   * Create a tuplet with rests for the current note's final remaining duration.
+   * 
+   * @param current_note The current note whose duration to notate
+   * @param prev_tuplet The type of the previous tuplet to set
+   * @param remaining_dur The current note's leftover duration to be notated with rests
+   * @return The tuplet duration to carry over in the notation loop
+  **/
+  int CreateTupletWithRests(Note* current_note, int* prev_tuplet, int remaining_dur);
 
   /**
    * Calculate log2(num).
