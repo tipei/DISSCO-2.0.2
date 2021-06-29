@@ -1,6 +1,6 @@
 #include "NotationScore.h"
 
-NotationScore::NotationScore(Tempo& tempo) {
+NotationScore::NotationScore(const Tempo& tempo) {
   time_signature_ = tempo.getTimeSignature();
   beat_edus_ = stoi(tempo.getEDUPerTimeSignatureBeat().toPrettyString());
   bar_edus_ = stoi(tempo.getEDUPerBar().toPrettyString());
@@ -20,6 +20,17 @@ NotationScore::~NotationScore() {
   }
   score_.clear();
   score_flat_.clear();
+}
+
+void NotationScore::SetTempo(const Tempo& tempo) {
+  time_signature_ = tempo.getTimeSignature();
+  beat_edus_ = stoi(tempo.getEDUPerTimeSignatureBeat().toPrettyString());
+  bar_edus_ = stoi(tempo.getEDUPerBar().toPrettyString());
+  unit_note_ = tempo.getTimeSignatureBeat().Den(); // the note that represents one beat
+
+  tuplet_limit_ = CalculateTupletLimit();
+
+  ConstructTupletNames();
 }
 
 void NotationScore::InsertNote(Note* n) {
@@ -98,13 +109,12 @@ ostream& operator<<(ostream& output_stream,
   output_stream << "}" << endl;
 
   output_stream << "{" << endl;
-  output_stream << "\\time " << timesignature << endl;
+  output_stream << "\\time " << notation_score.time_signature_ << endl;
 
   for (Note* note : notation_score.score_flat_) {
     output_stream << note->type_out;
   }
   
-  /* output one last thing and close file stream*/
   output_stream << "\\bar \"|.\"" << endl;
   output_stream << "}" << endl;
 }
@@ -121,6 +131,8 @@ size_t NotationScore::CalculateTupletLimit() {
 }
 
 void NotationScore::ConstructTupletNames() {
+  tuplet_types_.clear();
+
   for(size_t i = 0; i < tuplet_limit_; i++) {
     int l = check_lower(i);
     string t = "\\tuplet ";

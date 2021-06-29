@@ -22,24 +22,22 @@ class NotationScore {
 
 public:
   /**
-   * Construct a notation score with the provided tempo
+   * Construct a notation score with the provided tempo.
    * 
    * @param tempo The tempo of the score
   **/
-  NotationScore(Tempo& tempo);
+  NotationScore(const Tempo& tempo);
 
-  NotationScore(const NotationScore& notation_score);
-
-  NotationScore(NotationScore&& notation_score);
-
-  operator=(NotationScore&& notation_score);
-
+  /**
+   * Destruct this notation score.
+  **/
   ~NotationScore();
 
-  // TODO - implement copy constructor
-  // TODO - implement move constructor
-  // TODO - implement assignment operator
-  // TODO - implement destructor
+  /**
+   * Set this NotationScore's tempo.
+   * // TODO - allow a score to have multiple tempos
+  **/
+  void SetTempo(const Tempo& tempo);
 
   /**
    * Insert a note into this score.
