@@ -154,6 +154,15 @@ private:
   int CreateTupletWithRests(Note* current_note, int* prev_tuplet, int remaining_dur);
 
   /**
+   * Notate a note (or rest) in a tuplet.
+   * 
+   * @param current_note A pointer to the note to notate
+   * @param tuplet_type The type of the tuplet in which to notate the note
+   * @param duration The duration of the note to notate
+  **/
+  void NoteInTuplet(Note* current_note, int tuplet_type, int duration);
+
+  /**
    * Calculate log2(num).
    * 
    * @param num The number to evaluate

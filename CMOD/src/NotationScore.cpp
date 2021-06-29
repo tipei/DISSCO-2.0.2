@@ -69,8 +69,7 @@ void NotationScore::Build() {
 
     AddBars();
     AddRestsAndFlatten();
-
-    // TODO - Adjust Notes
+    Notate();
   }
 }
 
@@ -157,7 +156,7 @@ void NotationScore::AddBars() {
   vector<vector<Note*>*>::iterator it;
   int bar_idx = 1;
   for (vector<Note*>* bar : score_){
-      Note* n = new Note(); // NOTE - the bars are added as __notes__
+      Note* n = new Note();
       n->start_t = bar_edus_ * bar_idx;
       n->end_t = bar_edus_ * bar_idx;
       n->type_out = "\\bar\"|\" \n";
@@ -180,14 +179,14 @@ void NotationScore::AddRestsAndFlatten() {
       // a rest will be placed only if gap is more than half of the
       // smallest non-zero valid duration
       if(gap > (beat_edus_ / (tuplet_limit_ - 1) / 2)) {
-        Note* rest = new Note(); // NOTE - now a note is a rest too!
+        Note* rest = new Note();
         rest->start_t = prev->end_t;
         rest->end_t = cur->start_t;
         rest->pitch_out = "r";
         score_flat_.push_back(rest);
       } else {
         if(it+1 == score_[i]->end()){
-          prev->end_t = cur->start_t; // NOTE - Can't shorten current note because end of bar
+          prev->end_t = cur->start_t; // Can't shorten current note because end of bar
         } else {
           cur->start_t = prev->end_t;
         }
@@ -200,7 +199,7 @@ void NotationScore::AddRestsAndFlatten() {
 
 void NotationScore::Notate() {
   vector<Note*>::iterator it;
-  int prev_tuplet = 0; // TODO - make this an enum; the previous tuplet type
+  int prev_tuplet = 0; // the previous tuplet type
   int tuplet_dur = 0; // the current tuplet duration in edus
   for (it = all_notes.begin(); it!=all_notes.end(); it++) {
     Note* cur = *it;
@@ -211,8 +210,8 @@ void NotationScore::Notate() {
       int dur_remainder = (duration) % beatEDUs;
       int dur_beats = (duration) / beatEDUs;
       int desire_type = prev_tuplet;
-      int cur_type = determine_tuplet(dur_remainder); // FIXME - implement 
-      int excess_tuplet_type = determine_tuplet(duration - tuplet_dur); // FIXME - implement
+      int cur_type = DetermineTuplet(dur_remainder);
+      int excess_tuplet_type = DetermineTuplet(duration - tuplet_dur);
 
       // True if the note exceeds the current tuplet duration
       // but the excess is expressible in another tuplet
@@ -249,7 +248,6 @@ void NotationScore::Notate() {
     // pass the note to notate function
     tuplet_dur = NotateCurrentNote(&prev_tuplet, tuplet_dur);
   }
-  prev_tuplet = 0; // FIXME - i don't think this is necessary anymore
 }
 
 int NotationScore::NotateCurrentNote(Note* current_note, 
@@ -287,7 +285,7 @@ int NotationScore::FillCurrentTupletDur(Note* current_note,
   // the entire duration will be inserted in the tuplet and the tuplet will
   // be completed by the next sound or silence.
   if(dur < tuplet_dur){
-    current_note->note_in_tuplet(prev_tuplet, dur); // FIXME - implement
+    NoteInTuplet(current_note, prev_tuplet, dur);
     return dur - tuplet_dur;
   }
   // even if the previous tuplet is an eighth note or sixteenth note,
@@ -311,7 +309,7 @@ int NotationScore::FillCurrentTupletDur(Note* current_note,
   } else {
     // if the current sound completes the tuplet use the LilyPond symbol and
     // close the tuplet
-    current_note->note_in_tuplet(prev_tuplet, tuplet_dur); // FIXME - implement
+    NoteInTuplet(current_note, prev_tuplet, tuplet_dur);
     if((dur > tuplet_dur || current_note->split == 1) && (current_note->pitch_out != "r")) {
       current_note->type_out += "~ ";
     } else {
@@ -351,7 +349,7 @@ int NotationScore::FillCompleteBeats(Note* current_note, int remaining_dur) {
       }
     } else {
       if (current_note->split == 1) {
-        if ( current_note->pitch_out != "r") {
+        if (current_note->pitch_out != "r") {
           current_note->type_out += "~ ";
         }
         current_note->split = 0;
@@ -371,19 +369,57 @@ int NotationScore::CreateTupletWithRests(Note* current_note,
   int tuplet_type = DetermineTuplet(remaining_dur);
   if(tuplet_type == 2 || tuplet_type == 4) {
     if(remaining_dur / (beatEDUs / tuplet_type) == 3) {
-      string s = int_to_str(unit_note_ * 2);
+      string s = to_string(unit_note_ * 2);
       current_note->type_out += current_note->pitch_out + s + ". ";
     } else {
-      string s = int_to_str(unit_note_ * tuplet_type);
+      string s = to_string(unit_note_ * tuplet_type);
       current_note->type_out += current_note->pitch_out + s + " ";
     }
     tuplet_dur = beatEDUs - remaining_dur;
   } else if(tuplet_type != -1) {
     current_note->type_out += tuplet_types_[tuplet_type];
-    current_note->note_in_tuplet(tuplet_type, remaining_dur); // FIXME - implement
+    NoteInTuplet(current_note, tuplet_type, remaining_dur);
     tuplet_dur = beatEDUs - remaining_dur;
   }
 
   *prev_tuplet = tuplet_type;
   return tuplet_dur;
+}
+
+void NotationScore::NoteInTuplet(Note* current_note, int tuplet_type, int duration) {
+  string pitch = current_note->pitch_out;
+  bool first = true;
+
+  int beat = duration / (beatEDUs / tuplet_type); // working in tuplet beats
+  int unit_in_tuplet = unit_note_ * CalculateNearestPow2(tuplet_type);
+  int power_of_2 = DiscreteLog2(unit_in_tuplet);
+  while (beat > 0){
+
+    int power_of_2 = DiscreteLog2(unit_in_tuplet);
+    while(power_of_2 >= 0){
+      int beats = power(2, power_of_2);
+      if(beat >= beats){
+        current_note->type_out += current_note->pitch_out + to_string(unit_in_tuplet / beats);
+        beat -= beats;
+        if(beat >= beats/2 && beats >= 2){
+          current_note->type_out += ".";
+          beat -= beats/2;
+        }
+        break;
+      }
+      power_of_2--;
+    }
+
+    if ((beat > 0) && (current_note->pitch_out != "r")){
+      current_note->type_out += "~ ";
+    } else {
+      current_note->type_out += " ";
+    }
+
+    if(first == true){
+      current_note->modifiers_mark();
+      current_note->loudness_mark();
+      first = false;
+    }
+  }
 }
