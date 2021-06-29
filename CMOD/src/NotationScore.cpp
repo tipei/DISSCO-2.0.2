@@ -247,7 +247,35 @@ void NotationScore::Notate() {
     }
 
     // pass the note to notate function
-    tuplet_dur = TryFillDuration(&prev_tuplet, tuplet_dur);
+    tuplet_dur = NotateCurrentNote(&prev_tuplet, tuplet_dur);
   }
   prev_tuplet = 0; // FIXME - i don't think this is necessary anymore
 }
+
+int NotationScore::NotateCurrentNote(Note* current_note, 
+                                     int* prev_tuplet, 
+                                     int tuplet_dur) {
+  int dur = current_note->end_t - current_note->start_t;
+  if(dur == 0){
+    return tuplet_dur;
+  }
+
+  int remaining_dur;
+  if (tuplet_dur > 0) {
+    remaining_dur = FullCurrentTupletDur(current_note, *prev_tuplet, tuplet_dur);
+    if (remaining_dur < 0) { // Note fits inside the current tuplet
+      return -remaining_dur; // Tuplet partially filled
+    }
+    dur = remaining_dur;
+    tuplet_dur = 0; // Tuplet now filled
+  }
+
+  remaining_dur = FillCompleteBeats(current_note, remaining_dur);
+
+  if (remaining_dur > 0) {
+    tuplet_dur = CreateTupletWithRests(current_note, prev_tuplet, remaining_dur);
+  }
+
+  return tuplet_dur;
+}
+
