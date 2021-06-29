@@ -165,6 +165,20 @@ private:
   void NoteInTuplet(Note* current_note, int tuplet_type, int duration);
 
   /**
+   * Add a loudness mark to the current note.
+   * 
+   * @param current_note The note to which to add a loudness mark
+  **/
+  void LoudnessMark(Note* current_note);
+
+  /**
+   * Add a modifier to the current note.
+   * 
+   * @param current_note The note to which to add a modifier
+  **/
+  void ModifiersMark(Note* current_note);
+
+  /**
    * Calculate log2(num).
    * 
    * @param num The number to evaluate
@@ -202,11 +216,10 @@ private:
   int tuplet_limit_; // the greatest allowed tuplet type (exclusive)
 
   Layer score_;
-  vector<Note*> score_flat_; // TODO - consolidate into score_flat_
+  vector<Note*> score_flat_;
   bool is_built_ = false;
 
-  //a integer variable to indicate the previous tuplet type in notation loop
-  // static string loudness_prev = ""; // TODO - do something with this
+  static string prev_loudness = ""; // the previous loudness mark in notation loop
 };
 
 #endif

@@ -352,7 +352,7 @@ int NotationScore::FillCompleteBeats(Note* current_note, int remaining_dur) {
       power_of_2--;
     }
 
-    current_note->loudness_mark();
+    LoudnessMark(current_note);
 
     if (mainDur > 0 || remainder > 0) {
       if (current_note->pitch_out != "r") {
@@ -421,17 +421,32 @@ void NotationScore::NoteInTuplet(Note* current_note, int tuplet_type, int durati
       power_of_2--;
     }
 
-    if ((beat > 0) && (current_note->pitch_out != "r")){
+    if ((beat > 0) && (current_note->pitch_out != "r")) {
       current_note->type_out += "~ ";
     } else {
       current_note->type_out += " ";
     }
 
     if(first == true){
-      current_note->modifiers_mark();
-      current_note->loudness_mark();
+      ModifiersMark(current_note);
+      LoudnessMark(current_note);
       first = false;
     }
+  }
+}
+
+void NotationScore::LoudnessMark(Note* current_note) {
+  if (current_note->loudness_out != prev_loudness && 
+      current_note->pitch_out != "r") {
+  	current_note->type_out += current_note->loudness_out + " ";
+  	prev_loudness = current_note->loudness_out;
+  }
+}
+
+void NotationScore::ModifiersMark(Note* current_note) {
+  while (!current_note->modifiers_out.empty()){
+    current_note->type_out += current_note->modifiers_out.back() + " ";
+    current_note->modifiers_out.pop_back();
   }
 }
 
