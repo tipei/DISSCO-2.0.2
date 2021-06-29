@@ -10,6 +10,8 @@
 
 typedef vector<vector<Note*>*> Layer;
 
+// TODO - add lilypond enums
+
 /**
  * A class representing a notated score for output using 
  * Lilypond (or something else in the future).

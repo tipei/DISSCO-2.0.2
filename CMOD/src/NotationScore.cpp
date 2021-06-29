@@ -11,6 +11,17 @@ NotationScore::NotationScore(Tempo& tempo) {
   ConstructTupletNames();
 }
 
+NotationScore::~NotationScore() {
+  for (vector<Note*>* bar : score_){
+      // Note pointers are not deleted because they are owned by the Bottom event
+      // and thus deleted in the Bottom class.
+      bar->clear;
+      delete bar;
+  }
+  score_.clear();
+  score_flat_.clear();
+}
+
 void NotationScore::InsertNote(Note* n) {
   is_built_ = false;
 
