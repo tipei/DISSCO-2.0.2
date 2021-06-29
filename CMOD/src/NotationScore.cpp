@@ -279,3 +279,47 @@ int NotationScore::NotateCurrentNote(Note* current_note,
   return tuplet_dur;
 }
 
+int NotationScore::FillCurrentTupletDur(Note* current_note, 
+                                        int prev_tuplet, 
+                                        int tuplet_dur) {
+  int dur = current_note->end_t - current_note->start_t;
+  // if the current duration is less than the duration of the tuplet,
+  // the entire duration will be inserted in the tuplet and the tuplet will
+  // be completed by the next sound or silence.
+  if(dur < tuplet_dur){
+    current_note->note_in_tuplet(prev_tuplet, dur); // FIXME - implement
+    return dur - tuplet_dur;
+  }
+  // even if the previous tuplet is an eighth note or sixteenth note,
+  // it is still necessary to split part of the current note.
+  if(prev_tuplet == 2 || prev_tuplet == 4){
+    int unit = tuplet_dur / (beatEDUs/prev_tuplet);
+    if(unit == 3) {
+      string s = to_string(unit_note_ * 2);
+      current_note->type_out += current_note->pitch_out + s + ".";
+    } else {
+      string s = to_string(unit_note_ * prev_tuplet / unit);
+      current_note->type_out += current_note->pitch_out + s;
+    }
+    if((dur > tuplet_dur || current_note->split == 1) && 
+       (current_note->pitch_out != "r")) {
+      current_note->type_out += "~ ";
+    } else {
+      current_note->type_out += " ";
+    }
+
+  } else {
+    // if the current sound completes the tuplet use the LilyPond symbol and
+    // close the tuplet
+    current_note->note_in_tuplet(prev_tuplet, tuplet_dur); // FIXME - implement
+    if((dur > tuplet_dur || current_note->split == 1) && (current_note->pitch_out != "r")) {
+      current_note->type_out += "~ ";
+    } else {
+      // current_note->loudness_and_modifiers();
+    }
+    current_note->type_out += "} ";
+  }
+
+  return dur - tuplet_dur;
+}
+
