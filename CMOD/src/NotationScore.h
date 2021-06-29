@@ -166,7 +166,7 @@ private:
    * Calculate log2(num).
    * 
    * @param num The number to evaluate
-   * @returns The exponent of 2 which gives num; -1 if 
+   * @return The exponent of 2 which gives num; -1 if 
    * num is not a power of 2
    **/
   static int DiscreteLog2(int num);
@@ -176,9 +176,18 @@ private:
    * E.g. if num = 7, return 4; if num = 9, return 8.
    * 
    * @param num The number to evaluate
-   * @returns The nearest power of 2 lower than num
+   * @return The nearest power of 2 lower than num
   **/
   static int CalculateNearestPow2(int num);
+
+  /**
+   * Calculate base^pow
+   * 
+   * @param base The integer to exponentiate
+   * @param pow The exponential power
+   * @return base^pow
+  **/
+  static int Power(int base, int pow);
 
   string time_signature_; // NOTE - only need this for outputting the actual score
   int beat_edus_;

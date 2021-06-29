@@ -423,3 +423,41 @@ void NotationScore::NoteInTuplet(Note* current_note, int tuplet_type, int durati
     }
   }
 }
+
+int NotationScore::DiscreteLog2(int num) {
+  if (num % 2 != 0) {
+    return -1;
+  }
+
+  int pow = 0;
+  int power_of_2 = 1;
+  while (power_of_2 < num && pow < std::numeric_limits<int>::digits) {
+    power_of_2 *= 2;
+    if (power_of_2 == num) {
+      return pow;
+    }
+    ++pow;
+  }
+
+  return -1;
+}
+
+int NotationScore::CalculateNearestPow2(int num) {
+  int multiple_of_2 = 2;
+
+  while (multiple_of_2 <= num) {
+    multiple_of_2 *= 2;
+  }
+
+  return multiple_of_2 / 2;
+}
+
+int NotationScore::Power(int base, int pow) {
+  int output = 1;
+  while (pow != 0) {
+    output *= base;
+    --pow;
+  }
+
+  return output;
+}
