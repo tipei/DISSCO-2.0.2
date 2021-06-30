@@ -53,6 +53,7 @@ void NotationScore::SetTempo(Tempo& tempo) {
 }
 
 void NotationScore::InsertNote(Note* n) {
+  n->type_out = "";
   is_built_ = false;
 
   EnsureNoteExpressible(n);
@@ -88,8 +89,8 @@ void NotationScore::InsertNote(Note* n) {
     n->split = 1;
 
     vector<Note*>::iterator iter;
-    for (iter = score_[bar_num]->begin(); 
-         iter != score_[bar_num]->end(); 
+    for (iter = score_[bar_num]->begin();
+         iter != score_[bar_num]->end();
          iter++) {
       Note* cur = *iter;
       if (cur->start_t > n->start_t) {
@@ -219,7 +220,7 @@ void NotationScore::AddBars() {
 }
 
 void NotationScore::AddRestsAndFlatten() {
-  for(size_t i = 0; i < score_.size(); i++) {
+  for(size_t i = 0; i < score_.size(); ++i) {
     vector<Note*>::iterator it;
     Note* prev = *(score_[i]->begin());
     score_flat_.push_back(prev);
@@ -254,14 +255,14 @@ void NotationScore::Notate() {
   vector<Note*>::iterator it;
   int prev_tuplet = 0; // the previous tuplet type
   int tuplet_dur = 0; // the current tuplet duration in edus
-  for (it = all_notes.begin(); it!=all_notes.end(); it++) {
+  for (it = score_flat_.begin(); it!=score_flat_.end(); it++) {
     Note* cur = *it;
 
     // adjust note duration according to the tuplet type
     if(tuplet_dur > 0) {
-      int duration = cur -> end_t - cur -> start_t;
-      int dur_remainder = (duration) % beatEDUs;
-      int dur_beats = (duration) / beatEDUs;
+      int duration = cur->end_t - cur->start_t;
+      int dur_remainder = (duration) % beat_edus_;
+      int dur_beats = (duration) / beat_edus_;
       int desire_type = prev_tuplet;
       int cur_type = DetermineTuplet(dur_remainder);
       int excess_tuplet_type = DetermineTuplet(duration - tuplet_dur);
@@ -274,31 +275,30 @@ void NotationScore::Notate() {
       // find the closest value and change the end time of the note.
       // Also change the start time of the next note
       if((desire_type != cur_type) && !note_is_valid) {
-        int t = beatEDUs / desire_type;
+        int t = beat_edus_ / desire_type;
         double a = (double)dur_remainder / (double)t;
         int best_fit = (int) round(a) * t;
-        cur->end_t = cur->start_t + dur_beats * beatEDUs + best_fit;
+        cur->end_t = cur->start_t + dur_beats * beat_edus_ + best_fit;
 
         Note* next = *(it+1);
-        if(next == NULL){
+        if(next == nullptr){
           continue;
         }
 
-        next->start_t = cur->start_t + dur_beats * beatEDUs + best_fit;
+        next->start_t = cur->start_t + dur_beats * beat_edus_ + best_fit;
       }
     }
 
     // force the closing of the tuplet before the bar line (not necessary if
     // the code is correct)
-    if(cur -> type_out == "\\bar\"|\" \n" || cur -> type_out == " "){
+    if(cur->type_out == "\\bar\"|\" \n" || cur->type_out == " "){
       if(tuplet_dur > 0){
-        cur -> type_out = "} " + cur -> type_out;
+        cur->type_out = "} " + cur->type_out;
         tuplet_dur = 0;
       }
       continue;
     }
 
-    // pass the note to notate function
     tuplet_dur = NotateCurrentNote(cur, &prev_tuplet, tuplet_dur);
   }
 }
@@ -307,17 +307,16 @@ int NotationScore::NotateCurrentNote(Note* current_note,
                                      int* prev_tuplet, 
                                      int tuplet_dur) {
   int dur = current_note->end_t - current_note->start_t;
-  if(dur == 0){
+  if (dur == 0) {
     return tuplet_dur;
   }
 
-  int remaining_dur;
+  int remaining_dur = dur;
   if (tuplet_dur > 0) {
     remaining_dur = FillCurrentTupletDur(current_note, *prev_tuplet, tuplet_dur);
     if (remaining_dur < 0) { // Note fits inside the current tuplet
       return -remaining_dur; // Tuplet partially filled
     }
-    dur = remaining_dur;
     tuplet_dur = 0; // Tuplet now filled
   }
 
@@ -337,14 +336,14 @@ int NotationScore::FillCurrentTupletDur(Note* current_note,
   // if the current duration is less than the duration of the tuplet,
   // the entire duration will be inserted in the tuplet and the tuplet will
   // be completed by the next sound or silence.
-  if(dur < tuplet_dur){
+  if (dur < tuplet_dur) {
     NoteInTuplet(current_note, prev_tuplet, dur);
     return dur - tuplet_dur;
   }
   // even if the previous tuplet is an eighth note or sixteenth note,
   // it is still necessary to split part of the current note.
-  if(prev_tuplet == 2 || prev_tuplet == 4){
-    int unit = tuplet_dur / (beatEDUs/prev_tuplet);
+  if(prev_tuplet == 2 || prev_tuplet == 4) {
+    int unit = tuplet_dur / (beat_edus_ / prev_tuplet);
     if(unit == 3) {
       string s = to_string(unit_note_ * 2);
       current_note->type_out += current_note->pitch_out + s + ".";
@@ -420,19 +419,19 @@ int NotationScore::CreateTupletWithRests(Note* current_note,
   int tuplet_dur = 0;
   
   int tuplet_type = DetermineTuplet(remaining_dur);
-  if(tuplet_type == 2 || tuplet_type == 4) {
-    if(remaining_dur / (beatEDUs / tuplet_type) == 3) {
+  if (tuplet_type == 2 || tuplet_type == 4) {
+    if (remaining_dur / (beat_edus_ / tuplet_type) == 3) {
       string s = to_string(unit_note_ * 2);
       current_note->type_out += current_note->pitch_out + s + ". ";
     } else {
       string s = to_string(unit_note_ * tuplet_type);
       current_note->type_out += current_note->pitch_out + s + " ";
     }
-    tuplet_dur = beatEDUs - remaining_dur;
-  } else if(tuplet_type != -1) {
+    tuplet_dur = beat_edus_ - remaining_dur;
+  } else if (tuplet_type != -1) {
     current_note->type_out += tuplet_types_[tuplet_type];
     NoteInTuplet(current_note, tuplet_type, remaining_dur);
-    tuplet_dur = beatEDUs - remaining_dur;
+    tuplet_dur = beat_edus_ - remaining_dur;
   }
 
   *prev_tuplet = tuplet_type;
@@ -443,14 +442,14 @@ void NotationScore::NoteInTuplet(Note* current_note, int tuplet_type, int durati
   string pitch = current_note->pitch_out;
   bool first = true;
 
-  int beat = duration / (beatEDUs / tuplet_type); // working in tuplet beats
+  int beat = duration / (beat_edus_ / tuplet_type); // working in tuplet beats
   int unit_in_tuplet = unit_note_ * CalculateNearestPow2(tuplet_type);
   int power_of_2 = DiscreteLog2(unit_in_tuplet);
   while (beat > 0){
 
     int power_of_2 = DiscreteLog2(unit_in_tuplet);
     while(power_of_2 >= 0){
-      int beats = power(2, power_of_2);
+      int beats = Power(2, power_of_2);
       if(beat >= beats){
         current_note->type_out += current_note->pitch_out + to_string(unit_in_tuplet / beats);
         beat -= beats;
@@ -501,10 +500,10 @@ int NotationScore::DiscreteLog2(int num) {
   int power_of_2 = 1;
   while (power_of_2 < num && pow < std::numeric_limits<int>::digits) {
     power_of_2 *= 2;
+    ++pow;
     if (power_of_2 == num) {
       return pow;
     }
-    ++pow;
   }
 
   return -1;
@@ -522,9 +521,8 @@ int NotationScore::CalculateNearestPow2(int num) {
 
 int NotationScore::Power(int base, int pow) {
   int output = 1;
-  while (pow != 0) {
+  for (int i = 0; i < pow; ++i) {
     output *= base;
-    --pow;
   }
 
   return output;
