@@ -68,6 +68,13 @@ public:
                              NotationScore& notation_score);
 
 private:
+  /**
+   * Calculate the greatest tuplet type possible in the score, exclusive.
+   * E.g. if the score can contain at most a quintuplet (5-tuplet),
+   * CalculateTupletLimit() will return 6.
+   * 
+   * @return the greatest tuplet type possible in the score, exclusive.
+  **/
   size_t CalculateTupletLimit();
 
   /** 
@@ -79,6 +86,9 @@ private:
   **/
   int DetermineTuplet(int dur);
 
+  /**
+   * Construct tuplet names as strings for Lilypond score generation.
+  **/
   void ConstructTupletNames();
 
   /**
