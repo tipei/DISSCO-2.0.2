@@ -296,6 +296,9 @@ Piece::Piece(string _workingPath, string _projectTitle){
   pieceSpan.duration = utilities->evaluate(pieceDuration, NULL);
   Tempo mainTempo; //Though we supply this, "Top" will provide its own tempo.
 
+  // Initialize the output score
+  Output::notation_score_ = NotationScore(_projectTitle, mainTempo);
+
   //Initialize the output class.
   if (utilities->getOutputParticel()){
     string particelFilename = _projectTitle + ".particel";
@@ -363,7 +366,13 @@ cout << "Piece::Piece: " << "Score output " << endl;
 		/* for score file */
 
      // output score to lilypond file
-     output_score(projectName);
+     // output_score(projectName);
+    
+    Output::notation_score_.Build();
+    ofstream score_file;
+    score_file.open(projectName + ".ly");
+    score_file << Output::notation_score_;
+    score_file.close();
 
     // execute lilypond to create pdf file
     system(("lilypond " + projectName + ".ly").c_str());
