@@ -34,15 +34,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Random.h"
 #include "Utilities.h"
 #include <fstream>
-// #include <string>
-
-// //----------------------------------------------------------------------------//
-//
-// string int_to_str(int n){
-//   stringstream ss;
-//   ss << n;
-//   return ss.str();
-// }
 
 //----------------------------------------------------------------------------//
 
@@ -374,7 +365,7 @@ Piece::Piece(string _workingPath, string _projectTitle){
     int exist = 1;
     string suffix = "";
     while (exist){
-      suffix = "_" + int_to_str(suffix_rank);
+      suffix = "_" + to_string(suffix_rank);
       std::ifstream infile(( "ScoreFiles/" + projectName + suffix + ".pdf").c_str());
       exist = infile.good();
       infile.close();

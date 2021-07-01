@@ -87,12 +87,4 @@ class Output
 
 };
 
-  /**
-   * Outputs all notes to written score
-   *					 --shenyi
-   **/
-  extern void output_score(string projectname);
-
-
 #endif
-

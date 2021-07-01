@@ -171,7 +171,7 @@ void NotationScore::ConstructTupletNames() {
   tuplet_types_.clear();
 
   for(size_t i = 0; i < tuplet_limit_; i++) {
-    int l = check_lower(i);
+    int l = CalculateNearestPow2(i);
     string t = "\\tuplet ";
     t += std::to_string(i) + "/" + std::to_string(l) + "{ ";
     tuplet_types_.push_back(t);
@@ -516,7 +516,7 @@ int NotationScore::DiscreteLog2(int num) {
 }
 
 int NotationScore::CalculateNearestPow2(int num) {
-  int multiple_of_2 = 2;
+  int multiple_of_2 = 1;
 
   while (multiple_of_2 <= num) {
     multiple_of_2 *= 2;
