@@ -380,17 +380,17 @@ int NotationScore::FillCurrentTupletDur(Note* current_note,
 }
 
 int NotationScore::FillCompleteBeats(Note* current_note, int remaining_dur) {
-  int remainder = remaining_dur % beatEDUs;
-  int mainDur = remaining_dur / beatEDUs;
+  int remainder = remaining_dur % beat_edus_;
+  int mainDur = remaining_dur / beat_edus_;
 
   while (mainDur > 0) {
     int power_of_2 = DiscreteLog2(unit_note_);
-    while(power_of_2 >= 0) {
-      int beats = power(2, power_of_2);
-      if(mainDur >= beats) {
+    while (power_of_2 >= 0) {
+      int beats = Power(2, power_of_2);
+      if (mainDur >= beats) {
         current_note->type_out += current_note->pitch_out + to_string(unit_note_ / beats);
         mainDur -= beats;
-        if(mainDur >= beats / 2 && beats >= 2){
+        if (mainDur >= beats / 2 && beats >= 2){
           current_note->type_out += ".";
           mainDur -= beats / 2;
         }

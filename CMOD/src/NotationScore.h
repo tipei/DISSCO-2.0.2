@@ -67,6 +67,42 @@ public:
                              NotationScore& notation_score);
 
 private:
+  void PrintAllNotesBar() const {
+    size_t bar_idx = 0;
+    cout << endl << endl;
+    cout << "ALL NOTES BAR: " << endl;
+    for (const auto bar : score_) {
+      cout << "BAR " << bar_idx << endl;
+      for (const auto note : *bar) {
+        if (note->type_out.find("\\bar") != string::npos) {
+          cout << "BAR    start: " << note->start_t << " end: " << note->end_t << " out: " << note->type_out << endl;
+        } else if (note->type_out.find("r") != string::npos) {
+          cout << "REST    start: " << note->start_t << " end: " << note->end_t << " out: " << note->type_out << endl;
+        } else {
+          cout << "NOTE    start: " << note->start_t << " end: " << note->end_t << " pitch: " << note->type_out << endl;
+        }
+      }
+      ++bar_idx;
+    }
+    cout << endl << endl;
+  }
+
+  void PrintAllNotesFlat() const {
+    size_t note_idx = 0;
+    cout << endl << endl;
+    cout << "ALL NOTES FLAT: " << endl;
+    for (const auto note : score_flat_) {
+      if (note->type_out.find("\\bar") != string::npos) {
+        cout << note_idx << " BAR    start: " << note->start_t << " end: " << note->end_t << " out: " << note->type_out << endl;
+      } else if (note->type_out.find("r") != string::npos) {
+        cout << note_idx << " REST    start: " << note->start_t << " end: " << note->end_t << " out: " << note->type_out << endl;
+      } else {
+        cout << note_idx << " NOTE    start: " << note->start_t << " end: " << note->end_t << " pitch: " << note->type_out << endl;
+      }
+      ++note_idx;
+    }
+  }
+
   /**
    * Calculate the greatest tuplet type possible in the score, exclusive.
    * E.g. if the score can contain at most a quintuplet (5-tuplet),
