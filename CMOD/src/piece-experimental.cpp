@@ -36,15 +36,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <fstream>
 // #include <string>
 
-
-
-
-
-
-
-
-
-
 // //----------------------------------------------------------------------------//
 //
 // string int_to_str(int n){
@@ -318,6 +309,9 @@ Piece::Piece(string _workingPath, string _projectTitle){
   pieceSpan.start = utilities->evaluate(pieceStartTime, NULL);
   pieceSpan.duration = utilities->evaluate(pieceDuration, NULL);
   Tempo mainTempo; //Though we supply this, "Top" will provide its own tempo.
+  
+  // Initialize the output score
+  Output::notation_score_ = NotationScore(_projectTitle, mainTempo);
 
   //Initialize the output class.
   if (utilities->getOutputParticel()){
@@ -364,7 +358,13 @@ Piece::Piece(string _workingPath, string _projectTitle){
 		/* for score file */
 
      // output score to lilypond file
-     output_score(projectName);
+     //output_score(projectName);
+
+    Output::notation_score_.Build();
+    ofstream score_file;
+    score_file.open(projectName + ".ly");
+    score_file << Output::notation_score_;
+    score_file.close();
 
     // execute lilypond to create pdf file
     system(("lilypond " + projectName + ".ly").c_str());

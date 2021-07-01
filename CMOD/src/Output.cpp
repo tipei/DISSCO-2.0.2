@@ -24,6 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 OutputNode* Output::top;
 ofstream* Output::particelFile;
 int Output::level;
+NotationScore Output::notation_score_;
 
 OutputNode::OutputNode(string name) : nodeName(name) {
 }

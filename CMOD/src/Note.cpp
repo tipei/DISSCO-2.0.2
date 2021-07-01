@@ -663,7 +663,7 @@ void Note::construct_tuplet_names(int uplimit){
 }
 //----------------------------------------------------------------------------//
 
-void Note::notateDurations( string aName, string startEDU, string durationEDU)
+void Note::notateDurations( string aName, string startEDU, string durationEDU) // FIXME - refactor here
 {
   int stime, dur, endTime, bar, beat;
 
@@ -804,7 +804,10 @@ void Note::add_rests(){
   for(size_t i = 0; i < vecSize; i++){
     vector<Note*>::iterator it;
     Note * prev = *(all_notes_bar[i]->begin());
-    sort_notes(prev);
+    // sort_notes(prev);
+    if (!all_notes.empty())
+      assert(prev->start_t >= all_notes.back()->start_t);
+    all_notes.push_back(prev);
     Note * cur;
 
     for (it = all_notes_bar[i]->begin()+1; it!=all_notes_bar[i]->end(); it++){
@@ -816,7 +819,10 @@ void Note::add_rests(){
             n -> start_t = prev -> end_t;
             n -> end_t = cur -> start_t;
             n -> pitch_out = "r";
-            sort_notes(n);
+            // sort_notes(n);
+            if (!all_notes.empty())
+              assert(n->start_t >= all_notes.back()->start_t);
+            all_notes.push_back(n);
         } else {
 
             if(it+1 == all_notes_bar[i]->end()){
@@ -825,7 +831,10 @@ void Note::add_rests(){
               cur -> start_t = prev -> end_t;
             }
         }
-        sort_notes(cur);
+        // sort_notes(cur);
+        assert(cur->start_t >= all_notes.back()->start_t);
+        if (!all_notes.empty())
+          all_notes.push_back(cur);
         prev = cur;
     }
   }

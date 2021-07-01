@@ -22,6 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Libraries.h"
 #include "Tempo.h"
+#include "NotationScore.h"
 
 struct OutputNode
 {
@@ -68,6 +69,8 @@ class Output
   static string getPropertyIndentation(void);
  
   public:
+  static NotationScore notation_score_;
+
   static void initialize(string particelFilename);
   static void free(void);
   static OutputNode* getCurrentLevelNode(void);

@@ -370,19 +370,16 @@ void Bottom::buildNote(SoundAndNoteWrapper* _soundNoteWrapper) {
   newNote->setPitchWellTempered(absPitchNum);
 
   // Set notation start, start absolute, and end times in edus
-  // NOTE - these parameters are currently overridden in notateDurations(), however it will make sense in the future to set them here
   newNote->start_t = _soundNoteWrapper->ts.startEDUAbsolute;
   newNote->start_t_absolute = _soundNoteWrapper->ts.startEDUAbsolute;
   newNote->end_t = _soundNoteWrapper->ts.startEDUAbsolute + stoi(_soundNoteWrapper->ts.durationEDU.toPrettyString());
 
-  //Bars and durations
-  newNote->notateDurations( (string)_soundNoteWrapper->name,
- 			    _soundNoteWrapper->ts.startEDU.toPrettyString(),
-			    _soundNoteWrapper->ts.durationEDU.toPrettyString()); // TODO - this is where we need fixes
+  Output::notation_score_.SetTempo(_soundNoteWrapper->tempo);
+  Output::notation_score_.InsertNote(newNote);
+
   if (utilities->getOutputParticel()){
       Output::endSubLevel();
   }
-  // cout << "note's data: " << newNote -> pitch_out << " start: " << newNote -> start_t << " end: " << newNote -> end_t << endl;
 
   childNotes.push_back(newNote);
 }
@@ -390,7 +387,7 @@ void Bottom::buildNote(SoundAndNoteWrapper* _soundNoteWrapper) {
 
 //----------------------------------------------------------------------------//
 
-list<Note> Bottom::getNotes() { // FIXME - this can be removed
+list<Note> Bottom::getNotes() {
   list<Note> result;
   for(int i = 0; i < childNotes.size(); i++)
     result.push_back(*childNotes[i]);
