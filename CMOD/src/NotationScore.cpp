@@ -3,6 +3,7 @@
 string NotationScore::prev_loudness;
 
 NotationScore::NotationScore() {
+  score_title_ = "Score";
   Tempo tempo;
 
   time_signature_ = tempo.getTimeSignature();
@@ -17,7 +18,8 @@ NotationScore::NotationScore() {
   prev_loudness = "";
 }
 
-NotationScore::NotationScore(Tempo& tempo) {
+NotationScore::NotationScore(const string& score_title, Tempo& tempo) : 
+    score_title_(score_title) {
   time_signature_ = tempo.getTimeSignature();
   beat_edus_ = stoi(tempo.getEDUPerTimeSignatureBeat().toPrettyString());
   bar_edus_ = stoi(tempo.getEDUPerBar().toPrettyString());
@@ -112,15 +114,19 @@ void NotationScore::Build() {
     AddBars();
     AddRestsAndFlatten();
     Notate();
+
+    is_built_ = true;
   }
 }
 
-ostream& operator<<(ostream& output_stream, 
+ostream& operator<<(ostream& output_stream,
                     NotationScore& notation_score) {
   if (!notation_score.is_built_) {
     notation_score.Build();
   }
 
+  output_stream << "\\header {\n  title=\"" << notation_score.score_title_ 
+                << "\"\ncomposer=\"DISSCO\"\n}" << endl;
   output_stream << "\\new Voice \\with {" << endl;
   output_stream << "\\remove \"Note_heads_engraver\"" << endl;
   output_stream << "\\consists \"Completion_heads_engraver\"" << endl;

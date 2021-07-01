@@ -10,8 +10,6 @@
 
 typedef vector<vector<Note*>*> Layer;
 
-// TODO - add lilypond enums
-
 /**
  * A class representing a notated score for output using 
  * Lilypond (or something else in the future).
@@ -29,9 +27,10 @@ public:
   /**
    * Construct a notation score with the provided tempo.
    * 
+   * @param score_title The title of this score
    * @param tempo The tempo of the score
   **/
-  NotationScore(Tempo& tempo);
+  NotationScore(const string& score_title, Tempo& tempo);
 
   /**
    * Destruct this notation score.
@@ -218,6 +217,7 @@ private:
   **/
   static int Power(int base, int pow);
 
+  string score_title_;
   string time_signature_; // NOTE - only need this for outputting the actual score
   int beat_edus_;
   int bar_edus_;
