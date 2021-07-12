@@ -38,6 +38,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
  **/
 class Note {
+  friend class Section;
+  friend class Bottom;
 
     		//Rhythm//
 
@@ -69,8 +71,7 @@ class Note {
 
     //Modifiers
     std::vector<std::string> modifiers; //string names of the modifiers
-
-  public:
+    
 
     /* variables for output notes */
     string pitch_out;
@@ -87,7 +88,7 @@ class Note {
 
     std::vector<std::string> modifiers_out;
 
-
+  public:
     /**
      *  Simple constructor
      **/
@@ -107,7 +108,7 @@ class Note {
      *  Comparison operator (to sort in a list)
      *  \param rhs the object to compare to (right hand side)
      **/
-    bool operator < (const Note& rhs);
+    bool operator< (const Note& rhs);
 
 //----------------------------------------------------------------------------//
 
@@ -156,6 +157,13 @@ class Note {
      *  \param modNames
      **/
     void setModifiers(std::vector<std::string> modNames);
+
+    /**
+     * Get the text associated with this Note.
+     * 
+     * \return the text associated with this Note.
+    **/
+    const string& GetText() const;
 
 };
 
