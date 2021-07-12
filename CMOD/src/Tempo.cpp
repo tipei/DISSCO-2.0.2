@@ -62,7 +62,7 @@ bool Tempo::isTempoSameAs(Tempo& other) {
     timeSignatureBeat == other.timeSignatureBeat &&
     timeSignatureBeatsPerBar == other.timeSignatureBeatsPerBar &&
     EDUPerTimeSignatureBeat == other.EDUPerTimeSignatureBeat &&
-    tempoStartTime == other.tempoStartTime;
+    fabs(tempoStartTime - other.tempoStartTime) < 0.0001;
 }
 
 //----------------------------------------------------------------------------//
