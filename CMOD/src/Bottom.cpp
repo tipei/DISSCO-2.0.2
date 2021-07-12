@@ -327,7 +327,7 @@ void Bottom::buildSound(SoundAndNoteWrapper* _soundNoteWrapper) {
 void Bottom::buildNote(SoundAndNoteWrapper* _soundNoteWrapper) {
   //Create the note.
 //Note* newNote = new Note();		//sever, make similar to newSound
-  Note* newNote = new Note(tsChild, tempo);
+  Note* newNote = new Note(tsChild, &tempo);
   if (utilities->getOutputParticel()){
   //Output note-related properties.
     Output::beginSubLevel("Note");
@@ -370,11 +370,11 @@ void Bottom::buildNote(SoundAndNoteWrapper* _soundNoteWrapper) {
   newNote->setPitchWellTempered(absPitchNum);
 
   // Set notation start, start absolute, and end times in edus
-  newNote->start_t = _soundNoteWrapper->ts.startEDUAbsolute;
-  newNote->start_t_absolute = _soundNoteWrapper->ts.startEDUAbsolute;
-  newNote->end_t = _soundNoteWrapper->ts.startEDUAbsolute + stoi(_soundNoteWrapper->ts.durationEDU.toPrettyString());
+  newNote->start_t = _soundNoteWrapper->ts.startEDU.To<int>();
+  newNote->start_t_absolute = _soundNoteWrapper->ts.startEDU.To<int>(); // FIXME - clean this up
+  newNote->end_t = _soundNoteWrapper->ts.startEDU.To<int>() + stoi(_soundNoteWrapper->ts.durationEDU.toPrettyString());
 
-  Output::notation_score_.SetTempo(_soundNoteWrapper->tempo);
+  Output::notation_score_.RegisterTempo(&tempo);
   Output::notation_score_.InsertNote(newNote);
 
   if (utilities->getOutputParticel()){

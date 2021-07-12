@@ -45,7 +45,7 @@ class Note {
     TimeSpan ts;
 
     //The parent tempo.
-    Tempo tempo;
+    Tempo* tempo;
 
     		//Pitch//
 
@@ -96,7 +96,7 @@ class Note {
     /**
      *  Constructor with timespan and tempo
      **/
-    Note(TimeSpan ts, Tempo tempo);
+    Note(TimeSpan ts, Tempo* tempo);
 
     /**
      *  Copy constructor

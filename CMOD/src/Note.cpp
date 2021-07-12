@@ -39,7 +39,7 @@ using namespace std;
 
 //----------------------------------------------------------------------------//
 
-Note::Note(TimeSpan ts, Tempo tempo) : ts(ts), tempo(tempo),
+Note::Note(TimeSpan ts, Tempo* tempo) : ts(ts), tempo(tempo),
   pitchNum(0), octaveNum(0), octavePitch(0), loudnessNum(0) {
 }
 

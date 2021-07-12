@@ -302,7 +302,7 @@ Piece::Piece(string _workingPath, string _projectTitle){
   Tempo mainTempo; //Though we supply this, "Top" will provide its own tempo.
   
   // Initialize the output score
-  Output::notation_score_ = NotationScore(_projectTitle, mainTempo);
+  Output::notation_score_ = NotationScore(_projectTitle);
 
   //Initialize the output class.
   if (utilities->getOutputParticel()){
