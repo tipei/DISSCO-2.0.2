@@ -20,9 +20,9 @@ Section::~Section() {
 }
 
 bool Section::InsertNote(Note* n) {
-  cout << "foreign address: " << n->tempo << endl;
-  cout << "local address: " << time_signature_.tempo_ << endl;
-  if (n->tempo != time_signature_.tempo_) {
+  cout << "foreign address: " << n->rootExactAncestor << endl;
+  cout << "local address: " << time_signature_.tempo_.getRootExactAncestor() << endl;
+  if (n->rootExactAncestor != time_signature_.tempo_.getRootExactAncestor()) {
     return false; // Note does not belong to this section.
   }
 
@@ -95,8 +95,8 @@ float Section::GetStartTimeGlobal() const {
   return time_signature_.start_time_global_;
 }
 
-int Section::CalculateEDUsFromSecondsInTempo(float seconds) const {
-  return time_signature_.tempo_->convertSecondsToEDUs(seconds);
+int Section::CalculateEDUsFromSecondsInTempo(float seconds) {
+  return time_signature_.tempo_.convertSecondsToEDUs(seconds);
 }
 
 void Section::Build() {

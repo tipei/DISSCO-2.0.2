@@ -73,7 +73,8 @@ Event::Event(DOMElement* _element,
   thisEventElement = thisEventElement->GNES();
   int newEDUPerBeat = (int) utilities->evaluate(XMLTC(thisEventElement),(void*)this);
   Ratio k(newEDUPerBeat,1);
-  Tempo fvTempo;
+  Tempo fvTempo; // File-Value Tempo
+
   fvTempo.setEDUPerTimeSignatureBeat(k);
 
   thisEventElement = thisEventElement->GNES();
@@ -108,6 +109,8 @@ Event::Event(DOMElement* _element,
     cout << "  " << fvTempo.getEDUPerTimeSignatureBeat() << endl;
     cout << "  " << fvTempo.getStartTime() << endl;
   }
+
+  tempo.setRootExactAncestor(this);
 
   //This part initializes childnum and childnames
 

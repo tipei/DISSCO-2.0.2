@@ -28,15 +28,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  * Represents a time signature in a NotationScore.
 **/
 struct TimeSignature {
-  TimeSignature(Tempo* tempo) {
+  TimeSignature(Tempo& tempo) {
     tempo_ = tempo;
 
-    start_time_global_ = tempo->getStartTime(); // global start time in seconds
+    start_time_global_ = tempo.getStartTime(); // global start time in seconds
 
-    time_signature_ = tempo->getTimeSignature();
-    beat_edus_ = stoi(tempo->getEDUPerTimeSignatureBeat().toPrettyString());
-    bar_edus_ = stoi(tempo->getEDUPerBar().toPrettyString());
-    unit_note_ = tempo->getTimeSignatureBeat().Den(); // the note that represents one beat
+    time_signature_ = tempo.getTimeSignature();
+    beat_edus_ = stoi(tempo.getEDUPerTimeSignatureBeat().toPrettyString());
+    bar_edus_ = stoi(tempo.getEDUPerBar().toPrettyString());
+    unit_note_ = tempo.getTimeSignatureBeat().Den(); // the note that represents one beat
 
     tuplet_limit_ = CalculateTupletLimit();
 
@@ -193,7 +193,7 @@ struct TimeSignature {
     return output;
   }
 
-  Tempo* tempo_;
+  Tempo tempo_;
   float start_time_global_; // global start time in seconds
   int duration_edus_; // duration of this time signature in edus
 

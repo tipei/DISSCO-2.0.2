@@ -56,7 +56,7 @@ public:
    * 
    * @param tempo The tempo to insert
   **/
-  void RegisterTempo(Tempo* tempo);
+  void RegisterTempo(Tempo& tempo);
 
   /**
    * Insert a Note into this score.

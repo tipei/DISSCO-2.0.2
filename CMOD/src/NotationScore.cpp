@@ -8,10 +8,9 @@ NotationScore::NotationScore(const string& score_title) {
   score_title_ = score_title;
 }
 
-void NotationScore::RegisterTempo(Tempo* tempo) {
+void NotationScore::RegisterTempo(Tempo& tempo) {
   // Find insertion point by comparing the global start in __seconds__
-  TimeSignature ts = TimeSignature(tempo);
-  Section section_to_insert{ts};
+  Section section_to_insert{TimeSignature(tempo)};
   // cout << ts << endl; TODO - remove
   vector<Section>::iterator section_iter = score_.begin();
   while (section_iter != score_.end() && 

@@ -75,7 +75,7 @@ public:
    * @param seconds The quantity in seconds to convert
    * @return The equivalent edus
   **/
-  int CalculateEDUsFromSecondsInTempo(float seconds) const;
+  int CalculateEDUsFromSecondsInTempo(float seconds);
   
   /**
    * Build the text representation of this section by adding bars,

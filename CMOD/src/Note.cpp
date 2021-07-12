@@ -39,7 +39,7 @@ using namespace std;
 
 //----------------------------------------------------------------------------//
 
-Note::Note(TimeSpan ts, Tempo* tempo) : ts(ts), tempo(tempo),
+Note::Note(TimeSpan ts, const Event* root_exact_ancestor) : ts(ts), rootExactAncestor(root_exact_ancestor),
   pitchNum(0), octaveNum(0), octavePitch(0), loudnessNum(0) {
 }
 
@@ -55,7 +55,7 @@ Note::Note(const Note& other) {
   end_t = other.end_t;
   pitch_out = other.pitch_out;
   ts = other.ts;
-  tempo = other.tempo;
+  rootExactAncestor = other.rootExactAncestor;
   pitchNum = other.pitchNum;
   octaveNum = other.octaveNum;
   octavePitch = other.octavePitch;

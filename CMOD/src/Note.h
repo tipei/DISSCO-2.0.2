@@ -46,8 +46,8 @@ class Note {
     //The timespan of the note.
     TimeSpan ts;
 
-    //The parent tempo.
-    Tempo* tempo;
+    // The ancestor event that carries the reference tempo for this Note.
+    const Event* rootExactAncestor;
 
     		//Pitch//
 
@@ -95,9 +95,9 @@ class Note {
     Note();
 
     /**
-     *  Constructor with timespan and tempo
+     *  Constructor with timespan and root exact ancestor
      **/
-    Note(TimeSpan ts, Tempo* tempo);
+    Note(TimeSpan ts, const Event* root_exact_ancestor);
 
     /**
      *  Copy constructor

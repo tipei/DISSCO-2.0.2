@@ -327,7 +327,7 @@ void Bottom::buildSound(SoundAndNoteWrapper* _soundNoteWrapper) {
 void Bottom::buildNote(SoundAndNoteWrapper* _soundNoteWrapper) {
   //Create the note.
 //Note* newNote = new Note();		//sever, make similar to newSound
-  Note* newNote = new Note(tsChild, &tempo);
+  Note* newNote = new Note(tsChild, tempo.getRootExactAncestor());
   if (utilities->getOutputParticel()){
   //Output note-related properties.
     Output::beginSubLevel("Note");
@@ -374,7 +374,7 @@ void Bottom::buildNote(SoundAndNoteWrapper* _soundNoteWrapper) {
   newNote->start_t_absolute = _soundNoteWrapper->ts.startEDU.To<int>(); // FIXME - clean this up
   newNote->end_t = _soundNoteWrapper->ts.startEDU.To<int>() + stoi(_soundNoteWrapper->ts.durationEDU.toPrettyString());
 
-  Output::notation_score_.RegisterTempo(&tempo);
+  Output::notation_score_.RegisterTempo(tempo);
   Output::notation_score_.InsertNote(newNote);
 
   if (utilities->getOutputParticel()){

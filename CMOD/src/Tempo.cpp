@@ -189,6 +189,18 @@ void Tempo::setEDUPerTimeSignatureBeat(Ratio newEDUPerTimeSignatureBeat) {
 
 //----------------------------------------------------------------------------//
 
+void Tempo::setRootExactAncestor(const Event* root_exact_ancestor) {
+  rootExactAncestor = root_exact_ancestor;
+}
+
+//----------------------------------------------------------------------------//
+
+const Event* Tempo::getRootExactAncestor() const {
+  return rootExactAncestor;
+}
+
+//----------------------------------------------------------------------------//
+
 Ratio Tempo::getTimeSignatureBeatsPerBar(void) {
   return timeSignatureBeatsPerBar;
 }
