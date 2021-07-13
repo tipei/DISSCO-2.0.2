@@ -52,6 +52,7 @@ Tempo::Tempo(const Tempo& other) {
   timeSignatureBeatsPerBar = other.timeSignatureBeatsPerBar;
   EDUPerTimeSignatureBeat = other.EDUPerTimeSignatureBeat;
   tempoStartTime = other.tempoStartTime;
+  rootExactAncestor = other.rootExactAncestor;
 }
 
 //----------------------------------------------------------------------------//
