@@ -32,7 +32,7 @@ void NotationScore::InsertNote(Note* n) {
   }
 
   vector<Section>::iterator section_iter = score_.begin();
-  while (!(*section_iter).InsertNote(n)) ++section_iter;
+  while (section_iter != score_.end() && !(*section_iter).InsertNote(n)) ++section_iter;
 
   if (section_iter == score_.end()) {
     cerr << "Note does not belong to any section in the score!" << endl;
