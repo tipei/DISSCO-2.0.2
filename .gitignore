@@ -33,3 +33,5 @@ docs
 .history
 
 notes.md
+CMOD/tests
+CMOD/tests/*
