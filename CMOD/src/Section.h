@@ -169,6 +169,11 @@ private:
   void Notate();
 
   /**
+   * Cap the ending of this Section according to the EDU allotment.
+  **/
+  void CapEnding();
+
+  /**
    * Notate the current note's duration given the previous tuplet type and the current
    * tuplet duration. This involves filling the current tuplet duration, filling the
    * subsequent complete beats if the note extends past the tuplet, and then using
@@ -233,6 +238,16 @@ private:
   **/
   void ModifiersMark(Note* current_note);
 
+  /**
+   * Get the first bar of this Section after building.
+  **/
+  vector<Note*> GetFirstBar();
+
+  /**
+   * Get the last bar of this Section after building.
+  **/
+  list<Note*> GetLastBar();
+
   TimeSignature time_signature_;
 
   vector<vector<Note*>*> section_;
@@ -240,6 +255,7 @@ private:
   bool is_built_ = false;
 
   int remaining_edus_ = 0;
+  int used_edus_ = 0; // Used edus after building // TODO - move this out of GetLastBar
   bool is_edu_limit_ = true; // true if the Section has an edu allotment; else false
 
   static string prev_loudness; // the previous loudness mark in notation loop

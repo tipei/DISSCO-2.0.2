@@ -122,6 +122,9 @@ void Section::Build() {
     AddBars();
     AddRestsAndFlatten();
     Notate();
+    if (is_edu_limit_) {
+      CapEnding();
+    }
 
     PrintAllNotesFlat(); // TODO - remove
 
@@ -284,6 +287,88 @@ void Section::Notate() {
     }
 
     tuplet_dur = NotateCurrentNote(cur, &prev_tuplet, tuplet_dur);
+  }
+}
+
+void Section::CapEnding() { // TODO - test
+  int cur_bar_edus = 0;
+  list<Note*> last_bar = GetLastBar();
+
+  for (Note* note : last_bar) {
+    cur_bar_edus += note->end_t - note->start_t;
+  }
+
+  remaining_edus_ -= used_edus_; // 'rest' edus
+  int total_edus_to_use = remaining_edus_ + cur_bar_edus;
+
+  if (remaining_edus_ < 0) {
+    cerr << "Sections overlap" << endl;
+    exit(1);
+  } else if (remaining_edus_ == 0 && cur_bar_edus == 0) {
+    return; // Sections align perfectly!
+  } else {
+    int pow_2 = 0;
+    int min_err = std::numeric_limits<int>::max();
+    int ts_num, ts_den;
+    while (time_signature_.beat_edus_ % TimeSignature::Power(2, pow_2) == 0) {
+      int tmp_beat_edus = time_signature_.beat_edus_ / TimeSignature::Power(2, pow_2);
+      if (total_edus_to_use % tmp_beat_edus == 0) {
+        ts_num = total_edus_to_use / tmp_beat_edus;
+        ts_den = time_signature_.unit_note_ * TimeSignature::Power(2, pow_2);
+        min_err = 0;
+        break; // Overhanging time forms a dyadic time signature
+      } else {
+        // Form a dyadic time signature by adding sound or rest with the least error
+        int num_beats = (total_edus_to_use / tmp_beat_edus) + 1;
+        int err = tmp_beat_edus * num_beats - total_edus_to_use;
+        if (err < min_err) {
+          ts_num = num_beats; // Add time
+          ts_den = time_signature_.unit_note_ * TimeSignature::Power(2, pow_2);
+          min_err = err;
+        }
+      }
+      ++pow_2;
+    }
+
+    int beat_divisor = TimeSignature::Power(2, pow_2);
+    Tempo new_tempo(time_signature_.tempo_);
+
+    new_tempo.setEDUPerTimeSignatureBeat(time_signature_.beat_edus_ / beat_divisor);
+    new_tempo.setTimeSignature(Ratio(ts_num, ts_den).toPrettyString());
+    // IMPORTANT - Tempo rate (i.e. 1/4=60bpm) is left the same
+    // IMPORTANT - Tempo start time left unchanged because the calculation is not necessary
+
+    Section new_section{TimeSignature(new_tempo)};
+    new_section.SetDurationEDUS(-1);
+
+    while (!last_bar.empty()) {
+      if (!new_section.InsertNote(last_bar.front())) {
+        cerr << "Note could not be inserted into end cap. " <<
+                "This should not happen under any circumstance." << endl;
+        exit(1);
+      }
+      last_bar.pop_front();
+    }
+
+    if (min_err != 0 && remaining_edus_ == 0) { // No extra time and leftover sound does not fill time signature
+      Note* extra_space = new Note(*last_bar.back()); // FIXME - what if we get a tie over the last bar?
+      extra_space->start_t = last_bar.back()->start_t;
+      extra_space->end_t = extra_space->start_t + min_err;
+      extra_space->split = 1;
+      new_section.InsertNote(extra_space);
+    }
+
+    if (min_err != 0) {
+      cout << to_string(new_tempo.calculateSecondsFromEDUs(min_err))
+           << " seconds added to stitch sections." << endl;
+    }
+
+    new_section.Build();
+
+    vector<Note*> final_bar = new_section.GetFirstBar();
+    for (Note* note : final_bar) {
+      section_flat_.push_back(note);
+    }
   }
 }
 
@@ -472,5 +557,52 @@ void Section::ModifiersMark(Note* current_note) {
   while (!current_note->modifiers_out.empty()){
     current_note->type_out += current_note->modifiers_out.back() + " ";
     current_note->modifiers_out.pop_back();
+  }
+}
+
+vector<Note*> Section::GetFirstBar() {
+  vector<Note*> bar;
+  bar.push_back(section_flat_.front());
+
+  size_t note_idx = 1;
+  while (note_idx < section_flat_.size() &&
+         section_flat_.at(note_idx)->type == NoteType::kBarline) {
+    bar.push_back(section_flat_[note_idx]);
+    ++note_idx;
+  }
+
+  return bar;
+}
+
+list<Note*> Section::GetLastBar() {
+  list<Note*> last_bar;
+  Note* last_barline = nullptr;
+  vector<Note*>::iterator note_iter;
+  vector<Note*>::iterator last_bar_iter;
+  for (note_iter = section_flat_.begin(); 
+       note_iter != section_flat_.end(); 
+       ++note_iter) {
+    Note* note = *note_iter;
+    int dur = note->end_t - note->start_t;
+    used_edus_ += dur;
+    if (note->type == NoteType::kNote) { // FIXME - think about the space?
+      last_bar.push_back(note); // Rests will be automatically added later
+    }
+    if ((note_iter + 1) != section_flat_.end() && 
+        note->type == NoteType::kBarline) {
+      last_barline = note;
+      last_bar.clear();
+      last_bar_iter = note_iter;
+    }
+  }
+
+  if (last_barline == nullptr) {
+    cerr << "Could not locate last bar for stitching" << endl;
+    exit(1);
+  }
+
+  while (last_bar_iter != section_flat_.end()) { // Remove the last bar from section_flat_
+    section_flat_.pop_back();
+    ++last_bar_iter;
   }
 }
