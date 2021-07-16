@@ -30,6 +30,7 @@ bool Section::InsertNote(Note* n) {
   cout << "Note end (edus): " << n->end_t << endl;
 
   n->type_out = "";
+  n->type = NoteType::kNote;
   is_built_ = false;
 
   EnsureNoteExpressible(n);
@@ -115,6 +116,7 @@ void Section::Build() {
     time_signature->start_t = 0;
     time_signature->end_t = 0;
     time_signature->type_out = "\\time " + time_signature_.time_signature_ + '\n';
+    time_signature->type = NoteType::kTimeSignature;
     section_flat_.push_back(time_signature);
 
     AddBars();
@@ -181,6 +183,7 @@ void Section::ResizeSection(size_t new_size) {
     n->start_t = time_signature_.bar_edus_ * bar_idx;
     n->end_t = time_signature_.bar_edus_ * bar_idx;
     n->type_out = " ";
+    n->type = NoteType::kUnknown;
     bar->push_back(n);
     section_.push_back(bar);
   }
@@ -194,6 +197,7 @@ void Section::AddBars() {
       n->start_t = time_signature_.bar_edus_ * bar_idx;
       n->end_t = time_signature_.bar_edus_ * bar_idx;
       n->type_out = "\\bar\"|\" \n";
+      n->type = NoteType::kBarline;
       bar->push_back(n);
       ++bar_idx;
   }

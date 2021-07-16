@@ -33,6 +33,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "TimeSpan.h"
 #include "tables.h"
 
+enum class NoteType {
+  kNote,
+  kRest,
+  kBarline,
+  kTimeSignature,
+  kUnknown
+};
+
 /**
  *  Constructor
  *
@@ -87,6 +95,8 @@ class Note {
     int split;
 
     std::vector<std::string> modifiers_out;
+
+    NoteType type = NoteType::kUnknown;
 
   public:
     /**
