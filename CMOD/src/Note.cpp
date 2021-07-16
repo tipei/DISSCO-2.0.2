@@ -64,6 +64,7 @@ Note::Note(const Note& other) {
   loudnessMark = other.loudnessMark;
   loudness_out = other.loudness_out;
   modifiers = other.modifiers;
+  type = other.type;
 }
 
 //----------------------------------------------------------------------------//
