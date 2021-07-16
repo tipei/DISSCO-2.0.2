@@ -63,7 +63,7 @@ bool Tempo::isTempoSameAs(Tempo& other) {
     timeSignatureBeat == other.timeSignatureBeat &&
     timeSignatureBeatsPerBar == other.timeSignatureBeatsPerBar &&
     EDUPerTimeSignatureBeat == other.EDUPerTimeSignatureBeat &&
-    fabs(tempoStartTime - other.tempoStartTime) < 0.0001;
+    fabs(tempoStartTime - other.tempoStartTime) < 0.0001; // Changed by andreworals
 }
 
 //----------------------------------------------------------------------------//
@@ -295,6 +295,10 @@ Ratio Tempo::getEDUPerSecond(void) {
 
 Ratio Tempo::getEDUDurationInSeconds(void) {
   return getTimeSignatureBeatDurationInSeconds() / EDUPerTimeSignatureBeat;
+}
+
+float Tempo::calculateSecondsFromEDUs(int edus) {
+  return (float(edus) * getTimeSignatureBeatDurationInSeconds().To<float>()) / EDUPerTimeSignatureBeat.To<int>(); // TODO - test!
 }
 
 //----------------------------------------------------------------------------//
