@@ -370,9 +370,10 @@ void Bottom::buildNote(SoundAndNoteWrapper* _soundNoteWrapper) {
   newNote->setPitchWellTempered(absPitchNum);
 
   // Set notation start, start absolute, and end times in edus
-  newNote->start_t = _soundNoteWrapper->ts.startEDU.To<int>();
-  newNote->start_t_absolute = _soundNoteWrapper->ts.startEDU.To<int>(); // FIXME - clean this up
-  newNote->end_t = _soundNoteWrapper->ts.startEDU.To<int>() + stoi(_soundNoteWrapper->ts.durationEDU.toPrettyString());
+  newNote->setStartTime(_soundNoteWrapper->ts.startEDU.To<int>());
+  newNote->setEndTime(
+    _soundNoteWrapper->ts.startEDU.To<int>() + stoi(
+      _soundNoteWrapper->ts.durationEDU.toPrettyString()));
 
   Output::notation_score_.RegisterTempo(tempo);
   Output::notation_score_.InsertNote(newNote);

@@ -47,7 +47,6 @@ enum class NoteType {
  **/
 class Note {
   friend class Section;
-  friend class Bottom;
 
     		//Rhythm//
 
@@ -87,7 +86,6 @@ class Note {
     string loudness_out;
 
     int start_t;
-    int start_t_absolute;
     int end_t;
 
     int tuplet;
@@ -121,6 +119,16 @@ class Note {
     bool operator< (const Note& rhs);
 
 //----------------------------------------------------------------------------//
+
+    /**
+     * Set the start time of this Note in EDUs.
+    **/
+    void setStartTime(int start_time);
+
+    /**
+     * Set the end time of this Note in EDUs.
+    **/
+    void setEndTime(int end_time);
 
     /**
      *  Assigns the pitch of a note

@@ -76,6 +76,18 @@ bool Note::operator < (const Note& rhs) {
 
 //----------------------------------------------------------------------------//
 
+void Note::setStartTime(int start_time) {
+  start_t = start_time;
+}
+
+//----------------------------------------------------------------------------//
+
+void Note::setEndTime(int end_time) {
+  end_t = end_time;
+}
+
+//----------------------------------------------------------------------------//
+
 void Note::setPitchWellTempered(int pitchNum) {
   octaveNum = pitchNum / 12;
 
