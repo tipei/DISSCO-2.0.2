@@ -268,7 +268,7 @@ void Section::Notate() {
         cur->end_t = cur->start_t + dur_beats * time_signature_.beat_edus_ + best_fit;
 
         Note* next = *(it+1);
-        if(next == nullptr){
+        if(next == nullptr || (it + 1) == section_flat_.end()){
           continue;
         }
 
@@ -295,7 +295,7 @@ void Section::CapEnding() { // TODO - test
   list<Note*> last_bar = GetLastBar();
 
   for (Note* note : last_bar) {
-    cur_bar_edus += note->end_t - note->start_t;
+    cur_bar_edus += (note->end_t - note->start_t);
   }
 
   remaining_edus_ -= used_edus_; // 'rest' edus
