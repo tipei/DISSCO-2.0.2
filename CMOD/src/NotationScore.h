@@ -82,13 +82,13 @@ public:
                              NotationScore& notation_score);
 
 private:
-  void PrintScore() const {
+  void PrintScoreFlat() const {
     size_t section_idx = 0;
     cout << endl << endl;
     cout << "SCORE: " << endl;
     for (const Section& section : score_) {
       cout << "SECTION " << section_idx << endl;
-      section.PrintAllNotesBar();
+      section.PrintAllNotesFlat("Score printing");
       ++section_idx;
     }
     cout << endl << endl;

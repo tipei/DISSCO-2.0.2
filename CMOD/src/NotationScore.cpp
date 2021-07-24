@@ -11,7 +11,6 @@ NotationScore::NotationScore(const string& score_title) {
 void NotationScore::RegisterTempo(Tempo& tempo) {
   // Find insertion point by comparing the global start in __seconds__
   Section section_to_insert{TimeSignature(tempo)};
-  // cout << ts << endl; TODO - remove
   vector<Section>::iterator section_iter = score_.begin();
   while (section_iter != score_.end() && 
          section_to_insert > *section_iter) {
@@ -47,13 +46,12 @@ void NotationScore::Build() {
     vector<Section>::iterator iter = score_.begin();
     vector<Section>::iterator next = score_.begin() + 1;
     int last_start_time_edu = 0;
-    cout << "Score size: " << score_.size() << endl; // TODO - remove
-    bool ended = next == score_.end(); // TODO - remove
-    cout << "Iter ended: " << ended << endl; // TODO - remove
+
     while (next != score_.end()) {
       float dur_seconds = next->GetStartTimeGlobal() - iter->GetStartTimeGlobal();
       iter->SetDurationEDUS(iter->CalculateEDUsFromSecondsInTempo(dur_seconds));
       iter->Build();
+      ++iter; ++next;
     }
     iter->SetDurationEDUS(-1);
     iter->Build();
