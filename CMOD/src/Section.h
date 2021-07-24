@@ -116,7 +116,7 @@ public:
   /**
    * Get this section as a flattened entity ready for output.
   **/
-  vector<Note*>& GetSectionFlat();
+  const list<Note*>& GetSectionFlat();
 
   bool operator<(const Section& other) const;
 
@@ -266,20 +266,25 @@ private:
   void ModifiersMark(Note* current_note);
 
   /**
-   * Get the first bar of this Section after building.
+   * Get the first bar of this Section after building and
+   * __remove the full bar from this Section__
+   * 
+   * @return The first bar of this Section
   **/
-  list<Note*> GetFirstBar();
+  list<Note*> PopFirstBar();
 
   /**
    * Get __only the notes__ of the last bar of this Section 
-   * after building and __remove the bar from the Section__
+   * after building and __remove the full bar from this Section__
+   * 
+   * @return The notes of the last bar of this Section
   **/
-  list<Note*> PopLastBar();
+  list<Note*> PopLastBarNotes();
 
   TimeSignature time_signature_;
 
   vector<vector<Note*>*> section_;
-  vector<Note*> section_flat_;
+  list<Note*> section_flat_;
   bool is_built_ = false;
 
   int remaining_edus_;

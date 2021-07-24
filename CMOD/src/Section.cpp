@@ -6,7 +6,7 @@ Section::Section(TimeSignature time_signature) :
     time_signature_(time_signature) {
   prev_loudness = "";
   section_ = vector<vector<Note*>*>(0);
-  section_flat_ = vector<Note*>(0);
+  section_flat_ = list<Note*>();
   remaining_edus_ = 0;
 }
 
@@ -67,9 +67,6 @@ bool Section::InsertNote(Note* n) {
   if (n->rootExactAncestor != time_signature_.tempo_.getRootExactAncestor()) {
     return false; // Note does not belong to this section.
   }
-
-  // cout << "Note start (edus): " << n->start_t << endl;
-  // cout << "Note end (edus): " << n->end_t << endl;
 
   n->type_out = "";
   n->type = NoteType::kNote;
@@ -173,7 +170,7 @@ void Section::Build() {
   }
 }
 
-vector<Note*>& Section::GetSectionFlat() {
+const list<Note*>& Section::GetSectionFlat() {
   if (is_built_) {
     return section_flat_;
   }
@@ -281,10 +278,11 @@ void Section::AddRestsAndFlatten() {
 }
 
 void Section::Notate() {
-  vector<Note*>::iterator it;
+  list<Note*>::iterator it = section_flat_.begin();
+  list<Note*>::iterator next_it = ++section_flat_.begin();
   int prev_tuplet = 0; // the previous tuplet type
   int tuplet_dur = 0; // the current tuplet duration in edus
-  for (it = section_flat_.begin(); it!=section_flat_.end(); it++) {
+  for (; it != section_flat_.end(); ++it, ++next_it) {
     Note* cur = *it;
 
     // adjust note duration according to the tuplet type
@@ -303,19 +301,19 @@ void Section::Notate() {
       // if the current note's duration cannot be fitted in the tuplet
       // find the closest value and change the end time of the note.
       // Also change the start time of the next note
-      if((desire_type != cur_type) && !note_is_valid) {
+      if ((desire_type != cur_type) && !note_is_valid) {
         int t = time_signature_.beat_edus_ / desire_type;
         double a = (double)dur_remainder / (double)t;
         int best_fit = (int) round(a) * t;
 
         cur->end_t = cur->start_t + dur_beats * time_signature_.beat_edus_ + best_fit;
 
-        Note* next = *(it+1);
-        if(next == nullptr || (it + 1) == section_flat_.end()){
+        Note* next_note = *(next_it);
+        if (next_note == nullptr || next_it == section_flat_.end()) {
           continue;
         }
 
-        next->start_t = cur->start_t + dur_beats * time_signature_.beat_edus_ + best_fit;
+        next_note->start_t = cur->start_t + dur_beats * time_signature_.beat_edus_ + best_fit;
       }
     }
 
@@ -335,7 +333,7 @@ void Section::Notate() {
 
 void Section::CapEnding() { // TODO - test
   int cur_bar_edus = 0;
-  list<Note*> last_bar = PopLastBar();
+  list<Note*> last_bar = PopLastBarNotes();
   
   if (!last_bar.empty()) {
     cur_bar_edus = last_bar.back()->end_t - last_bar.front()->start_t;
@@ -414,7 +412,7 @@ void Section::CapEnding() { // TODO - test
 
     cap_->Build();
 
-    list<Note*> final_bar = cap_->GetFirstBar();
+    list<Note*> final_bar = cap_->PopFirstBar();
     while (!final_bar.empty()) {
       section_flat_.push_back(final_bar.front());
       final_bar.pop_front();
@@ -423,8 +421,8 @@ void Section::CapEnding() { // TODO - test
 }
 
 int Section::NotateCurrentNote(Note* current_note, 
-                                     int* prev_tuplet, 
-                                     int tuplet_dur) {
+                               int* prev_tuplet, 
+                               int tuplet_dur) {
   int dur = current_note->end_t - current_note->start_t;
   if (dur == 0) {
     return tuplet_dur;
@@ -461,7 +459,7 @@ int Section::FillCurrentTupletDur(Note* current_note,
   }
   // even if the previous tuplet is an eighth note or sixteenth note,
   // it is still necessary to split part of the current note.
-  if(prev_tuplet == 2 || prev_tuplet == 4) {
+  if (prev_tuplet == 2 || prev_tuplet == 4) {
     int unit = tuplet_dur / (time_signature_.beat_edus_ / prev_tuplet);
     if(unit == 3) {
       string s = to_string(time_signature_.unit_note_ * 2);
@@ -470,7 +468,7 @@ int Section::FillCurrentTupletDur(Note* current_note,
       string s = to_string(time_signature_.unit_note_ * prev_tuplet / unit);
       current_note->type_out += current_note->pitch_out + s;
     }
-    if((dur > tuplet_dur || current_note->split == 1) && 
+    if ((dur > tuplet_dur || current_note->split == 1) && 
        (current_note->pitch_out != "r")) {
       current_note->type_out += "~ ";
     } else {
@@ -481,7 +479,7 @@ int Section::FillCurrentTupletDur(Note* current_note,
     // if the current sound completes the tuplet use the LilyPond symbol and
     // close the tuplet
     NoteInTuplet(current_note, prev_tuplet, tuplet_dur);
-    if((dur > tuplet_dur || current_note->split == 1) && (current_note->pitch_out != "r")) {
+    if ((dur > tuplet_dur || current_note->split == 1) && (current_note->pitch_out != "r")) {
       current_note->type_out += "~ ";
     } else {
       // current_note->loudness_and_modifiers();
@@ -610,44 +608,60 @@ void Section::ModifiersMark(Note* current_note) {
   }
 }
 
-list<Note*> Section::GetFirstBar() {
+list<Note*> Section::PopFirstBar() {
   list<Note*> bar;
 
-  size_t note_idx = 0;
+  list<Note*>::iterator note_iter = section_flat_.begin();
+  int num_items_in_bar = 0;
   bool first_barline_seen = false;
-  while (note_idx < section_flat_.size() &&
+  while (note_iter != section_flat_.end() &&
          !first_barline_seen ||
-         section_flat_.at(note_idx)->type != NoteType::kBarline) {
-    bar.push_back(section_flat_[note_idx]);
+         (*note_iter)->type != NoteType::kBarline) {
+    bar.push_back(*note_iter);
 
-    if (section_flat_.at(note_idx)->type == NoteType::kBarline) 
+    if ((*note_iter)->type == NoteType::kBarline) 
       first_barline_seen = true;
 
-    ++note_idx;
+    ++note_iter; ++num_items_in_bar;
+  }
+
+  if (!first_barline_seen) {
+    cerr << "Could not locate first bar in section" << endl;
+    exit(1);
+  }
+
+  // Remove the first bar from section_flat_
+  while (num_items_in_bar > 0) {
+    section_flat_.pop_front();
+    --num_items_in_bar;
   }
 
   return bar;
 }
 
-list<Note*> Section::PopLastBar() {
+list<Note*> Section::PopLastBarNotes() {
+  PrintAllNotesFlat("Popping last bar");
   list<Note*> last_bar(0);
+
   Note* last_barline = nullptr;
-  vector<Note*>::iterator note_iter;
+  list<Note*>::iterator note_iter = section_flat_.begin();
+  list<Note*>::iterator next = ++section_flat_.begin();
   int num_items_in_bar = 0;
-  for (note_iter = section_flat_.begin(); 
-       note_iter != section_flat_.end(); 
-       ++note_iter) {
+  for (; note_iter != section_flat_.end(); ++note_iter, ++next) {
     Note* note = *note_iter;
-    if (note->type == NoteType::kNote) { // FIXME - think about the space?
-      last_bar.push_back(note); // Rests will be automatically added later
+
+    if (note->type == NoteType::kNote) {
+      last_bar.push_back(note);
     }
-    ++num_items_in_bar;
-    if ((note_iter + 1) != section_flat_.end() && 
+
+    if (next != section_flat_.end() && 
         note->type == NoteType::kBarline) {
       num_items_in_bar = 0;
       last_barline = note;
       last_bar.clear();
     }
+
+    ++num_items_in_bar;
   }
 
   if (last_barline == nullptr) {
@@ -656,11 +670,15 @@ list<Note*> Section::PopLastBar() {
   }
 
   // Remove the last bar from section_flat_
-  while (num_items_in_bar >= 0) {
-    delete section_flat_.back();
+  while (num_items_in_bar > 0) {
+    if (section_flat_.back()->type != NoteType::kNote) {
+      delete section_flat_.back(); // not returned so they have to be deleted here
+    }
     section_flat_.pop_back();
     --num_items_in_bar;
   }
+
+  PrintAllNotesFlat("Popped last bar");
 
   return last_bar;
 }
