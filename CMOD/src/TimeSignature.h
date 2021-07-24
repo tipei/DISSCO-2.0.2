@@ -28,6 +28,21 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  * Represents a time signature in a NotationScore.
 **/
 struct TimeSignature {
+  TimeSignature() {
+    tempo_ = Tempo();
+
+    start_time_global_ = tempo_.getStartTime(); // global start time in seconds
+
+    time_signature_ = tempo_.getTimeSignature();
+    beat_edus_ = stoi(tempo_.getEDUPerTimeSignatureBeat().toPrettyString());
+    bar_edus_ = stoi(tempo_.getEDUPerBar().toPrettyString());
+    unit_note_ = tempo_.getTimeSignatureBeat().Den(); // the note that represents one beat
+
+    tuplet_limit_ = CalculateTupletLimit();
+
+    ConstructTupletNames();
+  }
+
   TimeSignature(Tempo& tempo) {
     tempo_ = tempo;
 
