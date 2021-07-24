@@ -334,12 +334,14 @@ void Section::Notate() {
 
 void Section::CapEnding() { // TODO - test
   int cur_bar_edus = 0;
-  list<Note*> last_bar = GetLastBar();
-
-  for (Note* note : last_bar) {
-    cur_bar_edus += (note->end_t - note->start_t);
+  list<Note*> last_bar = PopLastBar();
+  
+  if (!last_bar.empty()) {
+    cur_bar_edus = last_bar.back()->end_t - last_bar.front()->start_t;
+    cur_bar_edus %= time_signature_.bar_edus_; // want the last __incomplete__ bar
   }
 
+  int used_edus_ = last_bar.back()->end_t; // edus start at 0, so this gives used time
   remaining_edus_ -= used_edus_; // 'rest' edus
   int total_edus_to_use = remaining_edus_ + cur_bar_edus;
 
