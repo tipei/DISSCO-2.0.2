@@ -206,7 +206,6 @@ struct TimeSignature {
 
   Tempo tempo_;
   float start_time_global_; // global start time in seconds
-  int duration_edus_; // duration of this time signature in edus
 
   string time_signature_;
   int beat_edus_;

@@ -129,7 +129,6 @@ void Section::SetDurationEDUS(int edus) {
   if (edus == -1) {
     is_edu_limit_ = false;
   }
-  time_signature_.duration_edus_ = edus;
   remaining_edus_ = edus;
 }
 
