@@ -136,15 +136,13 @@ struct TimeSignature {
     return !operator==(other);
   }
 
+  /**
+   * Print this TimeSignature to an ostream.
+  **/
   friend ostream& operator<<(ostream& stream, const TimeSignature& ts) {
-    /**
-     * return time_signature_ == other.time_signature_ &&
-          beat_edus_ == other.beat_edus_ &&
-          bar_edus_ == other.bar_edus_ &&
-          unit_note_ == other.unit_note_ &&
-          fabs(start_time_global_ - other.start_time_global_) < 0.001;
-    **/
-    stream << ts.time_signature_ << '\n' << ts.beat_edus_ << '\n' << ts.bar_edus_ << '\n' << ts.unit_note_ << '\n' << ts.start_time_global_ << endl;
+    stream << ts.time_signature_ << '\n' << ts.beat_edus_ << '\n' << ts.bar_edus_ << 
+          '\n' << ts.unit_note_ << '\n' << ts.start_time_global_ << endl;
+
     return stream;
   }
 
