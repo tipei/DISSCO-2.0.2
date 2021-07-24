@@ -219,8 +219,8 @@ void Section::EnsureNoteExpressible(Note* n) {
   }
 }
 
-void Section::ResizeSection(size_t new_size) {
-  for(size_t bar_idx = section_.size(); bar_idx <= new_size; ++bar_idx) {
+void Section::ResizeSection(int new_size) {
+  for(int bar_idx = section_.size(); bar_idx <= new_size; ++bar_idx) {
     vector<Note*>* bar = new vector<Note*>();
     Note* n = new Note();
     n->start_t = time_signature_.bar_edus_ * bar_idx;
@@ -305,6 +305,7 @@ void Section::Notate() {
         int t = time_signature_.beat_edus_ / desire_type;
         double a = (double)dur_remainder / (double)t;
         int best_fit = (int) round(a) * t;
+
         cur->end_t = cur->start_t + dur_beats * time_signature_.beat_edus_ + best_fit;
 
         Note* next = *(it+1);
