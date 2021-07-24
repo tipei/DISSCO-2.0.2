@@ -50,11 +50,11 @@ void NotationScore::Build() {
     while (next != score_.end()) {
       float dur_seconds = next->GetStartTimeGlobal() - iter->GetStartTimeGlobal();
       iter->SetDurationEDUS(iter->CalculateEDUsFromSecondsInTempo(dur_seconds));
-      iter->Build();
+      iter->Build(true);
       ++iter; ++next;
     }
     iter->SetDurationEDUS(-1);
-    iter->Build();
+    iter->Build(true);
 
     is_built_ = true;
   }

@@ -110,8 +110,11 @@ public:
   /**
    * Build the text representation of this section by adding bars,
    * rests, and adjusting durations.
+   * 
+   * @param notate_time_signature True if the time signature 
+   * should be notated; else, false
   **/
-  void Build();
+  void Build(bool notate_time_signature);
 
   /**
    * Get this section as a flattened entity ready for output.

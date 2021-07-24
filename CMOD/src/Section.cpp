@@ -140,7 +140,7 @@ int Section::CalculateEDUsFromSecondsInTempo(float seconds) {
   return time_signature_.tempo_.convertSecondsToEDUs(seconds);
 }
 
-void Section::Build() {
+void Section::Build(bool notate_time_signature) {
   if (!is_built_) {
     if (is_edu_limit_ && remaining_edus_ == 0) {
       cerr << "Section cannot be built without exact edu allotment" << endl;
@@ -149,15 +149,19 @@ void Section::Build() {
 
     section_flat_.clear();
 
-    // Notate the time signature and first bar
-    Note* time_signature = new Note();
+    if (notate_time_signature) {
+      Note* time_signature = new Note();
+      time_signature->start_t = 0;
+      time_signature->end_t = 0;
+      time_signature->type_out = "\\time " + time_signature_.time_signature_ + '\n';
+      time_signature->type = NoteType::kTimeSignature;
+      section_flat_.push_back(time_signature);
+    }
+
     Note* first_barline = new Note();
-    time_signature->start_t = 0; first_barline->start_t=0;
-    time_signature->end_t = 0; first_barline->end_t=0;
-    time_signature->type_out = "\\time " + time_signature_.time_signature_ + '\n';
-    time_signature->type = NoteType::kTimeSignature;
+    first_barline->start_t=0;
+    first_barline->end_t=0;
     first_barline->type = NoteType::kBarline;
-    section_flat_.push_back(time_signature);
     section_flat_.push_back(first_barline);
 
     AddBars();
@@ -411,7 +415,7 @@ void Section::CapEnding() { // TODO - test
            << " seconds added to stitch sections." << endl;
     }
 
-    cap_->Build();
+    cap_->time_signature_ == time_signature_ ? cap_->Build(false) : cap_->Build(true);
 
     list<Note*> final_bar = cap_->PopFirstBar();
     while (!final_bar.empty()) {
