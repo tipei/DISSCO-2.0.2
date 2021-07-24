@@ -50,14 +50,16 @@ Section& Section::operator=(Section&& source) noexcept {
 
 Section::~Section() {
   for (vector<Note*>* bar : section_){
-      for (Note* note : *bar) {
-        delete note;
-      }
       bar->clear();
       delete bar;
   }
   section_.clear();
+
+  for (Note* note : section_flat_) {
+    delete note;
+  }
   section_flat_.clear();
+
   if (cap_) {
     delete cap_;
   }
