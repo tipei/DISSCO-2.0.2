@@ -378,15 +378,19 @@ void Section::CapEnding() { // TODO - test
     Tempo new_tempo(time_signature_.tempo_);
 
     new_tempo.setEDUPerTimeSignatureBeat(time_signature_.beat_edus_ / beat_divisor);
-    new_tempo.setTimeSignature(Ratio(ts_num, ts_den).toPrettyString());
+    new_tempo.setTimeSignature(to_string(ts_num) + "/" + to_string(ts_den));
     // IMPORTANT - Tempo rate (i.e. 1/4=60bpm) is left the same
     // IMPORTANT - Tempo start time left unchanged because the calculation is not necessary
 
-    Section new_section{TimeSignature(new_tempo)};
-    new_section.SetDurationEDUS(-1);
+    cap_ = new Section(TimeSignature(new_tempo));
+    cap_->SetDurationEDUS(-1);
 
+    int offset = last_bar.front()->start_t;
     while (!last_bar.empty()) {
-      if (!new_section.InsertNote(last_bar.front())) {
+      last_bar.front()->start_t -= offset; // make notes in cap start from 0
+      last_bar.front()->end_t -= offset;
+
+      if (!cap_->InsertNote(last_bar.front())) {
         cerr << "Note could not be inserted into end cap. " <<
                 "This should not happen under any circumstance." << endl;
         exit(1);
@@ -399,7 +403,7 @@ void Section::CapEnding() { // TODO - test
       extra_space->start_t = last_bar.back()->start_t;
       extra_space->end_t = extra_space->start_t + min_err;
       extra_space->split = 1;
-      new_section.InsertNote(extra_space);
+      cap_->InsertNote(extra_space);
     }
 
     if (min_err != 0) {
@@ -407,11 +411,12 @@ void Section::CapEnding() { // TODO - test
            << " seconds added to stitch sections." << endl;
     }
 
-    new_section.Build();
+    cap_->Build();
 
-    vector<Note*> final_bar = new_section.GetFirstBar();
-    for (Note* note : final_bar) {
-      section_flat_.push_back(note);
+    list<Note*> final_bar = cap_->GetFirstBar();
+    while (!final_bar.empty()) {
+      section_flat_.push_back(final_bar.front());
+      final_bar.pop_front();
     }
   }
 }
@@ -604,39 +609,43 @@ void Section::ModifiersMark(Note* current_note) {
   }
 }
 
-vector<Note*> Section::GetFirstBar() {
-  vector<Note*> bar;
-  bar.push_back(section_flat_.front());
+list<Note*> Section::GetFirstBar() {
+  list<Note*> bar;
 
-  size_t note_idx = 1;
+  size_t note_idx = 0;
+  bool first_barline_seen = false;
   while (note_idx < section_flat_.size() &&
-         section_flat_.at(note_idx)->type == NoteType::kBarline) {
+         !first_barline_seen ||
+         section_flat_.at(note_idx)->type != NoteType::kBarline) {
     bar.push_back(section_flat_[note_idx]);
+
+    if (section_flat_.at(note_idx)->type == NoteType::kBarline) 
+      first_barline_seen = true;
+
     ++note_idx;
   }
 
   return bar;
 }
 
-list<Note*> Section::GetLastBar() {
-  list<Note*> last_bar;
+list<Note*> Section::PopLastBar() {
+  list<Note*> last_bar(0);
   Note* last_barline = nullptr;
   vector<Note*>::iterator note_iter;
-  vector<Note*>::iterator last_bar_iter;
+  int num_items_in_bar = 0;
   for (note_iter = section_flat_.begin(); 
        note_iter != section_flat_.end(); 
        ++note_iter) {
     Note* note = *note_iter;
-    int dur = note->end_t - note->start_t;
-    used_edus_ += dur;
     if (note->type == NoteType::kNote) { // FIXME - think about the space?
       last_bar.push_back(note); // Rests will be automatically added later
     }
+    ++num_items_in_bar;
     if ((note_iter + 1) != section_flat_.end() && 
         note->type == NoteType::kBarline) {
+      num_items_in_bar = 0;
       last_barline = note;
       last_bar.clear();
-      last_bar_iter = note_iter;
     }
   }
 
@@ -645,8 +654,12 @@ list<Note*> Section::GetLastBar() {
     exit(1);
   }
 
-  while (last_bar_iter != section_flat_.end()) { // Remove the last bar from section_flat_
+  // Remove the last bar from section_flat_
+  while (num_items_in_bar >= 0) {
+    delete section_flat_.back();
     section_flat_.pop_back();
-    ++last_bar_iter;
+    --num_items_in_bar;
   }
+
+  return last_bar;
 }
