@@ -5,6 +5,47 @@ string Section::prev_loudness;
 Section::Section(TimeSignature time_signature) : 
     time_signature_(time_signature) {
   prev_loudness = "";
+  section_ = vector<vector<Note*>*>(0);
+  section_flat_ = vector<Note*>(0);
+  remaining_edus_ = 0;
+}
+
+Section::Section(const Section& other) {
+  time_signature_ = other.time_signature_;
+  section_ = other.section_;
+  section_flat_ = other.section_flat_;
+  is_built_ = other.is_built_;
+  remaining_edus_ = other.remaining_edus_;
+  is_edu_limit_ = other.is_edu_limit_;
+}
+
+Section::Section(Section&& source) noexcept {
+  time_signature_ = std::move(source.time_signature_);
+  section_ = std::move(source.section_);
+  section_flat_ = std::move(source.section_flat_);
+  is_built_ = source.is_built_; source.is_built_ = false;
+  remaining_edus_ = source.remaining_edus_; source.remaining_edus_ = 0;
+  is_edu_limit_ = source.is_edu_limit_; source.is_edu_limit_ = false;
+}
+
+Section& Section::operator=(const Section& other) {
+  time_signature_ = other.time_signature_;
+  section_ = other.section_;
+  section_flat_ = other.section_flat_;
+  is_built_ = other.is_built_;
+  remaining_edus_ = other.remaining_edus_;
+  is_edu_limit_ = other.is_edu_limit_;
+  return *this;
+}
+
+Section& Section::operator=(Section&& source) noexcept {
+  time_signature_ = std::move(source.time_signature_);
+  section_ = std::move(source.section_);
+  section_flat_ = std::move(source.section_flat_);
+  is_built_ = source.is_built_; source.is_built_ = false;
+  remaining_edus_ = source.remaining_edus_; source.remaining_edus_ = 0;
+  is_edu_limit_ = source.is_edu_limit_; source.is_edu_limit_ = false;
+  return *this;
 }
 
 Section::~Section() {

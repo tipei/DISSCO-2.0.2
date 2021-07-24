@@ -103,8 +103,6 @@ struct TimeSignature {
    * @return True if the two TimeSignatures are equivalent; else, false
   **/
   bool operator==(const TimeSignature& other) const {
-    cout << "This TS: " << time_signature_ << endl; // TODO - remove
-    cout << "Other TS: " << other.time_signature_ << endl; // TODO - remove
     return time_signature_ == other.time_signature_ &&
            beat_edus_ == other.beat_edus_ &&
            bar_edus_ == other.bar_edus_ &&

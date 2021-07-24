@@ -78,9 +78,11 @@ ostream& operator<<(ostream& output_stream,
   output_stream << "{" << endl;
 
   for (Section& section : notation_score.score_) {
+    section.PrintAllNotesFlat("Final output");
     for (Note* note : section.GetSectionFlat()) {
       output_stream << note->GetText();
     }
+    output_stream << '\n';
   }
   
   output_stream << "\\bar \"|.\"" << endl;

@@ -40,6 +40,36 @@ public:
   Section(TimeSignature time_signature);
 
   /**
+   * Copy a Section.
+   * 
+   * @param other The other Section to copy
+  **/
+  Section(const Section& other);
+
+  /**
+   * Move a Section.
+   * 
+   * @param source The Section to move from
+  **/
+  Section(Section&& source) noexcept;
+
+  /**
+   * Copy a Section using assignment operator.
+   * 
+   * @param other The other Section to copy
+   * @return This Section
+  **/
+  Section& operator=(const Section& other);
+
+  /**
+   * Move a Section using assignment operator.
+   * 
+   * @param source The Section to move from
+   * @return This Section
+  **/
+  Section& operator=(Section&& source) noexcept;
+
+  /**
    * Destruct this notation section.
   **/
   ~Section();
@@ -96,38 +126,35 @@ public:
 
   bool operator!=(const Section& other) const;
 
-  void PrintAllNotesBar() const {
-    size_t bar_idx = 0;
-    cout << endl << endl;
-    cout << "ALL NOTES BAR: " << endl;
-    for (const auto bar : section_) {
-      cout << "BAR " << bar_idx << endl;
-      for (const auto note : *bar) {
-        if (note->type_out.find("\\bar") != string::npos) {
-          cout << "BAR    start: " << note->start_t << " end: " << note->end_t << " out: " << note->type_out << endl;
-        } else if (note->type_out.find("r") != string::npos) {
-          cout << "REST    start: " << note->start_t << " end: " << note->end_t << " out: " << note->type_out << endl;
-        } else {
-          cout << "NOTE    start: " << note->start_t << " end: " << note->end_t << " pitch: " << note->type_out << endl;
-        }
-      }
-      ++bar_idx;
-    }
-    cout << endl << endl;
-  }
-
-  void PrintAllNotesFlat() const {
+  void PrintAllNotesFlat(const string& title) const {
     size_t note_idx = 0;
-    cout << endl << endl;
-    cout << "ALL NOTES FLAT: " << endl;
+    std::ofstream outfile; // TODO - replace with cout
+    outfile.open("./all_notes_flat.txt", std::ofstream::app);
+    outfile << endl << endl;
+    outfile << "ALL NOTES FLAT SECTION " << 
+            time_signature_.tempo_.getRootExactAncestor() << " : " << endl;
+    outfile << "Title: " << title << endl;
+    outfile << "Size: " << section_flat_.size() << endl;
     for (const auto note : section_flat_) {
-      if (note->type_out.find("\\bar") != string::npos) {
-        cout << note_idx << " BAR    start: " << note->start_t << " end: " << note->end_t << " out: " << note->type_out << endl;
-      } else if (note->type_out.find("r") != string::npos) {
-        cout << note_idx << " REST    start: " << note->start_t << " end: " << note->end_t << " out: " << note->type_out << endl;
-      } else {
-        cout << note_idx << " NOTE    start: " << note->start_t << " end: " << note->end_t << " pitch: " << note->type_out << endl;
+      switch (note->type) {
+        case (NoteType::kBarline):
+          outfile << note_idx << " BAR ";
+          break;
+        case (NoteType::kNote):
+          outfile << note_idx << " NOTE ";
+          break;
+        case (NoteType::kRest):
+          outfile << note_idx << " REST ";
+          break;
+        case (NoteType::kTimeSignature):
+          outfile << note_idx << " TIMESIG ";
+          break;
+        case (NoteType::kUnknown):
+          outfile << note_idx << " UNKNOWN ";
+          break;
       }
+      outfile << "start: " << note->start_t << " end: " << note->end_t << " text: " <<
+          note->type_out << " ID: " << note->rootExactAncestor << endl;
       ++note_idx;
     }
   }
@@ -140,7 +167,7 @@ private:
    * Then, shorten the note's duration by this difference to make the note's
    * duration expressible.
    * 
-   * @param n A pointer to the note whose duration to examine and modify
+   * @param n The note whose duration to examine and modify
   **/
   void EnsureNoteExpressible(Note* n);
 
@@ -149,7 +176,7 @@ private:
    * 
    * @param new_size The desired size of the section
   **/
-  void ResizeSection(size_t new_size);
+  void ResizeSection(int new_size);
 
   /**
    * Add bars to this section.
@@ -241,12 +268,13 @@ private:
   /**
    * Get the first bar of this Section after building.
   **/
-  vector<Note*> GetFirstBar();
+  list<Note*> GetFirstBar();
 
   /**
-   * Get the last bar of this Section after building.
+   * Get __only the notes__ of the last bar of this Section 
+   * after building and __remove the bar from the Section__
   **/
-  list<Note*> GetLastBar();
+  list<Note*> PopLastBar();
 
   TimeSignature time_signature_;
 
@@ -254,9 +282,9 @@ private:
   vector<Note*> section_flat_;
   bool is_built_ = false;
 
-  int remaining_edus_ = 0;
-  int used_edus_ = 0; // Used edus after building // TODO - move this out of GetLastBar
+  int remaining_edus_;
   bool is_edu_limit_ = true; // true if the Section has an edu allotment; else false
+  Section* cap_ = nullptr; // TODO - this is poor. the solution is to stop using pointers for Notes.
 
   static string prev_loudness; // the previous loudness mark in notation loop
 };
