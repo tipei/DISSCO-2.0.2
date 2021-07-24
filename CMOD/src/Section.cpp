@@ -148,17 +148,18 @@ void Section::Build() {
       exit(1);
     }
 
-    PrintAllNotesBar(); // TODO - remove
-
     section_flat_.clear();
 
-    // Notate the time signature
+    // Notate the time signature and first bar
     Note* time_signature = new Note();
-    time_signature->start_t = 0;
-    time_signature->end_t = 0;
+    Note* first_barline = new Note();
+    time_signature->start_t = 0; first_barline->start_t=0;
+    time_signature->end_t = 0; first_barline->end_t=0;
     time_signature->type_out = "\\time " + time_signature_.time_signature_ + '\n';
     time_signature->type = NoteType::kTimeSignature;
+    first_barline->type = NoteType::kBarline;
     section_flat_.push_back(time_signature);
+    section_flat_.push_back(first_barline);
 
     AddBars();
     AddRestsAndFlatten();
@@ -166,8 +167,6 @@ void Section::Build() {
     if (is_edu_limit_) {
       CapEnding();
     }
-
-    PrintAllNotesFlat(); // TODO - remove
 
     is_built_ = true;
   }

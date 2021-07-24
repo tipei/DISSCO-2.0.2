@@ -297,8 +297,10 @@ Ratio Tempo::getEDUDurationInSeconds(void) {
   return getTimeSignatureBeatDurationInSeconds() / EDUPerTimeSignatureBeat;
 }
 
+//----------------------------------------------------------------------------//
+
 float Tempo::calculateSecondsFromEDUs(int edus) {
-  return (float(edus) * getTimeSignatureBeatDurationInSeconds().To<float>()) / EDUPerTimeSignatureBeat.To<int>(); // TODO - test!
+  return (float(edus) * getTimeSignatureBeatDurationInSeconds().To<float>()) / EDUPerTimeSignatureBeat.To<int>();
 }
 
 //----------------------------------------------------------------------------//
