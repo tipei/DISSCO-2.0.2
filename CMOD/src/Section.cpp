@@ -58,17 +58,18 @@ Section::~Section() {
   }
   section_.clear();
   section_flat_.clear();
+  if (cap_) {
+    delete cap_;
+  }
 }
 
 bool Section::InsertNote(Note* n) {
-  cout << "foreign address: " << n->rootExactAncestor << endl;
-  cout << "local address: " << time_signature_.tempo_.getRootExactAncestor() << endl;
   if (n->rootExactAncestor != time_signature_.tempo_.getRootExactAncestor()) {
     return false; // Note does not belong to this section.
   }
 
-  cout << "Note start (edus): " << n->start_t << endl;
-  cout << "Note end (edus): " << n->end_t << endl;
+  // cout << "Note start (edus): " << n->start_t << endl;
+  // cout << "Note end (edus): " << n->end_t << endl;
 
   n->type_out = "";
   n->type = NoteType::kNote;
