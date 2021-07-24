@@ -102,7 +102,7 @@ bool Section::InsertNote(Note* n) {
     section_[bar_num]->insert(iter, n);
   } else { // split note exceeding barline
     Note* second = new Note(*n);
-    second->start_t = (bar_num+1) * time_signature_.bar_edus_;
+    second->start_t = (bar_num + 1) * time_signature_.bar_edus_;
     n->end_t = (bar_num + 1) * time_signature_.bar_edus_;
     n->split = 1;
 
@@ -264,6 +264,7 @@ void Section::AddRestsAndFlatten() {
         rest->start_t = prev->end_t;
         rest->end_t = cur->start_t;
         rest->pitch_out = "r";
+        rest->type = NoteType::kRest;
         section_flat_.push_back(rest);
       } else {
         if(it+1 == section_[i]->end()){
