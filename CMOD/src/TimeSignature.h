@@ -34,8 +34,8 @@ struct TimeSignature {
     start_time_global_ = tempo_.getStartTime(); // global start time in seconds
 
     time_signature_ = tempo_.getTimeSignature();
-    beat_edus_ = stoi(tempo_.getEDUPerTimeSignatureBeat().toPrettyString());
-    bar_edus_ = stoi(tempo_.getEDUPerBar().toPrettyString());
+    beat_edus_ = str_to_int(tempo_.getEDUPerTimeSignatureBeat().toPrettyString());
+    bar_edus_ = str_to_int(tempo_.getEDUPerBar().toPrettyString());
     unit_note_ = tempo_.getTimeSignatureBeat().Den(); // the note that represents one beat
 
     tuplet_limit_ = CalculateTupletLimit();
@@ -49,8 +49,8 @@ struct TimeSignature {
     start_time_global_ = tempo.getStartTime(); // global start time in seconds
 
     time_signature_ = tempo.getTimeSignature();
-    beat_edus_ = stoi(tempo.getEDUPerTimeSignatureBeat().toPrettyString());
-    bar_edus_ = stoi(tempo.getEDUPerBar().toPrettyString());
+    beat_edus_ = str_to_int(tempo.getEDUPerTimeSignatureBeat().toPrettyString());
+    bar_edus_ = str_to_int(tempo.getEDUPerBar().toPrettyString());
     unit_note_ = tempo.getTimeSignatureBeat().Den(); // the note that represents one beat
 
     tuplet_limit_ = CalculateTupletLimit();

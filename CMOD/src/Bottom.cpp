@@ -372,8 +372,8 @@ void Bottom::buildNote(SoundAndNoteWrapper* _soundNoteWrapper) {
   // Set notation start, start absolute, and end times in edus
   newNote->setStartTime(_soundNoteWrapper->ts.startEDU.To<int>());
   newNote->setEndTime(
-    _soundNoteWrapper->ts.startEDU.To<int>() + stoi(
-      _soundNoteWrapper->ts.durationEDU.toPrettyString()));
+    _soundNoteWrapper->ts.startEDU.To<int>() + 
+      _soundNoteWrapper->ts.durationEDU.To<int>());
 
   Output::notation_score_.RegisterTempo(tempo);
   Output::notation_score_.InsertNote(newNote);

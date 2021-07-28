@@ -121,5 +121,19 @@ typedef enum {
 #define GNES getNextElementSibling
 #define XMLTC Utilities::XMLTranscode
 
+int str_to_int (string s) {
+  int temp = 0;
+  for (int i = 0; i < s.length(); ++i) {
+    int x = int(s[i] - 48);
+    temp = temp*10 + x;
+  }
+  return temp;
+}
+
+string int_to_str(int n){
+  stringstream ss;
+  ss << n;
+  return ss.str();
+}
 
 #endif
