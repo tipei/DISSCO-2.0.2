@@ -50,7 +50,7 @@ public:
    * 
    * @param source The Section to move from
   **/
-  Section(Section&& source);
+  // Section(Section&& source);
 
   /**
    * Copy a Section using assignment operator.
@@ -66,7 +66,7 @@ public:
    * @param source The Section to move from
    * @return This Section
   **/
-  Section& operator=(Section&& source);
+  // Section& operator=(Section&& source);
 
   /**
    * Destruct this notation section.
