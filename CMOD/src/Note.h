@@ -92,7 +92,7 @@ class Note {
 
     std::vector<std::string> modifiers_out;
 
-    NoteType::type type = NoteType::kUnknown;
+    NoteType::type type;
 
   public:
     /**

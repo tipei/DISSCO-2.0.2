@@ -55,7 +55,7 @@ Event::Event(DOMElement* _element,
   discreteFailedResponse(""),
   utilities( _utilities),
   modifiersIncludingAncestorsElement(NULL),
-  sieveAligned(false){
+  sieveAligned(false), previousChildStartTime(0.0f) {
 
   //Initialize parameters
   DOMElement* thisEventElement = _element->GFEC();

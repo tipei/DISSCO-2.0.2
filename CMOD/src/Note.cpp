@@ -40,12 +40,12 @@ using namespace std;
 //----------------------------------------------------------------------------//
 
 Note::Note(TimeSpan ts, const Event* root_exact_ancestor) : ts(ts), rootExactAncestor(root_exact_ancestor),
-  pitchNum(0), octaveNum(0), octavePitch(0), loudnessNum(0) {
+  pitchNum(0), octaveNum(0), octavePitch(0), loudnessNum(0), type(NoteType::kUnknown) {
 }
 
 //----------------------------------------------------------------------------//
 
-Note::Note() {
+Note::Note() : type(NoteType::kUnknown) {
 }
 
 //----------------------------------------------------------------------------//
