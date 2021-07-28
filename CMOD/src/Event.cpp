@@ -1374,7 +1374,7 @@ void Event::buildMatrix(bool discrete) {
     numTypesInLayers.push_back (numOfDiscretePackages);
   }
 
-  int parentEDUs = str_to_int(tempo.getEDUPerSecond().toPrettyString()) * ts.duration;
+  int parentEDUs = Note::str_to_int(tempo.getEDUPerSecond().toPrettyString()) * ts.duration;
 
   matrix = new Matrix(childTypeElements.size(), attackSiv->GetNumItems(),
        durSiv->GetNumItems(),  numTypesInLayers, parentEDUs, tempo, sieveAligned);

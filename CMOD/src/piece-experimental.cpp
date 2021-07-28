@@ -366,7 +366,7 @@ Piece::Piece(string _workingPath, string _projectTitle){
     int exist = 1;
     string suffix = "";
     while (exist){
-      suffix = "_" + int_to_str(suffix_rank);
+      suffix = "_" + Note::int_to_str(suffix_rank);
       std::ifstream infile(( "ScoreFiles/" + projectName + suffix + ".pdf").c_str());
       exist = infile.good();
       infile.close();

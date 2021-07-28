@@ -136,7 +136,7 @@ void Note::setLoudnessMark(int dynamicNum, vector<string> dynamicNames) {
   //   while(power >= 0){
   //     int beats = po(2, power);
   //     if(note >= beats){
-  //       output += pitch + int_to_str(unit_note/beats);
+  //       output += pitch + Output::int_to_str(unit_note/beats);
   //       note -= beats;
   //       if(note >= beats/2){
   //         output += ".";
@@ -217,3 +217,23 @@ void Note::setModifiers(vector<string> modNames) {
 const string& Note::GetText() const {
   return type_out;
 }
+
+//----------------------------------------------------------------------------//
+
+int Note::str_to_int(string s) {
+  int temp = 0;
+  for (int i = 0; i < s.length(); ++i) {
+    int x = int(s[i] - 48);
+    temp = temp*10 + x;
+  }
+  return temp;
+}
+
+//----------------------------------------------------------------------------//
+
+string Note::int_to_str(int n) {
+  stringstream ss;
+  ss << n;
+  return ss.str();
+}
+
