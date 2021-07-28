@@ -19,7 +19,7 @@ Section::Section(const Section& other) {
   is_edu_limit_ = other.is_edu_limit_;
 }
 
-Section::Section(Section&& source) noexcept {
+Section::Section(Section&& source) {
   time_signature_ = std::move(source.time_signature_);
   section_ = std::move(source.section_);
   section_flat_ = std::move(source.section_flat_);
@@ -38,7 +38,7 @@ Section& Section::operator=(const Section& other) {
   return *this;
 }
 
-Section& Section::operator=(Section&& source) noexcept {
+Section& Section::operator=(Section&& source) {
   time_signature_ = std::move(source.time_signature_);
   section_ = std::move(source.section_);
   section_flat_ = std::move(source.section_flat_);
@@ -49,13 +49,26 @@ Section& Section::operator=(Section&& source) noexcept {
 }
 
 Section::~Section() {
-  for (vector<Note*>* bar : section_){
+/*
+There's a discussion on memory management to be had here. Currently, notes are dynamically
+allocated outside and inside of the Section class. The deallocation is handled right here.
+This leads to unnecessary complexity in the Section class and it also necessitates allocating
+the end cap (which is also a Section) dynamically on the heap to manually manage its lifetime
+so notes don't get deleted before their use is over.
+*/
+  for (vector<vector<Note*>*>::iterator iter = section_.begin();
+       iter != section_.end();
+       ++iter) {
+      vector<Note*>* bar = *iter;
       bar->clear();
       delete bar;
   }
   section_.clear();
 
-  for (Note* note : section_flat_) {
+  for (list<Note*>::iterator iter = section_flat_.begin();
+       iter != section_flat_.end();
+       ++iter) {
+    Note* note = *iter;
     delete note;
   }
   section_flat_.clear();
@@ -236,9 +249,11 @@ void Section::ResizeSection(int new_size) {
 }
 
 void Section::AddBars() {
-  vector<vector<Note*>*>::iterator it;
   int bar_idx = 1;
-  for (vector<Note*>* bar : section_){
+  for (vector<vector<Note*>*>::iterator iter = section_.begin();
+       iter != section_.end();
+       ++iter) {
+      vector<Note*>* bar = *iter;
       Note* n = new Note();
       n->start_t = time_signature_.bar_edus_ * bar_idx;
       n->end_t = time_signature_.bar_edus_ * bar_idx;
@@ -336,7 +351,7 @@ void Section::Notate() {
   }
 }
 
-void Section::CapEnding() { // TODO - test
+void Section::CapEnding() {
   int cur_bar_edus = 0;
   list<Note*> last_bar = PopLastBarNotes();
   
@@ -367,7 +382,7 @@ void Section::CapEnding() { // TODO - test
         break; // Overhanging time forms a dyadic time signature
       } else {
         // Form a dyadic time signature by adding sound or rest with the least error
-        int num_beats = (total_edus_to_use / tmp_beat_edus) + 1;
+        int num_beats = (total_edus_to_use / tmp_beat_edus) + 1; // TODO - do this better
         int err = tmp_beat_edus * num_beats - total_edus_to_use;
         if (err < min_err) {
           ts_num = num_beats; // Add time
@@ -403,7 +418,7 @@ void Section::CapEnding() { // TODO - test
     }
 
     if (min_err != 0 && remaining_edus_ == 0) { // No extra time and leftover sound does not fill time signature
-      Note* extra_space = new Note(*last_bar.back()); // FIXME - what if we get a tie over the last bar?
+      Note* extra_space = new Note(*last_bar.back()); // TODO - what if we get a tie over the last bar
       extra_space->start_t = last_bar.back()->start_t;
       extra_space->end_t = extra_space->start_t + min_err;
       extra_space->split = 1;
@@ -415,6 +430,7 @@ void Section::CapEnding() { // TODO - test
            << " seconds added to stitch sections." << endl;
     }
 
+    // Only notate time signature if different
     cap_->time_signature_ == time_signature_ ? cap_->Build(false) : cap_->Build(true);
 
     list<Note*> final_bar = cap_->PopFirstBar();

@@ -33,18 +33,16 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "TimeSpan.h"
 #include "tables.h"
 
-enum class NoteType {
-  kNote,
-  kRest,
-  kBarline,
-  kTimeSignature,
-  kUnknown
+struct NoteType {
+  enum type {
+    kNote,
+    kRest,
+    kBarline,
+    kTimeSignature,
+    kUnknown
+  };
 };
 
-/**
- *  Constructor
- *
- **/
 class Note {
   friend class Section;
 
@@ -94,7 +92,7 @@ class Note {
 
     std::vector<std::string> modifiers_out;
 
-    NoteType type = NoteType::kUnknown;
+    NoteType::type type = NoteType::kUnknown;
 
   public:
     /**

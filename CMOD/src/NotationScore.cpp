@@ -77,11 +77,19 @@ ostream& operator<<(ostream& output_stream,
 
   output_stream << "{" << endl;
 
-  for (Section& section : notation_score.score_) {
-    section.PrintAllNotesFlat("Final output");
-    for (Note* note : section.GetSectionFlat()) {
-      output_stream << note->GetText();
+  for (vector<Section>::iterator iter = notation_score.score_.begin();
+       iter != notation_score.score_.end();
+       ++iter) {
+    iter->PrintAllNotesFlat("Final output");
+    list<Note*> section_flat = iter->GetSectionFlat();
+
+    for (list<Note*>::iterator iter_iter = section_flat.begin();
+         iter_iter != section_flat.end();
+         ++iter_iter) {
+      Note* cur_note = *iter_iter;
+      output_stream << cur_note->GetText();
     }
+    
     output_stream << '\n';
   }
   

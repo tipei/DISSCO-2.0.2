@@ -86,7 +86,10 @@ private:
     size_t section_idx = 0;
     cout << endl << endl;
     cout << "SCORE: " << endl;
-    for (const Section& section : score_) {
+    for (vector<Section>::const_iterator iter = score_.begin();
+         iter != score_.end();
+         ++iter) {
+      Section section = *iter;
       cout << "SECTION " << section_idx << endl;
       section.PrintAllNotesFlat("Score printing");
       ++section_idx;

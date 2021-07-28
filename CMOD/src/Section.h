@@ -30,7 +30,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  * Lilypond (or something else in the future).
 **/
 class Section {
-
 public:
   /**
    * Construct a notation section with the provided time signature.
@@ -51,7 +50,7 @@ public:
    * 
    * @param source The Section to move from
   **/
-  Section(Section&& source) noexcept;
+  Section(Section&& source);
 
   /**
    * Copy a Section using assignment operator.
@@ -67,7 +66,7 @@ public:
    * @param source The Section to move from
    * @return This Section
   **/
-  Section& operator=(Section&& source) noexcept;
+  Section& operator=(Section&& source);
 
   /**
    * Destruct this notation section.
@@ -131,14 +130,17 @@ public:
 
   void PrintAllNotesFlat(const string& title) const {
     size_t note_idx = 0;
-    std::ofstream outfile; // TODO - replace with cout
+    std::ofstream outfile;
     outfile.open("./all_notes_flat.txt", std::ofstream::app);
     outfile << endl << endl;
     outfile << "ALL NOTES FLAT SECTION " << 
             time_signature_.tempo_.getRootExactAncestor() << " : " << endl;
     outfile << "Title: " << title << endl;
     outfile << "Size: " << section_flat_.size() << endl;
-    for (const auto note : section_flat_) {
+    for (list<Note*>::const_iterator iter = section_flat_.begin();
+         iter != section_flat_.end();
+         ++iter) {
+      Note* note = *iter;
       switch (note->type) {
         case (NoteType::kBarline):
           outfile << note_idx << " BAR ";
