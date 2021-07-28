@@ -340,7 +340,7 @@ void Section::Notate() {
         cur->end_t = cur->start_t + dur_beats * time_signature_.beat_edus_ + best_fit;
 
         Note* next_note = *(next_it);
-        if (next_note == nullptr || next_it == section_flat_.end()) {
+        if (next_note == 0 || next_it == section_flat_.end()) {
           continue;
         }
 
@@ -675,7 +675,7 @@ list<Note*> Section::PopLastBarNotes() {
   PrintAllNotesFlat("Popping last bar");
   list<Note*> last_bar(0);
 
-  Note* last_barline = nullptr;
+  Note* last_barline = 0;
   list<Note*>::iterator note_iter = section_flat_.begin();
   list<Note*>::iterator next = ++section_flat_.begin();
   int num_items_in_bar = 0;
@@ -696,7 +696,7 @@ list<Note*> Section::PopLastBarNotes() {
     ++num_items_in_bar;
   }
 
-  if (last_barline == nullptr) {
+  if (last_barline == 0) {
     cerr << "Could not locate last bar for stitching" << endl;
     exit(1);
   }
