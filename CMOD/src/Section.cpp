@@ -3,7 +3,10 @@
 string Section::prev_loudness;
 
 Section::Section(TimeSignature time_signature) : 
-    time_signature_(time_signature) {
+    time_signature_(time_signature),
+    is_built_(false),
+    is_edu_limit_(true),
+    cap_(0) {
   prev_loudness = "";
   section_ = vector<vector<Note*>*>(0);
   section_flat_ = list<Note*>();
@@ -17,8 +20,10 @@ Section::Section(const Section& other) {
   is_built_ = other.is_built_;
   remaining_edus_ = other.remaining_edus_;
   is_edu_limit_ = other.is_edu_limit_;
+  cap_ = other.cap_;
 }
 
+/* For upgrading to c++11
 Section::Section(Section&& source) {
   time_signature_ = std::move(source.time_signature_);
   section_ = std::move(source.section_);
@@ -26,7 +31,9 @@ Section::Section(Section&& source) {
   is_built_ = source.is_built_; source.is_built_ = false;
   remaining_edus_ = source.remaining_edus_; source.remaining_edus_ = 0;
   is_edu_limit_ = source.is_edu_limit_; source.is_edu_limit_ = false;
+  cap_ = source.cap_; source.cap_ = 0;
 }
+*/
 
 Section& Section::operator=(const Section& other) {
   time_signature_ = other.time_signature_;
@@ -35,9 +42,11 @@ Section& Section::operator=(const Section& other) {
   is_built_ = other.is_built_;
   remaining_edus_ = other.remaining_edus_;
   is_edu_limit_ = other.is_edu_limit_;
+  cap_ = other.cap_;
   return *this;
 }
 
+/* For upgrading to c++11
 Section& Section::operator=(Section&& source) {
   time_signature_ = std::move(source.time_signature_);
   section_ = std::move(source.section_);
@@ -45,8 +54,10 @@ Section& Section::operator=(Section&& source) {
   is_built_ = source.is_built_; source.is_built_ = false;
   remaining_edus_ = source.remaining_edus_; source.remaining_edus_ = 0;
   is_edu_limit_ = source.is_edu_limit_; source.is_edu_limit_ = false;
+  cap_ = source.cap_; source.cap_ = 0;
   return *this;
 }
+*/
 
 Section::~Section() {
 /*

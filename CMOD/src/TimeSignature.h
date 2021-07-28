@@ -103,7 +103,7 @@ struct TimeSignature {
     for(size_t i = 0; i < tuplet_limit_; ++i) {
       int l = CalculateNearestPow2(i);
       string t = "\\tuplet ";
-      t += std::to_string(i) + "/" + std::to_string(l) + "{ ";
+      t += int_to_str(i) + "/" + int_to_str(l) + "{ ";
       tuplet_types_.push_back(t);
     }
   }
@@ -160,7 +160,7 @@ struct TimeSignature {
 
     int pow = 0;
     int power_of_2 = 1;
-    while (power_of_2 < num && pow < std::numeric_limits<int>::digits) {
+    while (power_of_2 < num) { // && pow < std::numeric_limits<int>::digits
       power_of_2 *= 2;
       ++pow;
       if (power_of_2 == num) {
