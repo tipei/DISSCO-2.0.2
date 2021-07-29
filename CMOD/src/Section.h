@@ -140,7 +140,7 @@ public:
     for (list<Note*>::const_iterator iter = section_flat_.begin();
          iter != section_flat_.end();
          ++iter) {
-      Note* note = *iter;
+      const Note* note = *iter;
       switch (note->type) {
         case (NoteType::kBarline):
           outfile << note_idx << " BAR ";

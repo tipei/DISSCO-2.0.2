@@ -59,7 +59,7 @@ so notes don't get deleted before their use is over.
   for (vector<vector<Note*>*>::iterator iter = section_.begin();
        iter != section_.end();
        ++iter) {
-      vector<Note*>* bar = *iter;
+      vector<Note*>*& bar = *iter;
       bar->clear();
       delete bar;
   }
@@ -68,7 +68,7 @@ so notes don't get deleted before their use is over.
   for (list<Note*>::iterator iter = section_flat_.begin();
        iter != section_flat_.end();
        ++iter) {
-    Note* note = *iter;
+    Note*& note = *iter;
     delete note;
   }
   section_flat_.clear();
@@ -253,7 +253,7 @@ void Section::AddBars() {
   for (vector<vector<Note*>*>::iterator iter = section_.begin();
        iter != section_.end();
        ++iter) {
-      vector<Note*>* bar = *iter;
+      vector<Note*>*& bar = *iter;
       Note* n = new Note();
       n->start_t = time_signature_.bar_edus_ * bar_idx;
       n->end_t = time_signature_.bar_edus_ * bar_idx;

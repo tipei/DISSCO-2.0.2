@@ -89,7 +89,7 @@ private:
     for (vector<Section>::const_iterator iter = score_.begin();
          iter != score_.end();
          ++iter) {
-      Section section = *iter;
+      const Section& section = *iter;
       cout << "SECTION " << section_idx << endl;
       section.PrintAllNotesFlat("Score printing");
       ++section_idx;

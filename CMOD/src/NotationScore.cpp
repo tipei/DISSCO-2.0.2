@@ -86,7 +86,7 @@ ostream& operator<<(ostream& output_stream,
     for (list<Note*>::iterator iter_iter = section_flat.begin();
          iter_iter != section_flat.end();
          ++iter_iter) {
-      Note* cur_note = *iter_iter;
+      Note*& cur_note = *iter_iter;
       output_stream << cur_note->GetText();
     }
     
