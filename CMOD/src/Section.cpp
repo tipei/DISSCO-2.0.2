@@ -3,7 +3,10 @@
 string Section::prev_loudness;
 
 Section::Section(TimeSignature time_signature) : 
-    time_signature_(time_signature) {
+    time_signature_(time_signature),
+    is_built_(false),
+    is_edu_limit_(true),
+    cap_(0) {
   prev_loudness = "";
   section_ = vector<vector<Note*>*>(0);
   section_flat_ = list<Note*>();
@@ -17,8 +20,10 @@ Section::Section(const Section& other) {
   is_built_ = other.is_built_;
   remaining_edus_ = other.remaining_edus_;
   is_edu_limit_ = other.is_edu_limit_;
+  cap_ = other.cap_;
 }
 
+/* For upgrading to c++11
 Section::Section(Section&& source) {
   time_signature_ = std::move(source.time_signature_);
   section_ = std::move(source.section_);
@@ -26,7 +31,9 @@ Section::Section(Section&& source) {
   is_built_ = source.is_built_; source.is_built_ = false;
   remaining_edus_ = source.remaining_edus_; source.remaining_edus_ = 0;
   is_edu_limit_ = source.is_edu_limit_; source.is_edu_limit_ = false;
+  cap_ = source.cap_; source.cap_ = 0;
 }
+*/
 
 Section& Section::operator=(const Section& other) {
   time_signature_ = other.time_signature_;
@@ -35,9 +42,11 @@ Section& Section::operator=(const Section& other) {
   is_built_ = other.is_built_;
   remaining_edus_ = other.remaining_edus_;
   is_edu_limit_ = other.is_edu_limit_;
+  cap_ = other.cap_;
   return *this;
 }
 
+/* For upgrading to c++11
 Section& Section::operator=(Section&& source) {
   time_signature_ = std::move(source.time_signature_);
   section_ = std::move(source.section_);
@@ -45,8 +54,10 @@ Section& Section::operator=(Section&& source) {
   is_built_ = source.is_built_; source.is_built_ = false;
   remaining_edus_ = source.remaining_edus_; source.remaining_edus_ = 0;
   is_edu_limit_ = source.is_edu_limit_; source.is_edu_limit_ = false;
+  cap_ = source.cap_; source.cap_ = 0;
   return *this;
 }
+*/
 
 Section::~Section() {
 /*
@@ -329,7 +340,7 @@ void Section::Notate() {
         cur->end_t = cur->start_t + dur_beats * time_signature_.beat_edus_ + best_fit;
 
         Note* next_note = *(next_it);
-        if (next_note == nullptr || next_it == section_flat_.end()) {
+        if (next_note == 0 || next_it == section_flat_.end()) {
           continue;
         }
 
@@ -371,7 +382,7 @@ void Section::CapEnding() {
     return; // Sections align perfectly!
   } else {
     int pow_2 = 0;
-    int min_err = std::numeric_limits<int>::max();
+    int min_err = INT_MAX;
     int ts_num, ts_den;
     while (time_signature_.beat_edus_ % TimeSignature::Power(2, pow_2) == 0) {
       int tmp_beat_edus = time_signature_.beat_edus_ / TimeSignature::Power(2, pow_2);
@@ -397,7 +408,7 @@ void Section::CapEnding() {
     Tempo new_tempo(time_signature_.tempo_);
 
     new_tempo.setEDUPerTimeSignatureBeat(time_signature_.beat_edus_ / beat_divisor);
-    new_tempo.setTimeSignature(to_string(ts_num) + "/" + to_string(ts_den));
+    new_tempo.setTimeSignature(Note::int_to_str(ts_num) + "/" + Note::int_to_str(ts_den));
     // IMPORTANT - Tempo rate (i.e. 1/4=60bpm) is left the same
     // IMPORTANT - Tempo start time left unchanged because the calculation is not necessary
 
@@ -426,7 +437,7 @@ void Section::CapEnding() {
     }
 
     if (min_err != 0) {
-      cout << to_string(new_tempo.calculateSecondsFromEDUs(min_err))
+      cout << Note::int_to_str(new_tempo.calculateSecondsFromEDUs(min_err))
            << " seconds added to stitch sections." << endl;
     }
 
@@ -483,10 +494,10 @@ int Section::FillCurrentTupletDur(Note* current_note,
   if (prev_tuplet == 2 || prev_tuplet == 4) {
     int unit = tuplet_dur / (time_signature_.beat_edus_ / prev_tuplet);
     if(unit == 3) {
-      string s = to_string(time_signature_.unit_note_ * 2);
+      string s = Note::int_to_str(time_signature_.unit_note_ * 2);
       current_note->type_out += current_note->pitch_out + s + ".";
     } else {
-      string s = to_string(time_signature_.unit_note_ * prev_tuplet / unit);
+      string s = Note::int_to_str(time_signature_.unit_note_ * prev_tuplet / unit);
       current_note->type_out += current_note->pitch_out + s;
     }
     if ((dur > tuplet_dur || current_note->split == 1) && 
@@ -520,7 +531,7 @@ int Section::FillCompleteBeats(Note* current_note, int remaining_dur) {
     while (power_of_2 >= 0) {
       int beats = TimeSignature::Power(2, power_of_2);
       if (mainDur >= beats) {
-        current_note->type_out += current_note->pitch_out + to_string(time_signature_.unit_note_ / beats);
+        current_note->type_out += current_note->pitch_out + Note::int_to_str(time_signature_.unit_note_ / beats);
         mainDur -= beats;
         if (mainDur >= beats / 2 && beats >= 2){
           current_note->type_out += ".";
@@ -559,10 +570,10 @@ int Section::CreateTupletWithRests(Note* current_note,
   int tuplet_type = time_signature_.DetermineTuplet(remaining_dur);
   if (tuplet_type == 2 || tuplet_type == 4) {
     if (remaining_dur / (time_signature_.beat_edus_ / tuplet_type) == 3) {
-      string s = to_string(time_signature_.unit_note_ * 2);
+      string s = Note::int_to_str(time_signature_.unit_note_ * 2);
       current_note->type_out += current_note->pitch_out + s + ". ";
     } else {
-      string s = to_string(time_signature_.unit_note_ * tuplet_type);
+      string s = Note::int_to_str(time_signature_.unit_note_ * tuplet_type);
       current_note->type_out += current_note->pitch_out + s + " ";
     }
     tuplet_dur = time_signature_.beat_edus_ - remaining_dur;
@@ -589,7 +600,7 @@ void Section::NoteInTuplet(Note* current_note, int tuplet_type, int duration) {
     while(power_of_2 >= 0){
       int beats = TimeSignature::Power(2, power_of_2);
       if(beat >= beats){
-        current_note->type_out += current_note->pitch_out + to_string(unit_in_tuplet / beats);
+        current_note->type_out += current_note->pitch_out + Note::int_to_str(unit_in_tuplet / beats);
         beat -= beats;
         if(beat >= beats/2 && beats >= 2){
           current_note->type_out += ".";
@@ -664,7 +675,7 @@ list<Note*> Section::PopLastBarNotes() {
   PrintAllNotesFlat("Popping last bar");
   list<Note*> last_bar(0);
 
-  Note* last_barline = nullptr;
+  Note* last_barline = 0;
   list<Note*>::iterator note_iter = section_flat_.begin();
   list<Note*>::iterator next = ++section_flat_.begin();
   int num_items_in_bar = 0;
@@ -685,7 +696,7 @@ list<Note*> Section::PopLastBarNotes() {
     ++num_items_in_bar;
   }
 
-  if (last_barline == nullptr) {
+  if (last_barline == 0) {
     cerr << "Could not locate last bar for stitching" << endl;
     exit(1);
   }

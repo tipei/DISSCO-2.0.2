@@ -50,7 +50,7 @@ public:
    * 
    * @param source The Section to move from
   **/
-  Section(Section&& source);
+  // Section(Section&& source);
 
   /**
    * Copy a Section using assignment operator.
@@ -66,7 +66,7 @@ public:
    * @param source The Section to move from
    * @return This Section
   **/
-  Section& operator=(Section&& source);
+  // Section& operator=(Section&& source);
 
   /**
    * Destruct this notation section.
@@ -290,11 +290,11 @@ private:
 
   vector<vector<Note*>*> section_;
   list<Note*> section_flat_;
-  bool is_built_ = false;
+  bool is_built_;
 
   int remaining_edus_;
-  bool is_edu_limit_ = true; // true if the Section has an edu allotment; else false
-  Section* cap_ = nullptr; // TODO - this is poor. the solution is to stop using pointers for Notes.
+  bool is_edu_limit_; // true if the Section has an edu allotment; else false
+  Section* cap_; // TODO - this is poor. the solution is to stop using pointers for Notes.
 
   static string prev_loudness; // the previous loudness mark in notation loop
 };

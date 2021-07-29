@@ -55,7 +55,7 @@ Event::Event(DOMElement* _element,
   discreteFailedResponse(""),
   utilities( _utilities),
   modifiersIncludingAncestorsElement(NULL),
-  sieveAligned(false){
+  sieveAligned(false), previousChildStartTime(0.0f) {
 
   //Initialize parameters
   DOMElement* thisEventElement = _element->GFEC();
@@ -1374,7 +1374,7 @@ void Event::buildMatrix(bool discrete) {
     numTypesInLayers.push_back (numOfDiscretePackages);
   }
 
-  int parentEDUs = stoi(tempo.getEDUPerSecond().toPrettyString()) * ts.duration;
+  int parentEDUs = Note::str_to_int(tempo.getEDUPerSecond().toPrettyString()) * ts.duration;
 
   matrix = new Matrix(childTypeElements.size(), attackSiv->GetNumItems(),
        durSiv->GetNumItems(),  numTypesInLayers, parentEDUs, tempo, sieveAligned);

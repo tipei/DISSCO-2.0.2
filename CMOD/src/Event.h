@@ -148,7 +148,7 @@ protected:
     double checkPoint;
 
    //Previous start time for Sweep             //added by sever
-    double previousChildStartTime = 0.0f;
+    double previousChildStartTime;
 
     //Previous start time (only used by sweep generation method)
     TimeSpan tsPrevious;

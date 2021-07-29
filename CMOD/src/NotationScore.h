@@ -100,7 +100,7 @@ private:
   string score_title_;
 
   vector<Section> score_;
-  bool is_built_ = false;
+  bool is_built_;
 };
 
 #endif

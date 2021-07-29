@@ -370,7 +370,7 @@ cout << "Piece::Piece: " << "Score output " << endl;
     
     Output::notation_score_.Build();
     ofstream score_file;
-    score_file.open(projectName + ".ly");
+    score_file.open((projectName + ".ly").c_str());
     score_file << Output::notation_score_;
     score_file.close();
 

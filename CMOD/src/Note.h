@@ -92,7 +92,7 @@ class Note {
 
     std::vector<std::string> modifiers_out;
 
-    NoteType::type type = NoteType::kUnknown;
+    NoteType::type type;
 
   public:
     /**
@@ -180,6 +180,22 @@ class Note {
      * \return the text associated with this Note.
     **/
     const string& GetText() const;
+
+    /**
+     * Parse a string to an integer.
+     * 
+     * \param s The string to parse to an int
+     * \return The parsed int
+    **/
+    static int str_to_int(string s);
+
+    /**
+     * Convert an integer to a string.
+     * 
+     * \param n The int to convert to a string
+     * \return The string representation of the given int
+    **/
+    static string int_to_str(int n);
 
 };
 

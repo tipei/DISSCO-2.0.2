@@ -1,12 +1,12 @@
 #include "NotationScore.h"
 
-NotationScore::NotationScore() {
-  score_title_ = "Score";
-}
+NotationScore::NotationScore() : 
+    is_built_(false),
+    score_title_("Score") {}
 
-NotationScore::NotationScore(const string& score_title) {
-  score_title_ = score_title;
-}
+NotationScore::NotationScore(const string& score_title) :
+    is_built_(false),
+    score_title_(score_title) {}
 
 void NotationScore::RegisterTempo(Tempo& tempo) {
   // Find insertion point by comparing the global start in __seconds__
