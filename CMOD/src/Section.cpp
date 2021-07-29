@@ -65,12 +65,13 @@ There's a discussion on memory management to be had here. Currently, notes are d
 allocated outside and inside of the Section class. The deallocation is handled right here.
 This leads to unnecessary complexity in the Section class and it also necessitates allocating
 the end cap (which is also a Section) dynamically on the heap to manually manage its lifetime
-so notes don't get deleted before their use is over.
+so notes don't get deleted before their use is over. Unfortunately, there simply was not enough
+time to change this.
 */
   for (vector<vector<Note*>*>::iterator iter = section_.begin();
        iter != section_.end();
        ++iter) {
-      vector<Note*>*& bar = *iter;
+      vector<Note*>* bar = *iter;
       bar->clear();
       delete bar;
   }
@@ -79,7 +80,7 @@ so notes don't get deleted before their use is over.
   for (list<Note*>::iterator iter = section_flat_.begin();
        iter != section_flat_.end();
        ++iter) {
-    Note*& note = *iter;
+    Note* note = *iter;
     delete note;
   }
   section_flat_.clear();
@@ -208,20 +209,20 @@ const list<Note*>& Section::GetSectionFlat() {
   exit(1);
 }
 
-bool Section::operator<(const Section& other) const {
-  return time_signature_.start_time_global_ < other.time_signature_.start_time_global_;
+bool Section::operator<(const TimeSignature& time_signature) const {
+  return time_signature_.start_time_global_ < time_signature.start_time_global_;
 }
 
-bool Section::operator>(const Section& other) const {
-  return time_signature_.start_time_global_ > other.time_signature_.start_time_global_;
+bool Section::operator>(const TimeSignature& time_signature) const {
+  return time_signature_.start_time_global_ > time_signature.start_time_global_;
 }
   
-bool Section::operator==(const Section& other) const {
-  return time_signature_ == other.time_signature_;
+bool Section::operator==(const TimeSignature& time_signature) const {
+  return time_signature_ == time_signature;
 }
 
-bool Section::operator!=(const Section& other) const {
-  return !operator==(other);
+bool Section::operator!=(const TimeSignature& time_signature) const {
+  return !operator==(time_signature);
 }
 
 void Section::EnsureNoteExpressible(Note* n) {
@@ -264,14 +265,14 @@ void Section::AddBars() {
   for (vector<vector<Note*>*>::iterator iter = section_.begin();
        iter != section_.end();
        ++iter) {
-      vector<Note*>*& bar = *iter;
-      Note* n = new Note();
-      n->start_t = time_signature_.bar_edus_ * bar_idx;
-      n->end_t = time_signature_.bar_edus_ * bar_idx;
-      n->type_out = "\\bar\"|\" \n";
-      n->type = NoteType::kBarline;
-      bar->push_back(n);
-      ++bar_idx;
+    vector<Note*>*& bar = *iter;
+    Note* n = new Note();
+    n->start_t = time_signature_.bar_edus_ * bar_idx;
+    n->end_t = time_signature_.bar_edus_ * bar_idx;
+    n->type_out = "\\bar\"|\" \n";
+    n->type = NoteType::kBarline;
+    bar->push_back(n);
+    ++bar_idx;
   }
 }
 

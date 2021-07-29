@@ -120,13 +120,13 @@ public:
   **/
   const list<Note*>& GetSectionFlat();
 
-  bool operator<(const Section& other) const;
+  bool operator<(const TimeSignature& other) const;
 
-  bool operator>(const Section& other) const;
+  bool operator>(const TimeSignature& other) const;
 
-  bool operator==(const Section& other) const;
+  bool operator==(const TimeSignature& other) const;
 
-  bool operator!=(const Section& other) const;
+  bool operator!=(const TimeSignature& other) const;
 
   void PrintAllNotesFlat(const string& title) const {
     size_t note_idx = 0;

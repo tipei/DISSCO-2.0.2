@@ -10,18 +10,16 @@ NotationScore::NotationScore(const string& score_title) :
 
 void NotationScore::RegisterTempo(Tempo& tempo) {
   // Find insertion point by comparing the global start in __seconds__
-  Section section_to_insert = Section(TimeSignature(tempo));
+  TimeSignature ts = TimeSignature(tempo);
   vector<Section>::iterator section_iter = score_.begin();
   while (section_iter != score_.end() && 
-         section_to_insert > *section_iter) {
+         *section_iter < ts) {
     ++section_iter;
   }
 
-  if (score_.empty() || *section_iter != section_to_insert) {
-    score_.insert(section_iter, section_to_insert);
+  if (score_.empty() || *section_iter != ts) {
+    score_.insert(section_iter, Section(ts));
   }
-
-  // Discard section; tempo does not start a new section
 }
 
 void NotationScore::InsertNote(Note* n) {
