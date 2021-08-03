@@ -31,6 +31,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Define.h"
 #include "Rational.h"
 
+class Event; // Forward declaration for root exact ancestor
+
 //----------------------------------------------------------------------------//
 class Tempo {
   Ratio tempoBeatsPerMinute;
@@ -39,6 +41,8 @@ class Tempo {
   Ratio timeSignatureBeatsPerBar;
   Ratio EDUPerTimeSignatureBeat;
   float tempoStartTime;
+
+  const Event* rootExactAncestor; // The root ancestor event in which this tempo was created.
   
   ///When unitsPerSecond was used, it assumed this tempo (5/4 at quarter=60).
   void setBackwardsCompatibleTempo(void);
@@ -80,10 +84,14 @@ class Tempo {
   void setTempo(string newTempo);
   
   void setTimeSignature(string newTimeSignature);
-  
+
   // in order to remove the errer in valgrind...
   //void setEDUPerTimeSignatureBeat(string newEDUPerTimeSignatureBeat);
   void setEDUPerTimeSignatureBeat(Ratio newEDUPerTimeSignatureBeat);
+
+  void setRootExactAncestor(const Event* root_exact_ancestor);
+
+  const Event* getRootExactAncestor() const;
   
   Ratio getTimeSignatureBeatsPerBar(void);
   
@@ -111,6 +119,24 @@ class Tempo {
   Ratio getEDUPerSecond(void);
   
   Ratio getEDUDurationInSeconds(void);
+
+  /**
+   * Using this Tempo's parameters, convert the given time span in
+   * edus to seconds.
+   * 
+   * @param edus the time span in EDU's to convert
+   * @return the time span in seconds
+  **/
+  float calculateSecondsFromEDUs(int edus);
+
+  /**
+   * Using this Tempo's parameters, convert the given time in seconds
+   * to the nearest time in EDUs.
+   * 
+   * @param seconds the time in seconds
+   * @return the nearest time in EDUs
+  **/
+  int convertSecondsToEDUs(float seconds);
 };
 #endif /* TEMPO_H */
 

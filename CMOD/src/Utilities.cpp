@@ -483,7 +483,6 @@ std::vector<std::string> Utilities::listElementToStringVector(
   return list;
 }
 
-
 //----------------------------------------------------------------------------//
 
 //this function assume that at least 1 "<Fun>" exists;

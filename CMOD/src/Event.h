@@ -150,7 +150,7 @@ protected:
    //Previous start time for Sweep             //added by sever
     double previousChildStartTime;
 
-    //Previous start time
+    //Previous start time (only used by sweep generation method)
     TimeSpan tsPrevious;
 
     //Previous child duration

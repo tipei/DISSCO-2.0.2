@@ -121,5 +121,4 @@ typedef enum {
 #define GNES getNextElementSibling
 #define XMLTC Utilities::XMLTranscode
 
-
 #endif

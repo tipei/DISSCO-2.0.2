@@ -55,7 +55,7 @@ Event::Event(DOMElement* _element,
   discreteFailedResponse(""),
   utilities( _utilities),
   modifiersIncludingAncestorsElement(NULL),
-  sieveAligned(false){
+  sieveAligned(false), previousChildStartTime(0.0f) {
 
   //Initialize parameters
   DOMElement* thisEventElement = _element->GFEC();
@@ -73,7 +73,8 @@ Event::Event(DOMElement* _element,
   thisEventElement = thisEventElement->GNES();
   int newEDUPerBeat = (int) utilities->evaluate(XMLTC(thisEventElement),(void*)this);
   Ratio k(newEDUPerBeat,1);
-  Tempo fvTempo;
+  Tempo fvTempo; // File-Value Tempo
+
   fvTempo.setEDUPerTimeSignatureBeat(k);
 
   thisEventElement = thisEventElement->GNES();
@@ -108,6 +109,8 @@ Event::Event(DOMElement* _element,
     cout << "  " << fvTempo.getEDUPerTimeSignatureBeat() << endl;
     cout << "  " << fvTempo.getStartTime() << endl;
   }
+
+  tempo.setRootExactAncestor(this);
 
   //This part initializes childnum and childnames
 
@@ -180,7 +183,7 @@ Event::Event(DOMElement* _element,
     if (_ancestorSpa != NULL) {
       spatializationElement = _ancestorSpa;
     }
-    else if (Utilities::removeSpaces(XMLTC(thisEventElement)) ==""){
+    else if (Utilities::removeSpaces(XMLTC(thisEventElement)) =="") {
         spatializationElement = NULL;
     }
     else {
@@ -191,7 +194,7 @@ Event::Event(DOMElement* _element,
     if (_ancestorRev != NULL) {
       reverberationElement = _ancestorRev;
     }
-    else if (Utilities::removeSpaces(XMLTC(thisEventElement)) ==""){
+    else if (Utilities::removeSpaces(XMLTC(thisEventElement)) =="") {
         reverberationElement = NULL;
     }
     else {
@@ -202,7 +205,7 @@ Event::Event(DOMElement* _element,
     if (_ancestorFil != NULL) {
       filterElement = _ancestorFil;
     }
-    else if (Utilities::removeSpaces(XMLTC(thisEventElement)) ==""){
+    else if (Utilities::removeSpaces(XMLTC(thisEventElement)) =="") {
         filterElement = NULL;
     }
     else {
@@ -372,7 +375,7 @@ string Event::getTimeSignatureStringFromDOMElement(DOMElement* _element){
 
 //----------------------------------------------------------------------------//
 
-void Event::buildChildren(){
+void Event::buildChildren() {
   if (utilities->getOutputParticel()){
   //Begin this sub-level in the output and write out its properties.
     Output::beginSubLevel(name);
@@ -647,7 +650,6 @@ bool Event::buildContinuum() {
 
 
 //----------------------------------------------------------------------------//
-
 bool Event::buildSweep() { 
   string startType = XMLTC(childStartTypeFlag);
   string durType = XMLTC(childDurationTypeFlag);
@@ -715,7 +717,7 @@ bool Event::buildSweep() {
       tsChild.durationEDU = Ratio(0, 0); // floating point is not exact: NaN
     }
 
-    if (tsChild.start < tsPrevious.start) {
+    if (tsChild.start < tsPrevious.start) { // Prevent events from overlapping
       tsChild.start = tsPrevious.start;
       tsChild.startEDU = tsPrevious.startEDU;
     }
@@ -944,7 +946,6 @@ void Event::tryToRestart(void) {
 //Checked
 
 void Event::checkEvent(bool buildResult) {
-
   //If the build failed, restart if necessary.
   if (!buildResult) {
     tryToRestart();
@@ -1012,7 +1013,7 @@ void Event::checkEvent(bool buildResult) {
   Since both are inexact, nothing further is to be done. They will both only
   have global inexact time offsets.*/
   if(!ts.startEDU.isDeterminate() && !tsChild.startEDU.isDeterminate()) {
-    //Nothing to do here.
+    tsChild.startEDUAbsolute = ts.startEDUAbsolute + tempo.convertSecondsToEDUs(tsChild.start);
   }
 
   /*2) Parent exact, child inexact (Events 3-4)
@@ -1020,7 +1021,7 @@ void Event::checkEvent(bool buildResult) {
   simply have a global inexact time offset. The parent will already have
   calculated its tempo start time.*/
   if(ts.startEDU.isDeterminate() && !tsChild.startEDU.isDeterminate()) {
-    //Nothing to do here.
+    tsChild.startEDUAbsolute = ts.startEDUAbsolute + tempo.convertSecondsToEDUs(tsChild.start);
   }
 
   /*3) Parent exact, child exact (Events 2-3)
@@ -1038,6 +1039,7 @@ void Event::checkEvent(bool buildResult) {
   that the two sections were not rhythmically related, even though they
   inherently are by virtue of them both being exact.*/
   if(ts.startEDU.isDeterminate() && tsChild.startEDU.isDeterminate()) {
+    tsChild.startEDUAbsolute = ts.startEDUAbsolute + tsChild.startEDU.To<int>();
     tsChild.startEDU += ts.startEDU;
     /*We need to force child to have the same tempo, so that weird things do not
     happen. This is done below by explictly setting the tempo of the child. This
@@ -1063,6 +1065,7 @@ void Event::checkEvent(bool buildResult) {
     parent. If this is the second exact child of a parent, then it will merely
     set the start time to the same thing.*/
     tempo.setStartTime(ts.start);
+    tsChild.startEDUAbsolute = ts.startEDUAbsolute + tsChild.startEDU.To<int>();
     //We need to force child to have the same tempo. See statement for 3).
   }
 
@@ -1081,39 +1084,24 @@ void Event::checkEvent(bool buildResult) {
 
   Event* e;
   if (childEventType == eventBottom){
-    e = (Event*)   new Bottom(childElement, tsChild, childType, tempo, utilities,
-                spatializationElement, reverberationElement, filterElement, modifiersIncludingAncestorsElement);
-
-
+    e = (Event*) new Bottom(childElement, tsChild, childType, tempo, utilities, spatializationElement, 
+                            reverberationElement, filterElement, modifiersIncludingAncestorsElement);
     if(tsChild.startEDU.isDeterminate()){
-    //cout<<"Child start EDU is determinate."<<endl;
       e->tempo = tempo;
     }
-  }
-
-  else if (childEventType == eventSound || childEventType == eventNote){
+  } else if (childEventType == eventSound || childEventType == eventNote){
     childSoundsAndNotes.push_back(new SoundAndNoteWrapper
-		  (childElement,tsChild, childEventName, childType, tempo));
-  }
-/*
-  else if (childEventType == eventNote) {
-    childSoundsAndNotes.push_back(new SoundAndNoteWrapper
-				    (childElement,tsChild, childType, tempo));
-  }
-*/
-  else {
+		  (childElement, tsChild, childEventName, childType, tempo));
+  } else {
     e = new Event( childElement, tsChild, childType, tempo, utilities,
                   spatializationElement, reverberationElement, filterElement,
 		    modifiersIncludingAncestorsElement);
     if(tsChild.startEDU.isDeterminate()){
-      //cout<<"Child start EDU is determinate."<<endl;
       e->tempo = tempo;
     }
   }
 
-  //Add the event to the temporary event list.
   temporaryChildEvents.push_back(e);
-
 }
 
 
@@ -1123,6 +1111,7 @@ void Event::checkEvent(bool buildResult) {
 void Event::outputProperties() {
   Output::addProperty("Type", type);
   Output::addProperty("Start Time", ts.start, "sec.");
+  Output::addProperty("Start Absolute", tsChild.startEDUAbsolute, "EDU");
   Output::addProperty("Duration", ts.duration, "sec.");
   Output::addProperty("Tempo Start Time", tempo.getStartTime());
   Output::addProperty("Tempo",
@@ -1300,9 +1289,7 @@ bool Event::buildDiscrete() {
     Output::endSubLevel();
   }
 
-  //Return success.
-
-  return true;
+  return true; // success!
 }
 
 
@@ -1387,7 +1374,7 @@ void Event::buildMatrix(bool discrete) {
     numTypesInLayers.push_back (numOfDiscretePackages);
   }
 
-  int parentEDUs = str_to_int(tempo.getEDUPerSecond().toPrettyString()) * ts.duration;
+  int parentEDUs = Note::str_to_int(tempo.getEDUPerSecond().toPrettyString()) * ts.duration;
 
   matrix = new Matrix(childTypeElements.size(), attackSiv->GetNumItems(),
        durSiv->GetNumItems(),  numTypesInLayers, parentEDUs, tempo, sieveAligned);

@@ -193,6 +193,7 @@ void Bottom::modifyChildren(){            //Incomplete Override
 void Bottom::constructChild(SoundAndNoteWrapper* _soundNoteWrapper) {
   //Just to get the checkpoint. Not used any other time.
   checkPoint = (_soundNoteWrapper->ts.start - ts.start) / ts.duration;
+  cout << "CHECK POINT: " << checkPoint << endl;
   if (name.substr(0,1) == "s"){
     // buildNote(_soundNoteWrapper);
     buildSound(_soundNoteWrapper);
@@ -326,7 +327,7 @@ void Bottom::buildSound(SoundAndNoteWrapper* _soundNoteWrapper) {
 void Bottom::buildNote(SoundAndNoteWrapper* _soundNoteWrapper) {
   //Create the note.
 //Note* newNote = new Note();		//sever, make similar to newSound
-  Note* newNote = new Note(tsChild, tempo);
+  Note* newNote = new Note(tsChild, tempo.getRootExactAncestor());
   if (utilities->getOutputParticel()){
   //Output note-related properties.
     Output::beginSubLevel("Note");
@@ -334,15 +335,17 @@ void Bottom::buildNote(SoundAndNoteWrapper* _soundNoteWrapper) {
     Output::addProperty("Type", _soundNoteWrapper->type);
     Output::addProperty("Start Time", _soundNoteWrapper->ts.start, "sec.");
     Output::addProperty("End Time", _soundNoteWrapper-> ts.start +
-	_soundNoteWrapper->ts.duration, "sec.");
+	                      _soundNoteWrapper->ts.duration, "sec.");
     Output::addProperty("Duration",_soundNoteWrapper-> ts.duration, "sec.");
     // cout << "Bottom::buildNote: " << _soundNoteWrapper-> ts.duration << endl;
     Output::addProperty("Tempo Start Time",
-	_soundNoteWrapper->tempo.getStartTime(), "sec.");
+	                      _soundNoteWrapper->tempo.getStartTime(), "sec.");
     Output::addProperty("EDU Start Time",
-	_soundNoteWrapper->ts.startEDU.toPrettyString(), "EDU");
+	                      _soundNoteWrapper->ts.startEDU.toPrettyString(), "EDU");
+    Output::addProperty("EDU Start Time Absolute", 
+                        _soundNoteWrapper->ts.startEDUAbsolute, "EDU");
     Output::addProperty("EDU Duration",
-	_soundNoteWrapper->ts.durationEDU.toPrettyString(), "EDU");
+	                      _soundNoteWrapper->ts.durationEDU.toPrettyString(), "EDU");
   }
 
 //set loudness
@@ -366,14 +369,18 @@ void Bottom::buildNote(SoundAndNoteWrapper* _soundNoteWrapper) {
   }
   newNote->setPitchWellTempered(absPitchNum);
 
-  //Bars and durations
-  newNote->notateDurations( (string)_soundNoteWrapper->name,
- 			    _soundNoteWrapper->ts.startEDU.toPrettyString(),
-			    _soundNoteWrapper->ts.durationEDU.toPrettyString());
+  // Set notation start, start absolute, and end times in edus
+  newNote->setStartTime(_soundNoteWrapper->ts.startEDU.To<int>());
+  newNote->setEndTime(
+    _soundNoteWrapper->ts.startEDU.To<int>() + 
+      _soundNoteWrapper->ts.durationEDU.To<int>());
+
+  Output::notation_score_.RegisterTempo(tempo);
+  Output::notation_score_.InsertNote(newNote);
+
   if (utilities->getOutputParticel()){
       Output::endSubLevel();
   }
-  // cout << "note's data: " << newNote -> pitch_out << " " << newNote -> start_t << " " << newNote -> end_t << endl;
 
   childNotes.push_back(newNote);
 }

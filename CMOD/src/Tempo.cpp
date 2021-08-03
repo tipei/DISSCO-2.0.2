@@ -52,6 +52,7 @@ Tempo::Tempo(const Tempo& other) {
   timeSignatureBeatsPerBar = other.timeSignatureBeatsPerBar;
   EDUPerTimeSignatureBeat = other.EDUPerTimeSignatureBeat;
   tempoStartTime = other.tempoStartTime;
+  rootExactAncestor = other.rootExactAncestor;
 }
 
 //----------------------------------------------------------------------------//
@@ -62,7 +63,7 @@ bool Tempo::isTempoSameAs(Tempo& other) {
     timeSignatureBeat == other.timeSignatureBeat &&
     timeSignatureBeatsPerBar == other.timeSignatureBeatsPerBar &&
     EDUPerTimeSignatureBeat == other.EDUPerTimeSignatureBeat &&
-    tempoStartTime == other.tempoStartTime;
+    fabs(tempoStartTime - other.tempoStartTime) < 0.0001; // Changed by andreworals
 }
 
 //----------------------------------------------------------------------------//
@@ -189,6 +190,18 @@ void Tempo::setEDUPerTimeSignatureBeat(Ratio newEDUPerTimeSignatureBeat) {
 
 //----------------------------------------------------------------------------//
 
+void Tempo::setRootExactAncestor(const Event* root_exact_ancestor) {
+  rootExactAncestor = root_exact_ancestor;
+}
+
+//----------------------------------------------------------------------------//
+
+const Event* Tempo::getRootExactAncestor() const {
+  return rootExactAncestor;
+}
+
+//----------------------------------------------------------------------------//
+
 Ratio Tempo::getTimeSignatureBeatsPerBar(void) {
   return timeSignatureBeatsPerBar;
 }
@@ -284,3 +297,16 @@ Ratio Tempo::getEDUDurationInSeconds(void) {
   return getTimeSignatureBeatDurationInSeconds() / EDUPerTimeSignatureBeat;
 }
 
+//----------------------------------------------------------------------------//
+
+float Tempo::calculateSecondsFromEDUs(int edus) {
+  return (float(edus) * getTimeSignatureBeatDurationInSeconds().To<float>()) / EDUPerTimeSignatureBeat.To<int>();
+}
+
+//----------------------------------------------------------------------------//
+
+int Tempo::convertSecondsToEDUs(float seconds) {
+  float beats_per_second = tempoBeatsPerMinute.To<float>() / 60.0f;
+  float beats = seconds * beats_per_second;
+  return static_cast<int>(lround(beats * EDUPerTimeSignatureBeat.To<float>()));
+}

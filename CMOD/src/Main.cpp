@@ -42,19 +42,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <fstream>
 using namespace std;
 
-extern ofstream * outputFile;
-			// for Note class
-
-
 int main(int parameterCount, char **parameterList) {
   time_t startTime;
   time(&startTime);
-
-			// added by Sever
-  outputFile = new ofstream;
-  outputFile->open("../SQ/NotationFile.txt", ios::out);
-  *outputFile << "Greetingd from Maine" << endl;
-  			// for Note class
 
   //Determine settings.
   cout << endl;

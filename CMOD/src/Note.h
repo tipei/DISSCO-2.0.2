@@ -33,24 +33,26 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "TimeSpan.h"
 #include "tables.h"
 
-static int sBeat;
-static int eBeat;
+struct NoteType {
+  enum type {
+    kNote,
+    kRest,
+    kBarline,
+    kTimeSignature,
+    kUnknown
+  };
+};
 
-/**
- *  Constructor
- *
- **/
 class Note {
-
-// static ofstream notaFile;
+  friend class Section;
 
     		//Rhythm//
 
     //The timespan of the note.
     TimeSpan ts;
 
-    //The parent tempo.
-    Tempo tempo;
+    // The ancestor event that carries the reference tempo for this Note.
+    const Event* rootExactAncestor;
 
     		//Pitch//
 
@@ -74,34 +76,34 @@ class Note {
 
     //Modifiers
     std::vector<std::string> modifiers; //string names of the modifiers
-
-  public:
+    
 
     /* variables for output notes */
     string pitch_out;
     string type_out;
     string loudness_out;
 
-    int start_t; //start time
-    int end_t; //end time
+    int start_t;
+    int end_t;
 
     int tuplet;
     string tuplet_name;
     int split;
-    int diff, first_half_dur, last_half_dur, tuplet_1, tuplet_2;
 
     std::vector<std::string> modifiers_out;
 
+    NoteType::type type;
 
+  public:
     /**
      *  Simple constructor
      **/
     Note();
 
     /**
-     *  Constructor with timespan and tempo
+     *  Constructor with timespan and root exact ancestor
      **/
-    Note(TimeSpan ts, Tempo tempo);
+    Note(TimeSpan ts, const Event* root_exact_ancestor);
 
     /**
      *  Copy constructor
@@ -112,14 +114,19 @@ class Note {
      *  Comparison operator (to sort in a list)
      *  \param rhs the object to compare to (right hand side)
      **/
-    bool operator < (const Note& rhs);
-
-    /**
-     * Destructor
-     **/
-    ~Note();
+    bool operator< (const Note& rhs);
 
 //----------------------------------------------------------------------------//
+
+    /**
+     * Set the start time of this Note in EDUs.
+    **/
+    void setStartTime(int start_time);
+
+    /**
+     * Set the end time of this Note in EDUs.
+    **/
+    void setEndTime(int end_time);
 
     /**
      *  Assigns the pitch of a note
@@ -167,197 +174,29 @@ class Note {
      **/
     void setModifiers(std::vector<std::string> modNames);
 
- //   bool is_attach_mark(string mod_name);
-
     /**
-     *   Spells note attributes: start time, duration in fractions equivalent
-     *   to Traditional notation note values and marking bar lines.
-     *   Adds pitch, dynamics and playing techniques.
-     *   \param string aName
-     *   \param atring startEDU
-     *   \param string durationEDU
+     * Get the text associated with this Note.
+     * 
+     * \return the text associated with this Note.
     **/
-    void notateDurations( string aName, string startEDU, string durationEDU);
-
+    const string& GetText() const;
 
     /**
-     * Main function that set up all variables for output score
-     * \param: tuplet_dur
-     * \output: none
-     **/
-    int notate(int tuplet);
-
-
-  /**
-    * Some duration need two notes to notate, such notation is marked
-    * starting with an '!'. This function read this mark and split it into
-    * two notes.
-    * \param s - string that holds the duration info. s will be modified
-    * \param pitch_out - output pitch
-    * \output: NONE
+     * Parse a string to an integer.
+     * 
+     * \param s The string to parse to an int
+     * \return The parsed int
     **/
-   void translate(string & s, string pitch_out);
+    static int str_to_int(string s);
 
-
-   /**
-    * Sorts the note into a vector and keep the vector in time
-    *  increasing order
-    *  \input: Note * n - pointer to a note
+    /**
+     * Convert an integer to a string.
+     * 
+     * \param n The int to convert to a string
+     * \return The string representation of the given int
     **/
-  static void sort_notes(Note * n);
-
-  /**
-   * Sorts individual note into a vector and keeps the vector in time
-   *  increasing order (for original notes). This function is similar to prev
-   *  one but sorts notes into another vector.
-   *  \param Note * n - pointer to a note
-   **/
-  static void sort_notes_orig(Note * n);
-
-  /**
-   *  Prepares the loudness and modifiers notation
-   **/
-  void loudness_mark();
-  void modifiers_mark();
-
-  /**
-   *  Processes the raw notes and gets them ready for LilyPond by calling 
-   *   add_bars, add_rests, adjust_notes (and print_all_notes)
-   *
-   **/
-  static void make_valid();
-
-  /**
-   *  Adjusts the durations modifying the way a sound is split among tuplets 
-   *   if neccessary and gets them ready according to LilyPond sintax.
-   **/
-  static void adjust_notes ();
-
-  /**
-   *		obsolete
-   *
-   * Checks if time is valid, if it is not, change it to closest
-   *  valid value
-   *  \input: int &time - (reference) time to be verified
-   **/
-   void verify_valid(int &stime, int &endTime);
-
-
-
-   //// ---- functions added by haorong at June 12 ---- ////
-
-    /**
-     *  Notates a note inside a tuplet
-     *  \param int tup_type
-     *  \param int dur
-     **/
-    void note_in_tuplet(int tup_type, int dur);
-
-    /**
-     * Inserst a new note into the all_notes_bar vector in order.
-     * Determines the position of the note and splits it across bar lines
-     * \param Note* n
-     **/
-    static void insert_note(Note* n);
-
-    /**
-     * Adds bars in the vector all_notes_bar
-     **/
-    static void add_bars();
-
-    /**
-     * Adds rests between notes.  The rest is ont processed yet and it could
-     *  have an invalid duration
-     **/
-    static void add_rests();
-
-    /**
-     * Deletes all notes
-     **/
-    static void free_all_notes();
-
-    /**
-     * Initiate the tuplet_types according to the tuplet_limit
-     * \param int uplimit
-     **/
-    static void construct_tuplet_names(int uplimit);
-
-    // ----------------------------------------------- ////
+    static string int_to_str(int n);
 
 };
-
-  //extern string convert_dur_to_type(int dur);
-
-  extern int beatEDUs;
-
-  extern string timesignature;
-
-  //a vector holds the pointers to all the notes after processing
-  extern vector<Note*> all_notes;
-
-  //a 2D vector holds the notes divided by bars(added by haorong at June 12)
-  extern vector<vector<Note*>*> all_notes_bar;
-
-
-  //		Helper functions
-
-  /**
-   * Converts a string to an integer
-   *  eg: "123" ---> 123
-   *  \paam: string s
-   **/
-  extern int str_to_int(string s);
-
-  /**
-   * Convers an integer to a string
-   *  eg: 123 ---> "123"
-   * \param: int n
-   **/
-  extern string int_to_str(int n);
-
-  /**
-   * Calculates base^p
-   * \patam: int base
-   * \param: int p
-   **/
-  extern int power(int base, int p);
-
-  /*
-   * Calculates log2(dur) returning -1 if dur is not a power of 2
-   * \param: int dur
-   **/
-  extern int check_pow(int dur);
-
-
-  /**
-   * Checks if input rational number is a power of 2
-   *  \param temp - a rational number
-   *  \outpu: true or false
-   **/
-  bool is_valid(Rational<int> temp);
-
-  /*
-   * Prints all the elements in all_notes vector
-   **/
-  void print_all_notes();
-
-  /** 
-   * Determins which type of tuplet will fit the input duration
-   *  eg: if it belongs to a triplet return value will be 3
-   *  -1 is return for invalid input
-  **/
-  int determine_tuplet(int dur);
-
-  /**
-   * Finds the closest power of 2 which is less that value
-   *  eg: if value == 7, return 4, if value == 9 return 8
-   * \param: int value
-   **/
-  int check_lower(int value);
-
-  // generate the string for notes inside the tuplet
-  // sample output: r4~ r16
-  // string note_in_tuplet(int tup_type, int dur, string pitch);
-  // string note_in_tuplet(int tup_type, Note* n);
 
 #endif /* NOTE_H */
