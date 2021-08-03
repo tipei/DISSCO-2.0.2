@@ -8,7 +8,7 @@ Section::Section(TimeSignature time_signature) :
     is_edu_limit_(true),
     cap_(0) {
   prev_loudness = "";
-  section_ = vector<vector<Note*>>(0);
+  section_ = vector< vector<Note*> >(0);
   section_flat_ = list<Note*>();
   remaining_edus_ = 0;
 }
@@ -68,7 +68,7 @@ the end cap (which is also a Section) dynamically on the heap to manually manage
 so notes don't get deleted before their use is over. Unfortunately, there simply was not enough
 time to change this.
 */
-  for (vector<vector<Note*>>::iterator iter = section_.begin();
+  for (vector< vector<Note*> >::iterator iter = section_.begin();
        iter != section_.end();
        ++iter) {
     vector<Note*> bar = *iter;
@@ -261,7 +261,7 @@ void Section::ResizeSection(int new_size) {
 
 void Section::AddBars() {
   int bar_idx = 1;
-  for (vector<vector<Note*>>::iterator iter = section_.begin();
+  for (vector< vector<Note*> >::iterator iter = section_.begin();
        iter != section_.end();
        ++iter) {
     vector<Note*>& bar = *iter;
