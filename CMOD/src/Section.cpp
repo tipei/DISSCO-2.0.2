@@ -8,7 +8,7 @@ Section::Section(TimeSignature time_signature) :
     is_edu_limit_(true),
     cap_(0) {
   prev_loudness = "";
-  section_ = vector<vector<Note*>*>(0);
+  section_ = vector<vector<Note*>>(0);
   section_flat_ = list<Note*>();
   remaining_edus_ = 0;
 }
@@ -68,12 +68,11 @@ the end cap (which is also a Section) dynamically on the heap to manually manage
 so notes don't get deleted before their use is over. Unfortunately, there simply was not enough
 time to change this.
 */
-  for (vector<vector<Note*>*>::iterator iter = section_.begin();
+  for (vector<vector<Note*>>::iterator iter = section_.begin();
        iter != section_.end();
        ++iter) {
-      vector<Note*>* bar = *iter;
-      bar->clear();
-      delete bar;
+    vector<Note*> bar = *iter;
+    bar.clear();
   }
   section_.clear();
 
@@ -115,16 +114,16 @@ bool Section::InsertNote(Note* n) {
   // if note is completely inside the bar, insert it
   if(end <= bar_num) {
     vector<Note*>::iterator iter;
-    for (iter = section_[bar_num]->begin(); 
-         iter != section_[bar_num]->end(); 
+    for (iter = section_[bar_num].begin(); 
+         iter != section_[bar_num].end(); 
          iter++) {
       Note* cur = *iter;
       if (cur->start_t > n->start_t) {
-        section_[bar_num]->insert(iter, n);
+        section_[bar_num].insert(iter, n);
         return true;
       }
     }
-    section_[bar_num]->insert(iter, n);
+    section_[bar_num].insert(iter, n);
   } else { // split note exceeding barline
     Note* second = new Note(*n);
     second->start_t = (bar_num + 1) * time_signature_.bar_edus_;
@@ -132,18 +131,18 @@ bool Section::InsertNote(Note* n) {
     n->split = 1;
 
     vector<Note*>::iterator iter;
-    for (iter = section_[bar_num]->begin();
-         iter != section_[bar_num]->end();
+    for (iter = section_[bar_num].begin();
+         iter != section_[bar_num].end();
          iter++) {
       Note* cur = *iter;
       if (cur->start_t > n->start_t) {
-        section_[bar_num]->insert(iter, n);
+        section_[bar_num].insert(iter, n);
         InsertNote(second);
         return true;
       }
     }
     
-    section_[bar_num]->insert(iter, n);
+    section_[bar_num].insert(iter, n);
     InsertNote(second);
   }
 
@@ -249,29 +248,29 @@ void Section::EnsureNoteExpressible(Note* n) {
 
 void Section::ResizeSection(int new_size) {
   for(int bar_idx = section_.size(); bar_idx <= new_size; ++bar_idx) {
-    vector<Note*>* bar = new vector<Note*>();
+    vector<Note*> bar = vector<Note*>(0);
     Note* n = new Note();
     n->start_t = time_signature_.bar_edus_ * bar_idx;
     n->end_t = time_signature_.bar_edus_ * bar_idx;
     n->type_out = " ";
     n->type = NoteType::kUnknown;
-    bar->push_back(n);
+    bar.push_back(n);
     section_.push_back(bar);
   }
 }
 
 void Section::AddBars() {
   int bar_idx = 1;
-  for (vector<vector<Note*>*>::iterator iter = section_.begin();
+  for (vector<vector<Note*>>::iterator iter = section_.begin();
        iter != section_.end();
        ++iter) {
-    vector<Note*>*& bar = *iter;
+    vector<Note*>& bar = *iter;
     Note* n = new Note();
     n->start_t = time_signature_.bar_edus_ * bar_idx;
     n->end_t = time_signature_.bar_edus_ * bar_idx;
     n->type_out = "\\bar\"|\" \n";
     n->type = NoteType::kBarline;
-    bar->push_back(n);
+    bar.push_back(n);
     ++bar_idx;
   }
 }
@@ -279,11 +278,11 @@ void Section::AddBars() {
 void Section::AddRestsAndFlatten() {
   for(size_t i = 0; i < section_.size(); ++i) {
     vector<Note*>::iterator it;
-    Note* prev = *(section_[i]->begin());
+    Note* prev = *(section_[i].begin());
     section_flat_.push_back(prev);
     Note* cur;
 
-    for (it = section_[i]->begin() + 1; it != section_[i]->end(); it++) {
+    for (it = section_[i].begin() + 1; it != section_[i].end(); it++) {
       cur = *it;
       int gap = cur->start_t - prev->end_t;
 
@@ -297,7 +296,7 @@ void Section::AddRestsAndFlatten() {
         rest->type = NoteType::kRest;
         section_flat_.push_back(rest);
       } else {
-        if(it+1 == section_[i]->end()){
+        if(it+1 == section_[i].end()){
           prev->end_t = cur->start_t; // Can't shorten current note because end of bar
         } else {
           cur->start_t = prev->end_t;

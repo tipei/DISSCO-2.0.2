@@ -288,7 +288,7 @@ private:
 
   TimeSignature time_signature_;
 
-  vector<vector<Note*>*> section_;
+  vector<vector<Note*>> section_;
   list<Note*> section_flat_;
   bool is_built_;
 
