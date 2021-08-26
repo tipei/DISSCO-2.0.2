@@ -33,7 +33,6 @@ struct OutputNode
   vector<string> propertyUnits;
   
   vector<OutputNode*> subNodes;  //vector of pointers to the class itself
-				 //why not put this in Output class
   
   OutputNode(string name);
   ~OutputNode();
@@ -44,7 +43,6 @@ struct OutputNode
   bool isNote(void);
   bool isBuildPhase(void);
   string getXML(void);
-  void getFOMUS(vector<Tempo>& tempos, vector<string>& fomusdata);
   
   static string findAndReplace(string in, string needle, string replace);
 
@@ -54,7 +52,7 @@ struct OutputNode
   static string sanitize(string name);
 };
 
-///The static output class.
+// The static output class.
 class Output
 {
   static OutputNode* top;
@@ -77,14 +75,14 @@ class Output
   static void beginSubLevel(string name);
   static void addProperty(string name, string value, string units="");
   template <class T>
-    static void addProperty(string name, T value, string units="") {
-    stringstream oss; oss.setf(ios::fixed, ios::floatfield); oss.precision(2);
-    oss << value; addProperty(name, string(oss.str()), units);
+  static void addProperty(string name, T value, string units="") {
+    stringstream oss;
+    oss.setf(ios::fixed, ios::floatfield);
+    oss.precision(2);
+    oss << value;
+    addProperty(name, string(oss.str()), units);
   }
   static void endSubLevel(void);
-  static void exportToXML(string filename);
-  static void exportToFOMUS(string filenamePrefix);
-
 };
 
 #endif
