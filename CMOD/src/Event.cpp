@@ -528,9 +528,6 @@ bool Event::buildContinuum() {
   string durType = XMLTC(childDurationTypeFlag);
   string childName;
 
-//cout << " " << endl;
-//cout << "Event::buildContinuum - name: " << name << endl;
-
   // Whether we should align notes to sieves
   bool align = (   sieveAligned
                 && Utilities::isSieveFunction(childStartTimeElement)
@@ -655,6 +652,9 @@ bool Event::buildSweep() {
   string durType = XMLTC(childDurationTypeFlag);
   string childName;
 
+cout << " " << endl;
+cout << "Event::buildSweep - name: " << name << endl;
+
   // Whether we should align notes to sieves
   bool align = (   sieveAligned
                 && Utilities::isSieveFunction(childStartTimeElement)
@@ -705,10 +705,12 @@ bool Event::buildSweep() {
 //    utilities->evaluate(XMLTC(childStartTimeElement),(void*)this);
 
     rawChildStartTime = previousChildStartTime;			//actually endTime
+cout << "Event:buildSweep - rawChildStartTime=" << rawChildStartTime << endl;
     if (startType == "1" ) {				//EDU
       tsChild.start = rawChildStartTime *
         tempo.getEDUDurationInSeconds().To<float>();
       tsChild.startEDU = Ratio((int)rawChildStartTime, 1);
+cout << "	tsChild.startEDU=" << tsChild.startEDU << endl;
     } else if (startType == "2") {			//seconds
       tsChild.start = rawChildStartTime; 	// no conversion needed
       tsChild.durationEDU = Ratio(0, 0); // floating point is not exact: NaN
@@ -748,6 +750,7 @@ bool Event::buildSweep() {
       tsChild.durationEDU = Ratio(rawChildDurationInt, 1);
       tsChild.duration = 			// convert to seconds
         (float)rawChildDurationInt * tempo.getEDUDurationInSeconds().To<float>();
+cout << "Event::buildSweep - tsChild.duration=" << tsChild.duration << endl;
     } else if (durType == "2") {
       tsChild.duration = rawChildDuration;
       if(tsChild.duration > maxChildDur)

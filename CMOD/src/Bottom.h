@@ -69,7 +69,7 @@ class Bottom : public Event {
 
     //Pitch number for a well-tempered frequency (used to create notes)
 
-    int wellTempPitch;		//(sever will change it to float)
+    int wellTempPitch;		//(sever will change it to float) ???
 //  float wellTempPitch;
     int absPitchNum;
 
@@ -187,6 +187,15 @@ class Bottom : public Event {
   private:
     /**
      *  Computes a base frequency for the bottom event
+     *    Continuum-Hertz takes a float value
+     * 	  Continuum-power takes a float, the exponent of 2, rejects values
+     *      outside the range MINFREQ-CEILING when C0 corresponds to 2**0
+     *    Equal temperament takes an integer, the nth step from C0 and 
+     *      computes the frequency in Hertz, a float value
+     *    Fundamental takes 2 values: a fundamental frequency in Hertz and an
+     *      integer, a partial number. NOTE: (higher) partials may have a 
+     *      frequency diferent from that of corresponding Equal Temperament
+     *      pitch.
      **/
     float computeBaseFreq();
 

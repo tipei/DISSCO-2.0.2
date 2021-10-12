@@ -828,6 +828,8 @@ string Utilities::function_Inverse(DOMElement* _functionElement, void* _object){
 }
 
 
+//---------------------------------------------------------------------------//
+
 string Utilities::function_Markov(DOMElement* _functionElement, void* _object) {
   DOMElement* elementIter = _functionElement->GFEC()->GNES();
   int entry = (int)evaluate(XMLTranscode(elementIter), _object);
@@ -1302,8 +1304,8 @@ string Utilities::function_GetPattern(DOMElement* _functionElement, void* _objec
 
 }
 
-//----------------------------------------------------------------------------//
 
+//----------------------------------------------------------------------------/
 string Utilities::function_RandomInt(DOMElement* _functionElement, void* _object){
   DOMElement* lowBoundElement = _functionElement->getFirstElementChild()->getNextElementSibling();
   DOMElement* highBoundElement = lowBoundElement->getNextElementSibling();
@@ -1314,6 +1316,8 @@ string Utilities::function_RandomInt(DOMElement* _functionElement, void* _object
   sprintf(result, "%d",  Random::RandInt(lowBound, highBound));
   return string(result);
 }
+
+//---------------------------------------------------------------------------//
 
 string Utilities::function_RandomOrderInt(DOMElement* _functionElement, void* _object) {
   DOMElement* lowBoundElement = _functionElement->getFirstElementChild()->getNextElementSibling();
@@ -1341,6 +1345,8 @@ string Utilities::function_RandomOrderInt(DOMElement* _functionElement, void* _o
   sprintf(result, "%d",  Random::RandOrderInt(lowBound, highBound, numChildren, id));
   return string(result);
 }
+
+//---------------------------------------------------------------------------//
 
 string Utilities::function_RandomDensity(DOMElement* _functionElement, void* _object) {
   DOMElement* envelopeNumberElement = _functionElement->getFirstElementChild()->getNextElementSibling();
