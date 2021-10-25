@@ -193,7 +193,7 @@ void Bottom::modifyChildren(){            //Incomplete Override
 void Bottom::constructChild(SoundAndNoteWrapper* _soundNoteWrapper) {
   //Just to get the checkpoint. Not used any other time.
   checkPoint = (_soundNoteWrapper->ts.start - ts.start) / ts.duration;
-  cout << "CHECK POINT: " << checkPoint << endl;
+//cout << "CHECK POINT: " << checkPoint << endl;
   if (name.substr(0,1) == "s"){
     // buildNote(_soundNoteWrapper);
     buildSound(_soundNoteWrapper);
