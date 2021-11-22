@@ -125,6 +125,7 @@ void Bottom::buildChildren(){
   }
 
   //Create the child events.
+  cout << "numChildren = " << numChildren << endl;
   for (currChildNum = 0; currChildNum < numChildren; currChildNum++) {
     if (method == "0") //continuum
       checkEvent(buildContinuum());
@@ -149,6 +150,7 @@ void Bottom::buildChildren(){
 
   //Using the temporary events that were created, construct the actual children.
   //The code below is different from buildchildren in Event class.
+  cout << "childSoundsAndNotes.size() = " << childSoundsAndNotes.size() << endl;
   for (int i = 0; i < childSoundsAndNotes.size(); i++) {
     SoundAndNoteWrapper* thisChild = childSoundsAndNotes[i];
     //Increment the static current child number.
@@ -963,6 +965,7 @@ void Bottom::applyModifiers(Sound *s, int numPartials) {
 //      <Rate></Rate>
 //      <Width></Width>
 //      <GroupName></GroupName>
+//      <PartialNum></PartialNum>
 //    </Modifier>
 
     DOMElement* arg = modifierElement->GFEC();
@@ -987,58 +990,42 @@ void Bottom::applyModifiers(Sound *s, int numPartials) {
     DOMElement* ampElement = arg->GNES();
     DOMElement* rateElement = ampElement->GNES();
     DOMElement* widthElement = rateElement->GNES();
-
+    // ADDED BY TEJUS
+    DOMElement* partialNumElement = widthElement->GNES();
     string ampStr = XMLTC(ampElement);
     string rateStr = XMLTC(rateElement);
     string widthStr = XMLTC(widthElement);
+    string partialNumStr = XMLTC(partialNumElement);
 
-    Modifier newMod(modType, probEnv, applyHow);
+    // TEJUS 10/8:
+    // Save the partial number within a particular modifier
+    Modifier newMod(modType, probEnv, applyHow, std::atoi(partialNumStr.c_str()));
+    cout << "partialNum is: " << newMod.getPartialNum() << endl;
 
-    if (applyHow == "SOUND") {
+    // TEJUS 10/8:
+    // Make the envelopes: this could be for a particular partial OR a sound
+    // Note: to represent individual partial modifiers, we use an entire modifierElement.
+    // In this way, the next partial modifier should be reached with the next iteration of 
+    // the main while loop (after modifierElement->GNES())
 
-      if (ampStr!=""){
-        Envelope* env =  (Envelope*)utilities->evaluateObject(ampStr, this, eventEnv );
-        newMod.addValueEnv(env);
-        delete env;
-      }
-
-      if (rateStr!=""){
-        Envelope* env =  (Envelope*)utilities->evaluateObject(rateStr, this, eventEnv );
-        newMod.addValueEnv(env);
-        delete env;
-      }
-
-      if (widthStr!=""){
-        Envelope* env =  (Envelope*)utilities->evaluateObject(widthStr, this, eventEnv );
-        newMod.addValueEnv(env);
-        delete env;
-      }
+    if (ampStr!=""){
+      Envelope* env =  (Envelope*)utilities->evaluateObject(ampStr, this, eventEnv );
+      newMod.addValueEnv(env);
+      delete env;
     }
-    else if (applyHow == "PARTIAL") {
 
-      for (int i = 0; i <numPartials; i ++){ // make envelopes for all the partials
-
-        if (ampStr!=""){
-          Envelope* env =  (Envelope*)utilities->evaluateObject(ampStr, this, eventEnv );
-          newMod.addValueEnv(env);
-          delete env;
-        }
-
-
-        if (rateStr!=""){
-          Envelope* env =  (Envelope*)utilities->evaluateObject(rateStr, this, eventEnv );
-          newMod.addValueEnv(env);
-          delete env;
-        }
-
-
-        if (widthStr!=""){
-          Envelope* env =  (Envelope*)utilities->evaluateObject(widthStr, this, eventEnv );
-          newMod.addValueEnv(env);
-          delete env;
-        }
-      }
+    if (rateStr!=""){
+      Envelope* env =  (Envelope*)utilities->evaluateObject(rateStr, this, eventEnv );
+      newMod.addValueEnv(env);
+      delete env;
     }
+
+    if (widthStr!=""){
+      Envelope* env =  (Envelope*)utilities->evaluateObject(widthStr, this, eventEnv );
+      newMod.addValueEnv(env);
+      delete env;
+    }
+
 
 
     arg = widthElement->GNES();//group name (MUT_EX)
@@ -1055,13 +1042,16 @@ void Bottom::applyModifiers(Sound *s, int numPartials) {
     modifierElement = modifierElement->GNES(); // go to the next MOD in the list
   } // end of the main while loop
 
+  // TEJUS 10/8:
+  // Instead of sending numPartials to applyModifier, send the partial num. We apply 
+  // a partial using an entire modifierElement structure.
 
   // go through the non-exclusive mods
   for (int i = 0; i < modNoDep.size(); i++) {
 
     if (modNoDep[i].willOccur(checkPoint)) {
 
-      modNoDep[i].applyModifier(s, numPartials);
+      modNoDep[i].applyModifier(s, modNoDep[i].getPartialNum());
 
     }
   }
@@ -1076,7 +1066,7 @@ void Bottom::applyModifiers(Sound *s, int numPartials) {
     bool appliedMod = false;
     for (int i = 0; i < modGroup.size() && !appliedMod; i++) {
       if (modGroup[i].willOccur(checkPoint)) {
-        modGroup[i].applyModifier(s, numPartials);
+        modGroup[i].applyModifier(s, modGroup[i].getPartialNum());
         appliedMod = true;
       }
     }
@@ -1157,7 +1147,7 @@ vector<string> Bottom::applyNoteModifiersOld() {
     string rateStr = XMLTC(rateElement);
     cout << "Bottom::applyNoteModifiers - rateStr: " << rateStr << endl;
 
-    Modifier newMod(modType, probEnv, applyHow);
+    Modifier newMod(modType, probEnv, applyHow, 0);
 
 /* needs to be rewrite to remove filevalue
   while (modIter != modList->end()) {

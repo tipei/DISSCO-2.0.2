@@ -112,6 +112,7 @@ protected:
   void rateValueEnvelopeButtonClicked();
   void widthEnvelopeButtonClicked();
   void modified();
+  bool initialEnter;
   ModelColumns applyHowColumns;
   ModelColumns2 typeColumns;
   EventAttributesViewController* attributesView;

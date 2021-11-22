@@ -545,6 +545,7 @@ void IEvent::setModifiedButNotSaved(){
   changedButNotSaved = true;
 }
 
+// 10/4: ?????????????
 void IEvent::saveToDisk(std::string _pathOfProject){
 	//saveToDiskHelper(_pathOfProject, false);
 }
@@ -933,6 +934,7 @@ EventBottomModifier::EventBottomModifier(){
   rateValue = "";
   width = "";
   groupName = "";
+  partialNum = "";   // ADDED BY TEJUS
   next = NULL;
 }
 
@@ -987,8 +989,16 @@ void  EventBottomModifier::setGroupName(std::string _string){
   groupName = _string;
 }
 
+// ADDED BY TEJUS
+std::string EventBottomModifier::getPartialNum(){
+  return partialNum;
+}
+void  EventBottomModifier::setPartialNum(string _string){
+  partialNum = _string;
+}
 
 int EventBottomModifier::getModifierTypeInt(){
+  // CHANGED BY TEJUS 10/3/2021
   if (type ==   modifierTremolo){
     return 0;
   }
@@ -1013,12 +1023,10 @@ int EventBottomModifier::getModifierTypeInt(){
   else {
     return 7;
   }
-
-
 }
 
 
-
+// TODO: Add the partial num to the string buffer? Who calls this?
 std::string EventBottomModifier::getSaveToDiskString(){
   std::string stringbuffer = "";
   if (type == modifierTremolo){
@@ -1125,7 +1133,7 @@ std::string EventBottomModifier::getSaveToDiskString(){
 
 
 
-
+// TODO: Change? Who calls this?
 std::string EventBottomModifier::getSaveLASSIEMetaDataString(){
 
   char temp1[10];
@@ -1151,6 +1159,7 @@ std::string EventBottomModifier::getSaveLASSIEMetaDataString(){
 
 }
 
+// CHANGED BY TEJUS: Add partial num to XML output 
 std::string EventBottomModifier::getXMLString(){
 
   char temp1[10];
@@ -1168,6 +1177,7 @@ std::string EventBottomModifier::getXMLString(){
     "              <Rate>" + rateValue +"</Rate>\n"
     "              <Width>"+ width + "</Width>\n"
     "              <GroupName>" + groupName + "</GroupName>\n"
+    "              <PartialNum>"+ partialNum + "</PartialNum>\n"
     "            </Modifier>\n";
   return stringbuffer;
 
@@ -1961,7 +1971,7 @@ EventBottomModifier::EventBottomModifier(EventBottomModifier* _original){
   rateValue = _original->rateValue;
   width = _original->width;
   groupName = _original->groupName;
-
+  partialNum = _original->partialNum;
 }
 
 

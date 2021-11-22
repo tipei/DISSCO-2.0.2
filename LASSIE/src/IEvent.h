@@ -74,7 +74,8 @@ public:
   std::string  getGroupName();
   void  setGroupName(std::string _string);
 
-
+  std::string  getPartialNum();
+  void  setPartialNum(std::string _string);
 
   EventBottomModifier* next;
 
@@ -91,7 +92,8 @@ private:
   std::string rateValue;
   std::string width;
   std::string groupName;
-
+  // ADDED BY TEJUS
+  std::string partialNum;
 
 
 

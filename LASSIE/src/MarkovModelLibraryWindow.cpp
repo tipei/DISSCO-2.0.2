@@ -198,23 +198,24 @@ void MarkovModelLibraryWindow::buildTable() {
   distBox->pack_start(*labelHBox, false, false);
   distBox->pack_start(*entryHBox, false, false);
 
+  int row_size = sqrt(size) / 2;
   // create placeholders to give some left padding
   Gtk::HBox* placeholder1 = Gtk::manage(new Gtk::HBox());
   Gtk::HBox* placeholder2 = Gtk::manage(new Gtk::HBox());
-  placeholder1->set_size_request(LABEL_WIDTH, LABEL_HEIGHT);
-  placeholder2->set_size_request(LABEL_WIDTH, LABEL_HEIGHT);
+  placeholder1->set_size_request(150 - (row_size * 2), LABEL_HEIGHT);
+  placeholder2->set_size_request(150 - (row_size * 2), LABEL_HEIGHT);
   labelHBox->pack_start(*placeholder1, false, false);
   entryHBox->pack_start(*placeholder2, false, false);
 
   for (int i = 0; i < size; i++) {
     // construct labels
     Gtk::Label* label = Gtk::manage(new Gtk::Label(std::to_string(i+1)));
-    label->set_size_request(ENTRY_WIDTH, LABEL_HEIGHT);
+    label->set_size_request(ENTRY_WIDTH / row_size, LABEL_HEIGHT);
 
     // construct entries
     Gtk::HBox* entryBox = Gtk::manage(new Gtk::HBox());
     Gtk::Entry* entry = Gtk::manage(new Gtk::Entry());
-    entryBox->set_size_request(ENTRY_WIDTH, ENTRY_HEIGHT);
+    entryBox->set_size_request(ENTRY_WIDTH / row_size, ENTRY_HEIGHT);
     entryBox->add(*entry);
     entry->signal_focus_out_event().connect(
       sigc::mem_fun(*this, &MarkovModelLibraryWindow::onEntryChange)
@@ -242,20 +243,20 @@ void MarkovModelLibraryWindow::buildTable() {
   // create placeholders to give some left padding
   placeholder1 = Gtk::manage(new Gtk::HBox());
   placeholder2 = Gtk::manage(new Gtk::HBox());
-  placeholder1->set_size_request(LABEL_WIDTH, LABEL_HEIGHT);
-  placeholder2->set_size_request(LABEL_WIDTH, LABEL_HEIGHT);
+  placeholder1->set_size_request(150 - (row_size * 2), LABEL_HEIGHT);
+  placeholder2->set_size_request(150 - (row_size * 2), LABEL_HEIGHT);
   labelHBox->pack_start(*placeholder1, false, false);
   entryHBox->pack_start(*placeholder2, false, false);
 
   for (int i = 0; i < size; i++) {
     // construct labels
     Gtk::Label* label = Gtk::manage(new Gtk::Label(std::to_string(i+1)));
-    label->set_size_request(ENTRY_WIDTH, LABEL_HEIGHT);
+    label->set_size_request(ENTRY_WIDTH / row_size, LABEL_HEIGHT);
 
     // construct entries
     Gtk::HBox* entryBox = Gtk::manage(new Gtk::HBox());
     Gtk::Entry* entry = Gtk::manage(new Gtk::Entry());
-    entryBox->set_size_request(ENTRY_WIDTH, ENTRY_HEIGHT);
+    entryBox->set_size_request(ENTRY_WIDTH / row_size, ENTRY_HEIGHT);
     entryBox->add(*entry);
     entry->signal_focus_out_event().connect(
       sigc::mem_fun(*this, &MarkovModelLibraryWindow::onEntryChange)
@@ -277,11 +278,11 @@ void MarkovModelLibraryWindow::buildTable() {
   Gtk::HBox* hbox = Gtk::manage(new Gtk::HBox());
   vbox->pack_start(*hbox, false ,false);
   Gtk::HBox* entryBox = Gtk::manage(new Gtk::HBox());
-  entryBox->set_size_request(LABEL_WIDTH, LABEL_HEIGHT);
+  entryBox->set_size_request(150 - (row_size * 2), LABEL_HEIGHT);
   hbox->pack_start(*entryBox, false, false);
   for (int j = 0; j < size; j++) {
     Gtk::Label* label = Gtk::manage(new Gtk::Label(std::to_string(j+1)));
-    label->set_size_request(ENTRY_WIDTH, LABEL_HEIGHT);
+    label->set_size_request(ENTRY_WIDTH / row_size, LABEL_HEIGHT);
     hbox->pack_start(*label, false, false);
   }
 
@@ -289,12 +290,12 @@ void MarkovModelLibraryWindow::buildTable() {
     Gtk::HBox* hbox = Gtk::manage(new Gtk::HBox());
     vbox->pack_start(*hbox, false ,false);
     Gtk::HBox* entryBox = Gtk::manage(new Gtk::HBox());
-    entryBox->set_size_request(LABEL_WIDTH, ENTRY_HEIGHT);
+    entryBox->set_size_request(150 - (row_size * 2), ENTRY_HEIGHT);
     hbox->pack_start(*entryBox, false, false);
     entryBox->add(*Gtk::manage(new Gtk::Label(std::to_string(i+1))));
     for (int j = 0; j < size; j++) {
       Gtk::HBox* entryBox = Gtk::manage(new Gtk::HBox());
-      entryBox->set_size_request(ENTRY_WIDTH, ENTRY_HEIGHT);
+      entryBox->set_size_request(ENTRY_WIDTH / row_size, ENTRY_HEIGHT);
       Gtk::Entry* entry = Gtk::manage(new Gtk::Entry());
       entry->signal_focus_out_event().connect(
         sigc::mem_fun(*this, &MarkovModelLibraryWindow::onEntryChange)

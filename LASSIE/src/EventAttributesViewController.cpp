@@ -39,6 +39,7 @@
 #include "SharedPointers.h"
 #include "FunctionGenerator.h"
 #include "MainWindow.h"
+#include "PartialWindow.h"
 
 EventAttributesViewController::EventAttributesViewController(
   SharedPointers* _sharedPointers){
@@ -3858,6 +3859,7 @@ BottomEventModifierAlignment::BottomEventModifierAlignment(
   attributesView = _attributesView;
   prev = NULL;
   next = NULL;
+  initialEnter = true;
   Gtk::VBox* vbox;
   Gtk::ComboBox* combobox;
 
@@ -3985,6 +3987,11 @@ BottomEventModifierAlignment::BottomEventModifierAlignment(
   attributesRefBuilder->get_widget("widthEnvelopeEntry", entry);
   entry->set_text(modifier->getWidth());
 
+  // ADDED BY TEJUS
+  // TODO: Set text, set_sensitive(false) to gray out the box
+  attributesRefBuilder->get_widget("partialNumEntry", entry);
+  entry->set_text(modifier->getPartialNum());
+
   ModifierType type = modifier->getModifierType();
   if (type == modifierAmptrans || type == modifierFreqtrans){
     attributesRefBuilder->get_widget("rateValueEnvelopeEntry", entry);
@@ -4053,7 +4060,11 @@ BottomEventModifierAlignment::BottomEventModifierAlignment(
     "widthEnvelopeEntry", entry);
   entry->signal_changed().connect(sigc::mem_fun(*this, & BottomEventModifierAlignment::modified));
 
-
+  // ADDED BY TEJUS
+  attributesRefBuilder->get_widget(
+    "partialNumEntry", entry);
+  // Not entirely sure where this goes?
+  entry->signal_changed().connect(sigc::mem_fun(*this, & BottomEventModifierAlignment::modified));
 
 
 
@@ -4072,15 +4083,25 @@ void BottomEventModifierAlignment::on_applyHow_combo_changed(){
   attributesView->modified();
   Gtk::ComboBox* combobox;
   attributesRefBuilder->get_widget("applyHowCombobox", combobox);
-
+  cout << "entered applyHOW" << endl;
   Gtk::TreeModel::iterator iter = combobox->get_active();
   if(iter)
   {
     Gtk::TreeModel::Row row = *iter;
     if(row)
     {
+      auto applyType = row[applyHowColumns.m_col_name];
       modifier->setApplyHowFlag(row[applyHowColumns.m_col_id]);
-
+      std::cout << "applyHowColumns.m_col_name == " << applyType << std::endl;
+      // TODO: Gray out box when SOUND is selected, pop out partial vbox
+      if (applyType == "SOUND") {
+        // Gray out partial box
+      } else if (applyType == "PARTIAL") {
+        // Pop out Partial VBox
+        PartialWindow * pwindow = new PartialWindow();
+        pwindow->run();
+        delete pwindow; 
+      }
     }
   }
 
@@ -4185,6 +4206,11 @@ void BottomEventModifierAlignment::saveToEvent(){
 
   attributesRefBuilder->get_widget("ampValueEnvelopeEntry", entry);
   modifier->setAmpValue(entry->get_text());
+
+  // ADDED BY TEJUS
+  // Will have to change: partialNum should only be set when the box is not grayed out
+  attributesRefBuilder->get_widget("partialNumEntry", entry);
+  modifier->setPartialNum(entry->get_text());
 
   ModifierType type = modifier->getModifierType();
 
