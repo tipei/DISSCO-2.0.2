@@ -1500,12 +1500,10 @@ void IEvent::link(ProjectViewController* _projectView){
 
   }
 
-
-
-
-
 }
 
+
+//---------------------------------------------------------------------------//
 
 void EventLayer::link(ProjectViewController* _projectView, IEvent* _thisEvent){
   std::list<EventDiscretePackage*>::iterator i = children.begin();
@@ -1525,6 +1523,9 @@ void EventLayer::link(ProjectViewController* _projectView, IEvent* _thisEvent){
 
 }
 
+
+//---------------------------------------------------------------------------//
+
 bool EventDiscretePackage::link(
   ProjectViewController* _projectView, IEvent* _thisEvent){
     event = _projectView->getEventByTypeAndName(eventType,eventName);
@@ -1540,12 +1541,7 @@ bool EventDiscretePackage::link(
 }
 
 
-
-
-
-
-
-
+//---------------------------------------------------------------------------//
 
 void IEvent::parseNonEvent(){
   extern map<const char*, FileValue*, ltstr> file_data;
