@@ -148,15 +148,16 @@ protected:
     double checkPoint;
 
    //Previous start time for Sweep             //added by sever
-    double previousChildStartTime;
+    double previousChildEndTime;
 
     //Previous start time (only used by sweep generation method)
     TimeSpan tsPrevious;
 
-    //Previous child duration
-    double previousChildDuration;
+    //Previous child duration		NOT USED
+    //double previousChildDuration;
 
-    // Whether to align note durations to a sieve. True for Bottoms that contain Notes.
+    // Whether to align note durations to a sieve. True for Bottoms 
+    //  that contain Notes.
     bool sieveAligned;
     //-------------------------- Layers and Types ----------------------------//
 
@@ -309,9 +310,9 @@ protected:
 
     /**
     *   Returns the previous child duration
+    *		NOT USED
     **/
-
-    double getPreviousChildDuration(){ return previousChildDuration;}
+    double getPreviousChildEndTime(){ return previousChildEndTime;}
 
     /**
     *  Returns the number of current partial -- will call to bottom in most cases

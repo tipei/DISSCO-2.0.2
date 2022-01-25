@@ -38,11 +38,13 @@ seconds and, in the case of it being an exact interval, EDU.*/
 struct TimeSpan {
   float start;
   float duration;
+  float end;
   Ratio startEDU;
   unsigned long long int startEDUAbsolute;
   Ratio durationEDU;
+  Ratio endEDU;
   
-  TimeSpan() : start(0), duration(0), startEDU(0, 0), startEDUAbsolute(0), durationEDU(0, 0) {}
+  TimeSpan() : start(0), duration(0), end(0), startEDU(0, 0), startEDUAbsolute(0), durationEDU(0, 0), endEDU(0, 0) {}
 };
 #endif /* TIMESPAN_H */
 

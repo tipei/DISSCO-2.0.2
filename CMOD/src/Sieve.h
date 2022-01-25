@@ -105,7 +105,7 @@ class Sieve {
     /**
     *  FillInVectors calls CumulWeights to normalize and and add the result in
     *  a cumulative way resulting in probabilities from 0 to 1 and then copies
-    *  them into the vectors
+    *  them into the vectors			???
     *  \param intVect a vector of ints
     *  \param doubleVect a vector of doubles
     **/

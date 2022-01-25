@@ -1193,7 +1193,7 @@ void FileValue::static_ftn_PREVIOUS_CHILD_DURATION() {
     exit(1);
   }
   return_type = FVAL_NUMBER;
-  n = evptr->getPreviousChildDuration();
+  n = evptr->getPreviousChildEndTime();
 }
 
 

@@ -60,7 +60,7 @@ void Sieve::BuildFromExpr(int minVal, int maxVal,
   ModParser mp(offsetVect);
   mp.parseExpr(expr, minVal, maxVal);
   eList = mp.getElements();
-//Sieve::print_eList();
+ 
   Sieve::Weights(mp.getMods(), wMethod, wArgVect, mp.getOffsets());
 }
 
@@ -79,10 +79,10 @@ void Sieve::Build(int minVal, int maxVal,
 //---------------------------------------------------------------------------//
 
 void Sieve::FillInVectors(vector<int>& intVect, vector<double>& doubleVect) {
-
-
   list<int>::iterator eIter = eList.begin();
   list<double>::iterator wIter = wList.begin();
+
+//cout << "Sieve::FillInVectors - eList.size()=" << eList.size() << "wList.size()=" << wList.size() << endl;
 
   if ( eList.size() >= wList.size() ) {
     while (eIter != eList.end()) {
@@ -308,9 +308,11 @@ void Sieve::HierarchicWeights(const std::vector<int>& eArgVect,
 /*
 cout << "Sieve::Hierarchic - eList.end=" << eList.end() << " eArgVect.size()="
      << eArgVect.size() << " wArgVect.size=" << wArgVect.size() << endl;
-  print_eList();
+  print_eList(); cout << "  " << endl;
+  print_wList(); 
+  cout << "Sieve::HierarchicWeights - wArgVect.size()=" << wArgVect.size() << endl;
+  int sever; cin >> sever;
 */
-
   while (eIter != eList.end()) {
      whichMod = 0;
     probability = 0;
