@@ -6,14 +6,17 @@
 class PartialWindow : public Gtk::Dialog {
 
 public:
-    PartialWindow();
+    PartialWindow(std::string _originalString, ModifierType _type);
     ~PartialWindow();
     void AddNodeButtonClicked();
     void FunButtonClicked();
     void textChanged();
+    std::string getResultString();
+    std::string getFunctionString(DOMElement* _thisFunctionElement);
 
 private:
     Glib::RefPtr<Gtk::Builder> attributesRefBuilder;
+    ModifierType type;
     
     // We dedicate a class to each "sub alignment" -- each partial row
     class PartialSubAlignment:public Gtk::Alignment {
@@ -22,10 +25,10 @@ private:
         ~PartialSubAlignment();
         void appendNewNode(PartialSubAlignment* _newNode);
         void clear();
-        // void setFunctionsEntry(std::string _string);
-        // void setMinEntry(std::string _string);
-        // void setMaxEntry(std::string _string);
-        // void setDistEntry(std::string _string);
+        void setProbEntry(std::string _string);
+        void setAmpValueEntry(std::string _string);
+        void setWidthEntry(std::string _string);
+        void setRateValueEntry(std::string _string);
         std::string toString();
         PartialSubAlignment* prev;
         PartialSubAlignment* next;

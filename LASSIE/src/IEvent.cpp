@@ -934,7 +934,7 @@ EventBottomModifier::EventBottomModifier(){
   rateValue = "";
   width = "";
   groupName = "";
-  partialNum = "";   // ADDED BY TEJUS
+  partialResultString = "";
   next = NULL;
 }
 
@@ -989,12 +989,13 @@ void  EventBottomModifier::setGroupName(std::string _string){
   groupName = _string;
 }
 
+
 // ADDED BY TEJUS
-std::string EventBottomModifier::getPartialNum(){
-  return partialNum;
+std::string EventBottomModifier::getPartialResultString(){
+  return partialResultString;
 }
-void  EventBottomModifier::setPartialNum(string _string){
-  partialNum = _string;
+void  EventBottomModifier::setPartialResultString(string _string){
+  partialResultString = _string;
 }
 
 int EventBottomModifier::getModifierTypeInt(){
@@ -1160,6 +1161,7 @@ std::string EventBottomModifier::getSaveLASSIEMetaDataString(){
 }
 
 // CHANGED BY TEJUS: Add partial num to XML output 
+// Add partial result string to XML output
 std::string EventBottomModifier::getXMLString(){
 
   char temp1[10];
@@ -1177,7 +1179,7 @@ std::string EventBottomModifier::getXMLString(){
     "              <Rate>" + rateValue +"</Rate>\n"
     "              <Width>"+ width + "</Width>\n"
     "              <GroupName>" + groupName + "</GroupName>\n"
-    "              <PartialNum>"+ partialNum + "</PartialNum>\n"
+    "              <PartialResultString>"+ partialResultString + "</PartialResultString>\n"
     "            </Modifier>\n";
   return stringbuffer;
 
@@ -1315,9 +1317,14 @@ IEvent::BottomEventExtraInfo::BottomEventExtraInfo(int _childTypeFlag){
 
       modifierIter++;
       currentModifier->setWidth(modifierIter->getString());
+/*
+      modifierIter++;
+      currentModifier->setPartialNum(modifierIter->getPartialNum());
 
       modifierIter++;
+      currentModifier->setPartialResultString(modifierIter->getPartialResultString());
 
+*/
       if (modifierIter != thisModifierList.end()){
         currentModifier->setGroupName(modifierIter->getString());
       }
@@ -1971,7 +1978,8 @@ EventBottomModifier::EventBottomModifier(EventBottomModifier* _original){
   rateValue = _original->rateValue;
   width = _original->width;
   groupName = _original->groupName;
-  partialNum = _original->partialNum;
+  // ADDED BY TEJUS
+  partialResultString = _original->partialResultString;
 }
 
 
@@ -3011,6 +3019,9 @@ EventBottomModifier* IEvent::BottomEventExtraInfo::buildModifiersFromDOMElement(
 
   thisElement = thisElement->getNextElementSibling();
   currentModifier->setGroupName(getFunctionString(thisElement));
+
+  thisElement = thisElement->getNextElementSibling();
+  currentModifier->setPartialResultString(getFunctionString(thisElement));
 
   currentModifier->next = buildModifiersFromDOMElement(_thisModifierElement->getNextElementSibling());
   return currentModifier;

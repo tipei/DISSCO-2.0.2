@@ -198,7 +198,7 @@ void MarkovModelLibraryWindow::buildTable() {
   distBox->pack_start(*labelHBox, false, false);
   distBox->pack_start(*entryHBox, false, false);
 
-  int row_size = sqrt(size) / 2;
+  int row_size = max(1, static_cast<int>(sqrt(size)/2));
   // create placeholders to give some left padding
   Gtk::HBox* placeholder1 = Gtk::manage(new Gtk::HBox());
   Gtk::HBox* placeholder2 = Gtk::manage(new Gtk::HBox());

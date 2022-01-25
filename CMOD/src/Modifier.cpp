@@ -34,16 +34,17 @@ Modifier::Modifier() {
   probEnv = NULL;
   checkPt = 0;
   partialNum = 0;
+  partialResultString = "";
 }
 
 //----------------------------------------------------------------------------//
 
-Modifier::Modifier(string modType, Envelope* prob, string modApplyHow, int modPartialNum) {
+Modifier::Modifier(string modType, Envelope* prob, string modApplyHow) {
   type = modType;
   probEnv = new Envelope(*prob);
   applyHow = modApplyHow;
   checkPt = 0;
-  partialNum = modPartialNum;
+  // partialNum = modPartialNum;
 }
 
 //----------------------------------------------------------------------------//
@@ -53,6 +54,7 @@ Modifier::Modifier(const Modifier& orig) {
   applyHow = orig.applyHow;
   checkPt = orig.checkPt;
   partialNum = orig.partialNum;
+  partialResultString = orig.partialResultString;
 
   if (orig.probEnv != NULL) {
     probEnv = new Envelope(*orig.probEnv);
@@ -76,6 +78,7 @@ Modifier& Modifier::operator=(const Modifier& rhs) {
   applyHow = rhs.applyHow;
   checkPt = rhs.checkPt;
   partialNum = rhs.partialNum;
+  partialResultString = rhs.partialResultString;
 
   if (rhs.probEnv != NULL) {
     probEnv = new Envelope(*rhs.probEnv);
@@ -130,6 +133,13 @@ string Modifier::getModName() {
 int Modifier::getPartialNum() {
   return partialNum;
 }
+
+//----------------------------------------------------------------------------//
+
+string Modifier::getPartialResultString() {
+  return partialResultString;
+}
+
 //----------------------------------------------------------------------------//
 
 bool Modifier::willOccur(double checkPoint) {
@@ -144,11 +154,13 @@ bool Modifier::willOccur(double checkPoint) {
 
 //----------------------------------------------------------------------------//
 
-void Modifier::applyModifier(Sound* snd, int partNum) {
+void Modifier::applyModifier(Sound* snd, int numParts) {
   if (applyHow == "SOUND") {
     applyModSound(snd);
   } else if (applyHow == "PARTIAL") {
-    applyModPartial(snd, partNum);
+    for (int i = 0; i < numParts; i++) {
+      applyModPartial(snd, i);
+    }
   }
 }
 

@@ -966,6 +966,7 @@ void Bottom::applyModifiers(Sound *s, int numPartials) {
 //      <Width></Width>
 //      <GroupName></GroupName>
 //      <PartialNum></PartialNum>
+//      <PartialResultString></PartialResultString>
 //    </Modifier>
 
     DOMElement* arg = modifierElement->GFEC();
@@ -991,16 +992,19 @@ void Bottom::applyModifiers(Sound *s, int numPartials) {
     DOMElement* rateElement = ampElement->GNES();
     DOMElement* widthElement = rateElement->GNES();
     // ADDED BY TEJUS
-    DOMElement* partialNumElement = widthElement->GNES();
+    // skip group name
+    DOMElement* partialResultStringElement = widthElement->GNES()->GNES();
     string ampStr = XMLTC(ampElement);
     string rateStr = XMLTC(rateElement);
     string widthStr = XMLTC(widthElement);
-    string partialNumStr = XMLTC(partialNumElement);
+    string probStr;
+    string partialResultStr = XMLTC(partialResultStringElement);
 
     // TEJUS 10/8:
     // Save the partial number within a particular modifier
-    Modifier newMod(modType, probEnv, applyHow, std::atoi(partialNumStr.c_str()));
-    cout << "partialNum is: " << newMod.getPartialNum() << endl;
+    // TEJUS 11/27:
+    // don't
+    Modifier newMod(modType, probEnv, applyHow);
 
     // TEJUS 10/8:
     // Make the envelopes: this could be for a particular partial OR a sound
@@ -1008,25 +1012,80 @@ void Bottom::applyModifiers(Sound *s, int numPartials) {
     // In this way, the next partial modifier should be reached with the next iteration of 
     // the main while loop (after modifierElement->GNES())
 
-    if (ampStr!=""){
-      Envelope* env =  (Envelope*)utilities->evaluateObject(ampStr, this, eventEnv );
-      newMod.addValueEnv(env);
-      delete env;
+    // TEJUS 11/27:
+    // Instead, revert back to the old way, kinda. 
+    // Check applyHow. If SOUND, do this way as before. If PARTIAL, loop through the partial result string
+    // and apply modifiers one by one via their partial number.
+    // TODO: Validate the partial num to make sure that it does not go out of range.
+
+    if (applyHow == "SOUND") {
+
+      if (ampStr!=""){
+        Envelope* env =  (Envelope*)utilities->evaluateObject(ampStr, this, eventEnv );
+        newMod.addValueEnv(env);
+        delete env;
+      }
+
+      if (rateStr!=""){
+        Envelope* env =  (Envelope*)utilities->evaluateObject(rateStr, this, eventEnv );
+        newMod.addValueEnv(env);
+        delete env;
+      }
+
+      if (widthStr!=""){
+        Envelope* env =  (Envelope*)utilities->evaluateObject(widthStr, this, eventEnv );
+        newMod.addValueEnv(env);
+        delete env;
+      }
     }
+    else if (applyHow == "PARTIAL") {
 
-    if (rateStr!=""){
-      Envelope* env =  (Envelope*)utilities->evaluateObject(rateStr, this, eventEnv );
-      newMod.addValueEnv(env);
-      delete env;
+      // See PartialWindow.cpp (and for that matter, FunctionGenerator) -- same parsing used here
+      XMLPlatformUtils::Initialize();
+      XercesDOMParser* parser = new XercesDOMParser();
+      xercesc::MemBufInputSource myxml_buf  ((const XMLByte*)partialResultStr.c_str(), partialResultStr.size(),
+                                        "function (in memory)");
+
+      parser->parse(myxml_buf);
+
+      DOMDocument* xmlDocument = parser->getDocument();
+      DOMElement* root = xmlDocument->getDocumentElement();
+
+      DOMElement* thisElement = root->GFEC();    //start of envelopes
+        thisElement = thisElement->GNES();    //envelopes
+      for (int i = 0; i <numPartials; i ++){ // make envelopes for all the partials
+
+        DOMElement* envelopeElement = thisElement->GFEC();//first envelope
+
+        probStr = XMLTC(envelopeElement);
+        envelopeElement = envelopeElement->GNES();
+        ampStr = XMLTC(envelopeElement);
+        envelopeElement = envelopeElement->GNES();
+        widthStr = XMLTC(envelopeElement);
+        envelopeElement = envelopeElement->GNES();
+        rateStr = XMLTC(envelopeElement);
+
+        if (ampStr!="" && ampStr!="N/A"){
+          Envelope* env =  (Envelope*)utilities->evaluateObject(ampStr, this, eventEnv );
+          newMod.addValueEnv(env);
+          delete env;
+        }
+
+
+        if (rateStr!="" && rateStr!="N/A"){
+          Envelope* env =  (Envelope*)utilities->evaluateObject(rateStr, this, eventEnv );
+          newMod.addValueEnv(env);
+          delete env;
+        }
+
+
+        if (widthStr!="" && widthStr!="N/A"){
+          Envelope* env =  (Envelope*)utilities->evaluateObject(widthStr, this, eventEnv );
+          newMod.addValueEnv(env);
+          delete env;
+        }
+      }
     }
-
-    if (widthStr!=""){
-      Envelope* env =  (Envelope*)utilities->evaluateObject(widthStr, this, eventEnv );
-      newMod.addValueEnv(env);
-      delete env;
-    }
-
-
 
     arg = widthElement->GNES();//group name (MUT_EX)
     string mutExGroup = XMLTC(arg);
@@ -1045,13 +1104,14 @@ void Bottom::applyModifiers(Sound *s, int numPartials) {
   // TEJUS 10/8:
   // Instead of sending numPartials to applyModifier, send the partial num. We apply 
   // a partial using an entire modifierElement structure.
+  // TEJUS 12/19: don't
 
   // go through the non-exclusive mods
   for (int i = 0; i < modNoDep.size(); i++) {
 
     if (modNoDep[i].willOccur(checkPoint)) {
 
-      modNoDep[i].applyModifier(s, modNoDep[i].getPartialNum());
+      modNoDep[i].applyModifier(s, numPartials);
 
     }
   }
@@ -1066,7 +1126,7 @@ void Bottom::applyModifiers(Sound *s, int numPartials) {
     bool appliedMod = false;
     for (int i = 0; i < modGroup.size() && !appliedMod; i++) {
       if (modGroup[i].willOccur(checkPoint)) {
-        modGroup[i].applyModifier(s, modGroup[i].getPartialNum());
+        modGroup[i].applyModifier(s, numPartials);
         appliedMod = true;
       }
     }
@@ -1147,7 +1207,7 @@ vector<string> Bottom::applyNoteModifiersOld() {
     string rateStr = XMLTC(rateElement);
     cout << "Bottom::applyNoteModifiers - rateStr: " << rateStr << endl;
 
-    Modifier newMod(modType, probEnv, applyHow, 0);
+    Modifier newMod(modType, probEnv, applyHow);
 
 /* needs to be rewrite to remove filevalue
   while (modIter != modList->end()) {

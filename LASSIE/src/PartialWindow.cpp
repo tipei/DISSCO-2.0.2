@@ -2,14 +2,12 @@
 #include "FunctionGenerator.h"
 
 /* TODO
- * Find a way to stop user from putting too many partials
+ * Find a way to stop user from creating too many partials
  * Save the result string in the main Bottom window
- * Change the trigger to be a new button in the Bottom window rather than applyHow
- * Parse the long partials string in CMOD and apply to the composition 
  * 
  * Later:
  * Finish markov changes
- * Fixes in DISSCO doc
+ * Misc. fixes in DISSCO doc
  */
 
 
@@ -17,22 +15,26 @@
  * FUNCTION: PartialWindow::PartialWindow()
  * DESCRIPTION: Constructor for Partial Window. The steps for setting up a GUI
  *              window are as follows:
- *                1) Initialize locals - counts, sub alignment linked list, gtk builder
+ *                1) Initialize internals - counts, sub alignment linked list, gtk builder
  *                2) Get widgets from the relevant .ui using gtk builder API
  *                3) Attach signal handlers to buttons
- *                4) Place the correct VBox into the new window
- *                5) show_all_children() to display everything in window.
+ *                4) Now, check if _originalString contained prior information. Place the previous 
+ *                   partial configuration into the window to restore settings.
+ *                5) Place the correct VBox into the new window
+ *                6) show_all_children() to display everything in window.
  *              PartialWindow uses sub alignments - rows inside the window - and contains
  *              them within an internal linked list. The PartialSubAlignment is its own class
  *              that contains functionality for table rows.
- * ARGS: None
+ * ARGS: _originalString -- This is used to retain the previously input partials. Takes the result
+ *                          string that is already present in the box. 
  * RETURNS: None
  */
-PartialWindow::PartialWindow() {
+PartialWindow::PartialWindow(std::string _originalString, ModifierType _type) {
 
     // Initialize internal vars
     partialSubAlignments = NULL;
     partialNumOfNodes = 0;
+    type = _type;
 
     set_title("Customize Partials");
     set_border_width(3);
@@ -87,6 +89,71 @@ PartialWindow::PartialWindow() {
     button->signal_clicked().connect(sigc::mem_fun(
       *this, & PartialWindow::FunButtonClicked));
 
+    // Check original string by XML parsing
+    XMLPlatformUtils::Initialize();
+    XercesDOMParser* parser = new XercesDOMParser();
+
+    xercesc::MemBufInputSource myxml_buf  ((const XMLByte*)_originalString.c_str(), _originalString.size(),
+                                      "function (in memory)");
+
+    parser->parse(myxml_buf);
+
+    DOMDocument* xmlDocument = parser->getDocument();
+    DOMElement* root = xmlDocument->getDocumentElement();
+
+    char* functionNameChars;
+    char* charBuffer;
+    DOMCharacterData* textData;
+    string functionName;
+    DOMElement* thisElement;
+
+    // See if string empty/invalid
+    if (root != NULL){
+      DOMElement* functionNameElement = root->getFirstElementChild();
+      textData = ( DOMCharacterData*) functionNameElement->getFirstChild();
+
+      if (textData){
+        functionNameChars = XMLString::transcode(textData->getData());
+        functionName = string(functionNameChars);
+        XMLString::release(&functionNameChars);
+      }
+
+      if (functionName.compare("Partials") == 0) {
+
+        thisElement = functionNameElement->getNextElementSibling();    //envelopes
+        DOMElement* envelopeElement = thisElement->getFirstElementChild() ;//first envelope
+
+        // Create rows (sub alignments) corresponding to what was previously written
+        while (envelopeElement != NULL){
+          PartialSubAlignment* newSubAlignment =
+              new PartialSubAlignment(this, ++partialNumOfNodes);
+          
+          // Add to internal linked list
+          if ( partialSubAlignments ==NULL){
+            partialSubAlignments = newSubAlignment;
+          }
+          else {
+            partialSubAlignments->appendNewNode(newSubAlignment);
+          }
+
+          attributesRefBuilder->get_widget(
+              "PartialInnerVBox", vbox);
+          vbox->pack_start(*newSubAlignment,Gtk::PACK_SHRINK);
+          newSubAlignment->setProbEntry(getFunctionString(envelopeElement));
+          envelopeElement = envelopeElement->getNextElementSibling();
+          newSubAlignment->setAmpValueEntry(getFunctionString(envelopeElement));
+          envelopeElement = envelopeElement->getNextElementSibling();
+          newSubAlignment->setWidthEntry(getFunctionString(envelopeElement));
+          envelopeElement = envelopeElement->getNextElementSibling();
+          newSubAlignment->setRateValueEntry(getFunctionString(envelopeElement));
+          envelopeElement = envelopeElement->getNextElementSibling();
+        }
+
+        textChanged();
+        show_all_children();
+      }
+    }
+
     attributesRefBuilder->get_widget("PartialVBox", vbox);
 
     get_vbox()->pack_start(*vbox, Gtk::PACK_EXPAND_WIDGET);
@@ -109,6 +176,43 @@ PartialWindow::~PartialWindow() {
   if (partialSubAlignments != NULL){
     partialSubAlignments->clear();
   }
+}
+
+
+
+/* 
+ * FUNCTION: PartialWindow::getFunctionString 
+ * DESCRIPTION: Used to transcode an element back into the XML format, to place into box
+ * ARGS: _thisFunctionElement -- The element to examine in order to find the full xml line 
+ * RETURNS: returnString -- The XML string to place in an entry
+ */
+std::string PartialWindow::getFunctionString(DOMElement* _thisFunctionElement){
+
+  char* charBuffer;
+  DOMCharacterData* textData;
+  string returnString;
+  DOMElement* child = _thisFunctionElement->getFirstElementChild();
+  if (child ==NULL){ //not containing any child, return string
+
+    textData = ( DOMCharacterData*) _thisFunctionElement->getFirstChild();
+    if (textData){
+      charBuffer = XMLString::transcode(textData->getData());
+      returnString = string(charBuffer);
+      XMLString::release(&charBuffer);
+    } else returnString = "";
+
+    return returnString;
+  }
+
+  //contain function!
+  XMLCh tempStr[3] = {chLatin_L, chLatin_S, chNull};
+  DOMImplementation *impl          = DOMImplementationRegistry::getDOMImplementation(tempStr);
+  DOMLSSerializer   *theSerializer = ((DOMImplementationLS*)impl)->createLSSerializer();
+  XMLCh* bla = theSerializer->writeToString (child);
+  returnString = XMLString::transcode(bla);
+  XMLString::release(&bla);
+  delete theSerializer;
+  return returnString;
 }
 
 
@@ -227,8 +331,7 @@ void PartialWindow::textChanged(){
   Gtk::Entry* entry;
 
   std::string stringbuffer ="";
-  stringbuffer = stringbuffer + "<Fun><Name>Partials</Name><Method>" +
-     + "</Method><Envelopes>";
+  stringbuffer = stringbuffer + "<Fun><Name>Partials</Name><Envelopes>";
   PartialSubAlignment* current = partialSubAlignments;
   while (current != NULL){
     stringbuffer = stringbuffer + current->toString();
@@ -238,6 +341,22 @@ void PartialWindow::textChanged(){
   stringbuffer = stringbuffer + "</Envelopes></Fun>";
 
   textview->get_buffer()->set_text(stringbuffer);
+}
+
+
+
+/* 
+ * FUNCTION: PartialWindow::getResultString
+ * DESCRIPTION: Returns the result string in the bottom field of the window.
+ *              This is the string that contains all of the envelopes for the
+ *              different partials.
+ * ARGS: None
+ * RETURNS: result -- result string
+ */
+std::string PartialWindow::getResultString(){
+  Gtk::TextView* textview;
+  attributesRefBuilder->get_widget("resultStringTextView", textview);
+  return textview->get_buffer()->get_text();
 }
 
 
@@ -298,30 +417,82 @@ PartialWindow::PartialSubAlignment::PartialSubAlignment(
   button->signal_clicked().connect(sigc::mem_fun(
     *this, & PartialWindow::PartialSubAlignment::removeButtonClicked));
 
+  ModifierType type = parent->type;
   // Attach signals to the envelopes for modifying the result string
+  if (type == modifierAmptrans || type == modifierFreqtrans){
+    attributesRefBuilder->get_widget("RateValueEntry", entry);
+    entry->set_sensitive(true);
+    attributesRefBuilder->get_widget("WidthEntry", entry);
+    entry->set_sensitive(true);
+  }
+  else if (type == modifierTremolo|| type == modifierVibrato){
+    attributesRefBuilder->get_widget("RateValueEntry", entry);
+    entry->set_sensitive(true);
+    attributesRefBuilder->get_widget("WidthEntry", entry);
+    entry->set_sensitive(false);
+  }
+  else{
+    attributesRefBuilder->get_widget("RateValueEntry", entry);
+    entry->set_sensitive(false);
+    attributesRefBuilder->get_widget("WidthEntry", entry);
+    entry->set_sensitive(false);
+
+  }
+
   attributesRefBuilder->get_widget(
     "ProbabilityEntry", entry);
   entry->signal_changed().connect(sigc::mem_fun(
     *this, & PartialWindow::PartialSubAlignment::textChanged));
-  entry->set_text("PROB");
+  if (entry->get_sensitive())
+    entry->set_text("PROB");
 
   attributesRefBuilder->get_widget(
     "AmpValueEntry", entry);
   entry->signal_changed().connect(sigc::mem_fun(
     *this, & PartialWindow::PartialSubAlignment::textChanged));
-  entry->set_text("AMP");
+  if (entry->get_sensitive())
+    entry->set_text("AMP");
 
   attributesRefBuilder->get_widget(
     "WidthEntry", entry);
   entry->signal_changed().connect(sigc::mem_fun(
     *this, & PartialWindow::PartialSubAlignment::textChanged));
-  entry->set_text("WIDTH");
+  if (entry->get_sensitive())
+    entry->set_text("WIDTH");
 
   attributesRefBuilder->get_widget(
     "RateValueEntry", entry);
   entry->signal_changed().connect(sigc::mem_fun(
     *this, & PartialWindow::PartialSubAlignment::textChanged));
-  entry->set_text("RATE");
+  if (entry->get_sensitive())
+    entry->set_text("RATE");
+
+}
+
+
+
+void PartialWindow::PartialSubAlignment::setProbEntry(std::string _string) {
+  Gtk::Entry* entry;
+  attributesRefBuilder->get_widget("ProbabilityEntry", entry);
+  entry->set_text(_string);
+}
+
+void PartialWindow::PartialSubAlignment::setAmpValueEntry(std::string _string) {
+  Gtk::Entry* entry;
+  attributesRefBuilder->get_widget("AmpValueEntry", entry);
+  entry->set_text(_string);
+}
+
+void PartialWindow::PartialSubAlignment::setWidthEntry(std::string _string) {
+  Gtk::Entry* entry;
+  attributesRefBuilder->get_widget("WidthEntry", entry);
+  entry->set_text(_string);
+}
+
+void PartialWindow::PartialSubAlignment::setRateValueEntry(std::string _string) {
+  Gtk::Entry* entry;
+  attributesRefBuilder->get_widget("RateValueEntry", entry);
+  entry->set_text(_string);
 }
 
 

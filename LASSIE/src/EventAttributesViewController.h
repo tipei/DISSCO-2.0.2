@@ -111,8 +111,8 @@ protected:
   void ampValueEnvelopeButtonClicked();
   void rateValueEnvelopeButtonClicked();
   void widthEnvelopeButtonClicked();
+  void partialButtonClicked();
   void modified();
-  bool initialEnter;
   ModelColumns applyHowColumns;
   ModelColumns2 typeColumns;
   EventAttributesViewController* attributesView;

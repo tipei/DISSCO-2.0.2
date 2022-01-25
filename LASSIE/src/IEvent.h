@@ -77,6 +77,9 @@ public:
   std::string  getPartialNum();
   void  setPartialNum(std::string _string);
 
+  std::string  getPartialResultString();
+  void  setPartialResultString(std::string _string);
+
   EventBottomModifier* next;
 
   std::string getSaveToDiskString();
@@ -93,7 +96,7 @@ private:
   std::string width;
   std::string groupName;
   // ADDED BY TEJUS
-  std::string partialNum;
+  std::string partialResultString;
 
 
 

@@ -32,7 +32,7 @@
 
 #include "LASSIE.h"
 #include "ProjectViewController.h"
-#include "../../LASS/src/MarkovModel.h"
+#include "../../CMOD/src/Markov.h"
 #include <sstream>
 
 #define ENTRY_WIDTH 100

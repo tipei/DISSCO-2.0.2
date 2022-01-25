@@ -815,7 +815,7 @@ void MainWindow::menuProjectRun(){
       //if (fork() == 0){
       //cout<<"this is the child. execute cmod"<<endl;
 
-      string command = "gnome-terminal -e \"bash -c \\\"gdb --args ./cmod " + projectPath
+      string command = "gnome-terminal -e \"bash -c \\\"./cmod " + projectPath
                          + projectName + ".dissco";
       command = command + " ; exec bash\\\"\"";
       system(command.c_str()) ;
