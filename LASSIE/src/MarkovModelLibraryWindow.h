@@ -57,6 +57,8 @@ public:
   void setActiveProject(ProjectViewController* project);
   void createNewModel();
   void duplicateModel();
+  // added 1/25/22
+  void removeModel();
 
   void update(int selection);
 protected:

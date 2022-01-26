@@ -111,14 +111,22 @@ MarkovModelLibraryWindow::MarkovModelLibraryWindow() {
     Gtk::Action::create("ContextDuplicate", "Duplicate Model"),
     sigc::mem_fun(*this, &MarkovModelLibraryWindow::duplicateModel));
 
+  // new change 1/25/22
+  m_refActionGroup->add(
+    Gtk::Action::create("ContextRemove", "Delete Model"),
+    sigc::mem_fun(*this, &MarkovModelLibraryWindow::removeModel));
+
   m_refUIManager = Gtk::UIManager::create();
   m_refUIManager->insert_action_group(m_refActionGroup);
+
+  // line "   <menuitem action='ContextRemove'/>" added 1/25/22
 
   Glib::ustring ui_info =
     "<ui>"
     "  <popup name='PopupMenu'>"
     "    <menuitem action='ContextAdd'/>"
     "    <menuitem action='ContextDuplicate'/>"
+    "    <menuitem action='ContextRemove'/>"
     "  </popup>"
     "</ui>";
 
@@ -167,6 +175,14 @@ void MarkovModelLibraryWindow::duplicateModel() {
   activeProject->modified();
   Gtk::TreeModel::Row row = *(m_refListStore->append());
   row[m_columns.m_col_number] = newIdx;
+}
+
+// added 1/25/22
+void MarkovModelLibraryWindow::removeModel() {
+  if (currentSelection < 0) return;
+  // functionality to remove markov model from list.
+  int num = currentSelection;
+  std::cout << "Wanting to delete model " << currentSelection << "." << "\n";
 }
 
 void MarkovModelLibraryWindow::onSelectionChanged() {
