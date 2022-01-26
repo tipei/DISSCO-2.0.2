@@ -80,12 +80,21 @@
     </action-widgets>
   </object>
   <object class="GtkTextBuffer" id="textbuffer1">
-    <property name="text" translatable="yes">Version: 1.0 alpha
-Copyright© 2010 Ming-ching Chiu
+    <property name="text" translatable="yes">Version: 2.0.2
 
-LASSIE is the graphical interface of CMOD, a digital music composition program. 
+    LASSIE is the graphical interface of CMOD, 
+    a digital music composition program. 
 
+    (Add the DISSCO MANUAL at some point.)
 
-Website: http://sourceforge.net/projects/dissco/</property>
+    Main Website: 
+    https://cmp.ischool.illinois.edu/software/dissco/
+    Github Page: 
+    https://github.com/tipei/DISSCO-2.0.2
+    SourceForge Page: 
+    http://sourceforge.net/projects/dissco/
+
+    LASSIE was created in version 1.0 alpha
+    Copyright© 2010 Ming-ching Chiu</property>
   </object>
 </interface>
