@@ -1678,6 +1678,15 @@ int ProjectViewController::duplicateMarkovModel(int idx) {
   return markovModels.size() - 1;
 }
 
+int ProjectViewController::removeMarkovModel(int idx) {
+  std::cout << "index is -> " << idx << std::endl;
+  if (idx >= 0 and idx < markovModels.size()) {
+    markovModels.erase(markovModels.begin() + (idx));
+  } else {
+    std::cout << "unable to remove markov model at index " << idx << std::endl;
+  }
+}
+
 vector<MarkovModel<float>>& ProjectViewController::getMarkovModels() {
   return markovModels;
 }

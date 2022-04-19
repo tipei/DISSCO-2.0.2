@@ -180,9 +180,15 @@ void MarkovModelLibraryWindow::duplicateModel() {
 // added 1/25/22
 void MarkovModelLibraryWindow::removeModel() {
   if (currentSelection < 0) return;
-  // functionality to remove markov model from list.
+  //functionality to remove markov model from list.
+  Gtk::TreeModel::Children::iterator iter = m_TreeView.get_selection()->get_selected();
+  Gtk::TreeModel::Row row = *iter;
+  activeProject->removeMarkovModel(int(row));
+
+  activeProject->modified();
   int num = currentSelection;
-  std::cout << "Wanting to delete model " << currentSelection << "." << "\n";
+  std::cout << "Deleted model " << currentSelection << std::endl;
+  onSelectionChanged();
 }
 
 void MarkovModelLibraryWindow::onSelectionChanged() {

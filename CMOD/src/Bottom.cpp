@@ -934,7 +934,7 @@ void Bottom::applyModifiers(Sound *s, int numPartials) {
       case 0: modType = "TREMOLO"; break;
       case 1: modType = "VIBRATO"; break;
       case 2: modType = "GLISSANDO"; break;
-      case 3: modType = "BEND"; break;
+      case 3: modType = "BEND"; break; // removed in LASSIE
       case 4: modType = "DETUNE"; break;
       case 5: modType = "AMPTRANS"; break;
       case 6: modType = "FREQTRANS"; break;

@@ -97,6 +97,7 @@ public:
   // functions for modifying the Markov Model list
   int createNewMarkovModel();
   int duplicateMarkovModel(int idx);
+  int removeMarkovModel(int idx);
 
   void initializeModifiers();
 
