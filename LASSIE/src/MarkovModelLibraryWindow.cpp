@@ -111,14 +111,22 @@ MarkovModelLibraryWindow::MarkovModelLibraryWindow() {
     Gtk::Action::create("ContextDuplicate", "Duplicate Model"),
     sigc::mem_fun(*this, &MarkovModelLibraryWindow::duplicateModel));
 
+  // new change 1/25/22
+  m_refActionGroup->add(
+    Gtk::Action::create("ContextRemove", "Delete Model"),
+    sigc::mem_fun(*this, &MarkovModelLibraryWindow::removeModel));
+
   m_refUIManager = Gtk::UIManager::create();
   m_refUIManager->insert_action_group(m_refActionGroup);
+
+  // line "   <menuitem action='ContextRemove'/>" added 1/25/22
 
   Glib::ustring ui_info =
     "<ui>"
     "  <popup name='PopupMenu'>"
     "    <menuitem action='ContextAdd'/>"
     "    <menuitem action='ContextDuplicate'/>"
+    "    <menuitem action='ContextRemove'/>"
     "  </popup>"
     "</ui>";
 
@@ -169,6 +177,20 @@ void MarkovModelLibraryWindow::duplicateModel() {
   row[m_columns.m_col_number] = newIdx;
 }
 
+// added 1/25/22
+void MarkovModelLibraryWindow::removeModel() {
+  if (currentSelection < 0) return;
+  //functionality to remove markov model from list.
+  Gtk::TreeModel::Children::iterator iter = m_TreeView.get_selection()->get_selected();
+  Gtk::TreeModel::Row row = *iter;
+  activeProject->removeMarkovModel(int(row));
+
+  activeProject->modified();
+  int num = currentSelection;
+  std::cout << "Deleted model " << currentSelection << std::endl;
+  onSelectionChanged();
+}
+
 void MarkovModelLibraryWindow::onSelectionChanged() {
   Gtk::TreeModel::iterator iter = m_TreeView.get_selection()->get_selected();
   if (iter) {
@@ -198,23 +220,24 @@ void MarkovModelLibraryWindow::buildTable() {
   distBox->pack_start(*labelHBox, false, false);
   distBox->pack_start(*entryHBox, false, false);
 
+  int row_size = max(1, static_cast<int>(sqrt(size)/2));
   // create placeholders to give some left padding
   Gtk::HBox* placeholder1 = Gtk::manage(new Gtk::HBox());
   Gtk::HBox* placeholder2 = Gtk::manage(new Gtk::HBox());
-  placeholder1->set_size_request(LABEL_WIDTH, LABEL_HEIGHT);
-  placeholder2->set_size_request(LABEL_WIDTH, LABEL_HEIGHT);
+  placeholder1->set_size_request(150 - (row_size * 2), LABEL_HEIGHT);
+  placeholder2->set_size_request(150 - (row_size * 2), LABEL_HEIGHT);
   labelHBox->pack_start(*placeholder1, false, false);
   entryHBox->pack_start(*placeholder2, false, false);
 
   for (int i = 0; i < size; i++) {
     // construct labels
     Gtk::Label* label = Gtk::manage(new Gtk::Label(std::to_string(i+1)));
-    label->set_size_request(ENTRY_WIDTH, LABEL_HEIGHT);
+    label->set_size_request(ENTRY_WIDTH / row_size, LABEL_HEIGHT);
 
     // construct entries
     Gtk::HBox* entryBox = Gtk::manage(new Gtk::HBox());
     Gtk::Entry* entry = Gtk::manage(new Gtk::Entry());
-    entryBox->set_size_request(ENTRY_WIDTH, ENTRY_HEIGHT);
+    entryBox->set_size_request(ENTRY_WIDTH / row_size, ENTRY_HEIGHT);
     entryBox->add(*entry);
     entry->signal_focus_out_event().connect(
       sigc::mem_fun(*this, &MarkovModelLibraryWindow::onEntryChange)
@@ -242,20 +265,20 @@ void MarkovModelLibraryWindow::buildTable() {
   // create placeholders to give some left padding
   placeholder1 = Gtk::manage(new Gtk::HBox());
   placeholder2 = Gtk::manage(new Gtk::HBox());
-  placeholder1->set_size_request(LABEL_WIDTH, LABEL_HEIGHT);
-  placeholder2->set_size_request(LABEL_WIDTH, LABEL_HEIGHT);
+  placeholder1->set_size_request(150 - (row_size * 2), LABEL_HEIGHT);
+  placeholder2->set_size_request(150 - (row_size * 2), LABEL_HEIGHT);
   labelHBox->pack_start(*placeholder1, false, false);
   entryHBox->pack_start(*placeholder2, false, false);
 
   for (int i = 0; i < size; i++) {
     // construct labels
     Gtk::Label* label = Gtk::manage(new Gtk::Label(std::to_string(i+1)));
-    label->set_size_request(ENTRY_WIDTH, LABEL_HEIGHT);
+    label->set_size_request(ENTRY_WIDTH / row_size, LABEL_HEIGHT);
 
     // construct entries
     Gtk::HBox* entryBox = Gtk::manage(new Gtk::HBox());
     Gtk::Entry* entry = Gtk::manage(new Gtk::Entry());
-    entryBox->set_size_request(ENTRY_WIDTH, ENTRY_HEIGHT);
+    entryBox->set_size_request(ENTRY_WIDTH / row_size, ENTRY_HEIGHT);
     entryBox->add(*entry);
     entry->signal_focus_out_event().connect(
       sigc::mem_fun(*this, &MarkovModelLibraryWindow::onEntryChange)
@@ -277,11 +300,11 @@ void MarkovModelLibraryWindow::buildTable() {
   Gtk::HBox* hbox = Gtk::manage(new Gtk::HBox());
   vbox->pack_start(*hbox, false ,false);
   Gtk::HBox* entryBox = Gtk::manage(new Gtk::HBox());
-  entryBox->set_size_request(LABEL_WIDTH, LABEL_HEIGHT);
+  entryBox->set_size_request(150 - (row_size * 2), LABEL_HEIGHT);
   hbox->pack_start(*entryBox, false, false);
   for (int j = 0; j < size; j++) {
     Gtk::Label* label = Gtk::manage(new Gtk::Label(std::to_string(j+1)));
-    label->set_size_request(ENTRY_WIDTH, LABEL_HEIGHT);
+    label->set_size_request(ENTRY_WIDTH / row_size, LABEL_HEIGHT);
     hbox->pack_start(*label, false, false);
   }
 
@@ -289,12 +312,12 @@ void MarkovModelLibraryWindow::buildTable() {
     Gtk::HBox* hbox = Gtk::manage(new Gtk::HBox());
     vbox->pack_start(*hbox, false ,false);
     Gtk::HBox* entryBox = Gtk::manage(new Gtk::HBox());
-    entryBox->set_size_request(LABEL_WIDTH, ENTRY_HEIGHT);
+    entryBox->set_size_request(150 - (row_size * 2), ENTRY_HEIGHT);
     hbox->pack_start(*entryBox, false, false);
     entryBox->add(*Gtk::manage(new Gtk::Label(std::to_string(i+1))));
     for (int j = 0; j < size; j++) {
       Gtk::HBox* entryBox = Gtk::manage(new Gtk::HBox());
-      entryBox->set_size_request(ENTRY_WIDTH, ENTRY_HEIGHT);
+      entryBox->set_size_request(ENTRY_WIDTH / row_size, ENTRY_HEIGHT);
       Gtk::Entry* entry = Gtk::manage(new Gtk::Entry());
       entry->signal_focus_out_event().connect(
         sigc::mem_fun(*this, &MarkovModelLibraryWindow::onEntryChange)

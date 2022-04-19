@@ -95,7 +95,7 @@ class Random {
      *   numChildren is unique
      * @param id - Distinguishes between unique calls of the randOrderInt function
      */
-    static int RandOrderInt(int low, int high, int numChildren, int id);
+    static int RandOrderInt(int low, int high, int id);
 
     /**
     *  Randomly chooses a value from a list.

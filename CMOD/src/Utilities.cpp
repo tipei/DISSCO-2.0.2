@@ -1308,21 +1308,21 @@ string Utilities::function_RandomOrderInt(DOMElement* _functionElement, void* _o
   int highBound = (int)evaluate(XMLTranscode(highBoundElement), _object);
   int id = (int) evaluate(XMLTranscode(idElement), _object);
   
-  Event* currentEvent = ((Event*)_object);
-  int numChildren = currentEvent->getNumberOfChildren();
-  string eventName = currentEvent->getEventName();
+  // Event* currentEvent = ((Event*)_object);
+  // int numChildren = currentEvent->getNumberOfChildren();
+  // string eventName = currentEvent->getEventName();
 
-  // Warn the user if the # of choices is less than # of children
-  if (highBound - lowBound + 1 < numChildren) {
-    cout << "WARNING: number of choices in RandomOrderInt [" 
-         << lowBound << ", " << highBound << "] is less than"
-         << " number of children in event " << eventName << "."
-         << " This will cause repeated values."
-         << endl;
-  }
+  // // Warn the user if the # of choices is less than # of children
+  // if (highBound - lowBound + 1 < numChildren) {
+  //   cout << "WARNING: number of choices in RandomOrderInt [" 
+  //        << lowBound << ", " << highBound << "] is less than"
+  //        << " number of children in event " << eventName << "."
+  //        << " This will cause repeated values."
+  //        << endl;
+  // }
 
   char result [50];
-  sprintf(result, "%d",  Random::RandOrderInt(lowBound, highBound, numChildren, id));
+  sprintf(result, "%d",  Random::RandOrderInt(lowBound, highBound, id));
   return string(result);
 }
 

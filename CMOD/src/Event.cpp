@@ -137,6 +137,8 @@ Event::Event(DOMElement* _element,
 
     while(childPackage){
       childTypeElements.push_back(childPackage);
+      std::string test = XMLTC(childPackage);
+      cout << "childPackage=" << test << endl;
       childPackage = childPackage->GNES();
     }
     layerElement = layerElement->GNES();

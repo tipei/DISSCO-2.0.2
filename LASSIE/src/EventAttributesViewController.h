@@ -111,6 +111,7 @@ protected:
   void ampValueEnvelopeButtonClicked();
   void rateValueEnvelopeButtonClicked();
   void widthEnvelopeButtonClicked();
+  void partialButtonClicked();
   void modified();
   ModelColumns applyHowColumns;
   ModelColumns2 typeColumns;

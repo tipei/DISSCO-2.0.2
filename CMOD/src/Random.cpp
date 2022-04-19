@@ -107,7 +107,7 @@ int Random::RandInt(int lowNum, int highNum) {
 
 //----------------------------------------------------------------------------//
 
-int Random::RandOrderInt(int low, int high, int numChildren, int id) {
+int Random::RandOrderInt(int low, int high, int id) {
   static map<int, vector<int> > choicesMap;
   
   // Initialize choices if a new random order function is found, or

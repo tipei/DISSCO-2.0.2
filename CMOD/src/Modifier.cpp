@@ -33,6 +33,8 @@ Modifier::Modifier() {
   applyHow = "";
   probEnv = NULL;
   checkPt = 0;
+  partialNum = 0;
+  partialResultString = "";
 }
 
 //----------------------------------------------------------------------------//
@@ -42,6 +44,7 @@ Modifier::Modifier(string modType, Envelope* prob, string modApplyHow) {
   probEnv = new Envelope(*prob);
   applyHow = modApplyHow;
   checkPt = 0;
+  // partialNum = modPartialNum;
 }
 
 //----------------------------------------------------------------------------//
@@ -50,6 +53,8 @@ Modifier::Modifier(const Modifier& orig) {
   type = orig.type;
   applyHow = orig.applyHow;
   checkPt = orig.checkPt;
+  partialNum = orig.partialNum;
+  partialResultString = orig.partialResultString;
 
   if (orig.probEnv != NULL) {
     probEnv = new Envelope(*orig.probEnv);
@@ -72,6 +77,8 @@ Modifier& Modifier::operator=(const Modifier& rhs) {
   type = rhs.type;
   applyHow = rhs.applyHow;
   checkPt = rhs.checkPt;
+  partialNum = rhs.partialNum;
+  partialResultString = rhs.partialResultString;
 
   if (rhs.probEnv != NULL) {
     probEnv = new Envelope(*rhs.probEnv);
@@ -109,6 +116,7 @@ float Modifier::getProbability(double checkPoint) {
   if (checkPoint < 0 || checkPoint > 1) {
     cerr << "Modifier::getProbability -- Error: checkPt out of bounds;" << endl;
     cerr << "        checkPoint = " << checkPoint << endl;
+    return -1;
   }
   checkPt = checkPoint;
   return probEnv->getValue(checkPoint, 1);
@@ -122,11 +130,23 @@ string Modifier::getModName() {
 
 //----------------------------------------------------------------------------//
 
+int Modifier::getPartialNum() {
+  return partialNum;
+}
+
+//----------------------------------------------------------------------------//
+
+string Modifier::getPartialResultString() {
+  return partialResultString;
+}
+
+//----------------------------------------------------------------------------//
+
 bool Modifier::willOccur(double checkPoint) {
   bool result = false;
   double rand  = Random::Rand();
 
-  if (rand <= getProbability(checkPoint)) {
+  if (rand > 0.0 && rand <= getProbability(checkPoint)) {
     result = true;
   }
   return result;

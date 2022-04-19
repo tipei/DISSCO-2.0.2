@@ -39,6 +39,7 @@
 #include "SharedPointers.h"
 #include "FunctionGenerator.h"
 #include "MainWindow.h"
+#include "PartialWindow.h"
 
 EventAttributesViewController::EventAttributesViewController(
   SharedPointers* _sharedPointers){
@@ -3937,9 +3938,9 @@ BottomEventModifierAlignment::BottomEventModifierAlignment(
   row[typeColumns.m_col_type] = modifierGlissando;
   row[typeColumns.m_col_name] = "GLISSANDO";
 
-  row = *(typeTreeModel->append());
-  row[typeColumns.m_col_type] = modifierBend;
-  row[typeColumns.m_col_name] = "BEND";
+  // row = *(typeTreeModel->append());
+  // row[typeColumns.m_col_type] = modifierBend;
+  // row[typeColumns.m_col_name] = "BEND";
 
   row = *(typeTreeModel->append());
   row[typeColumns.m_col_type] = modifierDetune;
@@ -3984,6 +3985,11 @@ BottomEventModifierAlignment::BottomEventModifierAlignment(
 
   attributesRefBuilder->get_widget("widthEnvelopeEntry", entry);
   entry->set_text(modifier->getWidth());
+
+  // ADDED BY TEJUS
+  // TODO: Set text, set_sensitive(false) to gray out the box
+  attributesRefBuilder->get_widget("partialResultStringEntry", entry);
+  entry->set_text(modifier->getPartialResultString());
 
   ModifierType type = modifier->getModifierType();
   if (type == modifierAmptrans || type == modifierFreqtrans){
@@ -4031,6 +4037,10 @@ BottomEventModifierAlignment::BottomEventModifierAlignment(
     "widthEnvelopeButton", button);
   button->signal_clicked().connect(sigc::mem_fun(*this, & BottomEventModifierAlignment::widthEnvelopeButtonClicked));
 
+  // ADDED BY TEJUS : 11/27/21
+      attributesRefBuilder->get_widget(
+    "partialResultStringButton", button);
+  button->signal_clicked().connect(sigc::mem_fun(*this, & BottomEventModifierAlignment::partialButtonClicked));
 
 
   attributesRefBuilder->get_widget(
@@ -4053,9 +4063,11 @@ BottomEventModifierAlignment::BottomEventModifierAlignment(
     "widthEnvelopeEntry", entry);
   entry->signal_changed().connect(sigc::mem_fun(*this, & BottomEventModifierAlignment::modified));
 
-
-
-
+  // ADDED BY TEJUS
+  attributesRefBuilder->get_widget(
+    "partialResultStringEntry", entry);
+  // Not entirely sure where this goes?
+  entry->signal_changed().connect(sigc::mem_fun(*this, & BottomEventModifierAlignment::modified));
 
   show_all_children();
 }
@@ -4072,15 +4084,14 @@ void BottomEventModifierAlignment::on_applyHow_combo_changed(){
   attributesView->modified();
   Gtk::ComboBox* combobox;
   attributesRefBuilder->get_widget("applyHowCombobox", combobox);
-
   Gtk::TreeModel::iterator iter = combobox->get_active();
   if(iter)
   {
     Gtk::TreeModel::Row row = *iter;
     if(row)
     {
+      auto applyType = row[applyHowColumns.m_col_name];
       modifier->setApplyHowFlag(row[applyHowColumns.m_col_id]);
-
     }
   }
 
@@ -4185,6 +4196,11 @@ void BottomEventModifierAlignment::saveToEvent(){
 
   attributesRefBuilder->get_widget("ampValueEnvelopeEntry", entry);
   modifier->setAmpValue(entry->get_text());
+
+  // ADDED BY TEJUS
+  // Will have to change: partialNum should only be set when the box is not grayed out
+  attributesRefBuilder->get_widget("partialResultStringEntry", entry);
+  modifier->setPartialResultString(entry->get_text());
 
   ModifierType type = modifier->getModifierType();
 
@@ -4737,6 +4753,38 @@ void BottomEventModifierAlignment::widthEnvelopeButtonClicked(){
 
 }
 
+void BottomEventModifierAlignment::partialButtonClicked(){
+  attributesView->modified();
+  Gtk::ComboBox* combobox;
+  attributesRefBuilder->get_widget("applyHowCombobox", combobox);
+  Gtk::TreeModel::iterator iter = combobox->get_active();
+
+  Gtk::Entry* entry;
+  attributesRefBuilder->get_widget(
+    "partialResultStringEntry", entry);
+
+  if(iter)
+  {
+    Gtk::TreeModel::Row row = *iter;
+    if(row)
+    {
+      auto applyType = row[applyHowColumns.m_col_name];
+      modifier->setApplyHowFlag(row[applyHowColumns.m_col_id]);
+      // TODO: Gray out box when SOUND is selected, pop out partial vbox
+      if (applyType == "SOUND") {
+        // Partial box should be grayed out -- cannot modify
+      } else if (applyType == "PARTIAL") {
+        // Pop out Partial VBox, save the result string into the text box
+        PartialWindow * pwindow = new PartialWindow(entry->get_text(), modifier->getModifierType());
+        int result = pwindow->run();
+        if (pwindow->getResultString() !=""&& result ==0){
+          entry->set_text(pwindow->getResultString());
+        }
+        delete pwindow; 
+      }
+    }
+  }
+}
 
 void EventAttributesViewController::envelopeFunButtonClicked(){
   Gtk::Entry* entry;

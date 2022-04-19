@@ -545,6 +545,7 @@ void IEvent::setModifiedButNotSaved(){
   changedButNotSaved = true;
 }
 
+// 10/4: ?????????????
 void IEvent::saveToDisk(std::string _pathOfProject){
 	//saveToDiskHelper(_pathOfProject, false);
 }
@@ -933,6 +934,7 @@ EventBottomModifier::EventBottomModifier(){
   rateValue = "";
   width = "";
   groupName = "";
+  partialResultString = "";
   next = NULL;
 }
 
@@ -988,7 +990,16 @@ void  EventBottomModifier::setGroupName(std::string _string){
 }
 
 
+// ADDED BY TEJUS
+std::string EventBottomModifier::getPartialResultString(){
+  return partialResultString;
+}
+void  EventBottomModifier::setPartialResultString(string _string){
+  partialResultString = _string;
+}
+
 int EventBottomModifier::getModifierTypeInt(){
+  // CHANGED BY TEJUS 10/3/2021
   if (type ==   modifierTremolo){
     return 0;
   }
@@ -1013,12 +1024,10 @@ int EventBottomModifier::getModifierTypeInt(){
   else {
     return 7;
   }
-
-
 }
 
 
-
+// TODO: Add the partial num to the string buffer? Who calls this?
 std::string EventBottomModifier::getSaveToDiskString(){
   std::string stringbuffer = "";
   if (type == modifierTremolo){
@@ -1125,7 +1134,7 @@ std::string EventBottomModifier::getSaveToDiskString(){
 
 
 
-
+// TODO: Change? Who calls this?
 std::string EventBottomModifier::getSaveLASSIEMetaDataString(){
 
   char temp1[10];
@@ -1151,6 +1160,8 @@ std::string EventBottomModifier::getSaveLASSIEMetaDataString(){
 
 }
 
+// CHANGED BY TEJUS: Add partial num to XML output 
+// Add partial result string to XML output
 std::string EventBottomModifier::getXMLString(){
 
   char temp1[10];
@@ -1168,6 +1179,7 @@ std::string EventBottomModifier::getXMLString(){
     "              <Rate>" + rateValue +"</Rate>\n"
     "              <Width>"+ width + "</Width>\n"
     "              <GroupName>" + groupName + "</GroupName>\n"
+    "              <PartialResultString>"+ partialResultString + "</PartialResultString>\n"
     "            </Modifier>\n";
   return stringbuffer;
 
@@ -1305,9 +1317,14 @@ IEvent::BottomEventExtraInfo::BottomEventExtraInfo(int _childTypeFlag){
 
       modifierIter++;
       currentModifier->setWidth(modifierIter->getString());
+/*
+      modifierIter++;
+      currentModifier->setPartialNum(modifierIter->getPartialNum());
 
       modifierIter++;
+      currentModifier->setPartialResultString(modifierIter->getPartialResultString());
 
+*/
       if (modifierIter != thisModifierList.end()){
         currentModifier->setGroupName(modifierIter->getString());
       }
@@ -1957,7 +1974,8 @@ EventBottomModifier::EventBottomModifier(EventBottomModifier* _original){
   rateValue = _original->rateValue;
   width = _original->width;
   groupName = _original->groupName;
-
+  // ADDED BY TEJUS
+  partialResultString = _original->partialResultString;
 }
 
 
@@ -2997,6 +3015,9 @@ EventBottomModifier* IEvent::BottomEventExtraInfo::buildModifiersFromDOMElement(
 
   thisElement = thisElement->getNextElementSibling();
   currentModifier->setGroupName(getFunctionString(thisElement));
+
+  thisElement = thisElement->getNextElementSibling();
+  currentModifier->setPartialResultString(getFunctionString(thisElement));
 
   currentModifier->next = buildModifiersFromDOMElement(_thisModifierElement->getNextElementSibling());
   return currentModifier;

@@ -125,6 +125,7 @@ void Bottom::buildChildren(){
   }
 
   //Create the child events.
+  cout << "numChildren = " << numChildren << endl;
   for (currChildNum = 0; currChildNum < numChildren; currChildNum++) {
     if (method == "0") //continuum
       checkEvent(buildContinuum());
@@ -149,6 +150,7 @@ void Bottom::buildChildren(){
 
   //Using the temporary events that were created, construct the actual children.
   //The code below is different from buildchildren in Event class.
+  cout << "childSoundsAndNotes.size() = " << childSoundsAndNotes.size() << endl;
   for (int i = 0; i < childSoundsAndNotes.size(); i++) {
     SoundAndNoteWrapper* thisChild = childSoundsAndNotes[i];
     //Increment the static current child number.
@@ -922,6 +924,8 @@ void Bottom::applyModifiers(Sound *s, int numPartials) {
 //      <Rate></Rate>
 //      <Width></Width>
 //      <GroupName></GroupName>
+//      <PartialNum></PartialNum>
+//      <PartialResultString></PartialResultString>
 //    </Modifier>
 
     DOMElement* arg = modifierElement->GFEC();
@@ -930,7 +934,7 @@ void Bottom::applyModifiers(Sound *s, int numPartials) {
       case 0: modType = "TREMOLO"; break;
       case 1: modType = "VIBRATO"; break;
       case 2: modType = "GLISSANDO"; break;
-      case 3: modType = "BEND"; break;
+      case 3: modType = "BEND"; break; // removed in LASSIE
       case 4: modType = "DETUNE"; break;
       case 5: modType = "AMPTRANS"; break;
       case 6: modType = "FREQTRANS"; break;
@@ -946,12 +950,32 @@ void Bottom::applyModifiers(Sound *s, int numPartials) {
     DOMElement* ampElement = arg->GNES();
     DOMElement* rateElement = ampElement->GNES();
     DOMElement* widthElement = rateElement->GNES();
-
+    // ADDED BY TEJUS
+    // skip group name
+    DOMElement* partialResultStringElement = widthElement->GNES()->GNES();
     string ampStr = XMLTC(ampElement);
     string rateStr = XMLTC(rateElement);
     string widthStr = XMLTC(widthElement);
+    string probStr;
+    string partialResultStr = XMLTC(partialResultStringElement);
 
+    // TEJUS 10/8:
+    // Save the partial number within a particular modifier
+    // TEJUS 11/27:
+    // don't
     Modifier newMod(modType, probEnv, applyHow);
+
+    // TEJUS 10/8:
+    // Make the envelopes: this could be for a particular partial OR a sound
+    // Note: to represent individual partial modifiers, we use an entire modifierElement.
+    // In this way, the next partial modifier should be reached with the next iteration of 
+    // the main while loop (after modifierElement->GNES())
+
+    // TEJUS 11/27:
+    // Instead, revert back to the old way, kinda. 
+    // Check applyHow. If SOUND, do this way as before. If PARTIAL, loop through the partial result string
+    // and apply modifiers one by one via their partial number.
+    // TODO: Validate the partial num to make sure that it does not go out of range.
 
     if (applyHow == "SOUND") {
 
@@ -975,30 +999,52 @@ void Bottom::applyModifiers(Sound *s, int numPartials) {
     }
     else if (applyHow == "PARTIAL") {
 
+      // See PartialWindow.cpp (and for that matter, FunctionGenerator) -- same parsing used here
+      XMLPlatformUtils::Initialize();
+      XercesDOMParser* parser = new XercesDOMParser();
+      xercesc::MemBufInputSource myxml_buf  ((const XMLByte*)partialResultStr.c_str(), partialResultStr.size(),
+                                        "function (in memory)");
+
+      parser->parse(myxml_buf);
+
+      DOMDocument* xmlDocument = parser->getDocument();
+      DOMElement* root = xmlDocument->getDocumentElement();
+
+      DOMElement* thisElement = root->GFEC();    //start of envelopes
+        thisElement = thisElement->GNES();    //envelopes
       for (int i = 0; i <numPartials; i ++){ // make envelopes for all the partials
 
-        if (ampStr!=""){
+        DOMElement* envelopeElement = thisElement->GFEC();//first envelope
+
+        probStr = XMLTC(envelopeElement);
+        envelopeElement = envelopeElement->GNES();
+        ampStr = XMLTC(envelopeElement);
+        envelopeElement = envelopeElement->GNES();
+        widthStr = XMLTC(envelopeElement);
+        envelopeElement = envelopeElement->GNES();
+        rateStr = XMLTC(envelopeElement);
+
+        if (ampStr!="" && ampStr!="N/A"){
           Envelope* env =  (Envelope*)utilities->evaluateObject(ampStr, this, eventEnv );
           newMod.addValueEnv(env);
           delete env;
         }
 
 
-        if (rateStr!=""){
+        if (rateStr!="" && rateStr!="N/A"){
           Envelope* env =  (Envelope*)utilities->evaluateObject(rateStr, this, eventEnv );
           newMod.addValueEnv(env);
           delete env;
         }
 
 
-        if (widthStr!=""){
+        if (widthStr!="" && widthStr!="N/A"){
           Envelope* env =  (Envelope*)utilities->evaluateObject(widthStr, this, eventEnv );
           newMod.addValueEnv(env);
           delete env;
         }
       }
     }
-
 
     arg = widthElement->GNES();//group name (MUT_EX)
     string mutExGroup = XMLTC(arg);
@@ -1014,6 +1060,10 @@ void Bottom::applyModifiers(Sound *s, int numPartials) {
     modifierElement = modifierElement->GNES(); // go to the next MOD in the list
   } // end of the main while loop
 
+  // TEJUS 10/8:
+  // Instead of sending numPartials to applyModifier, send the partial num. We apply 
+  // a partial using an entire modifierElement structure.
+  // TEJUS 12/19: don't
 
   // go through the non-exclusive mods
   for (int i = 0; i < modNoDep.size(); i++) {
