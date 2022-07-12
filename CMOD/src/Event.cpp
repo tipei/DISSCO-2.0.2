@@ -390,6 +390,7 @@ void Event::buildChildren() {
     case 3: eventclass = "------L   : ";break;
   }
   //Build the event's children.
+  //cout << "Event::buildChildren - name: " << name << endl;
 
   //Create the event definition iterator.
         /*
@@ -658,10 +659,6 @@ bool Event::buildSweep() {
                 && Utilities::isSieveFunction(childDurationElement)
                 && startType == "1"
                 && durType == "1");
-/*
-cout << boolalpha << align << sieveAligned << endl;
-int sT; cin >> sT;
-*/
 
   // find start time and dur of last child
   if (currChildNum == 0) {
@@ -764,15 +761,16 @@ int sT; cin >> sT;
   }
 
   if(startType == "1" && durType == "1") {
-/*
-cout << "      - previousChildEndTime=" << previousChildEndTime << endl;
-cout << "  " <<endl;
-*/
+
     endTime = Event::verify_valid(previousChildEndTime); 	//missnomer !!
-    tsChild.start = endTime *
+
+//  tsChild.start = endTime *				  SEVER 5/19 2022 
+    tsChild.start = rawChildStartTime *			//SEVER 5/19 2022
         tempo.getEDUDurationInSeconds().To<float>();
     tsChild.startEDU = Ratio((int)rawChildStartTime, 1);
-  
+//cout << "FIN: tsChild.start=" << tsChild.start << " endTime=" << endTime << endl;
+//cin >> sT; 
+
     rawChildDuration = endTime - rawChildStartTime;
     int rawChildDurationInt = (int)rawChildDuration;
     tsChild.durationEDU = Ratio(rawChildDurationInt, 1);
@@ -1189,6 +1187,7 @@ int Event::getAvailableEDU()
   int myDurationInt = (int)ts.duration;
   Ratio EDUs;
   float durationScalar;
+
   if(ts.duration == (float)myDurationInt)
   {
     //Since duration is an integer, it may still be possible to have exact EDUs.
@@ -1470,6 +1469,6 @@ int Event::verify_valid(int endTime){
   }
   //cout << "endTime: " << eTime << " high_n: " << valid_time[high] << " low_n: " << valid_time[low] <<  endl;
   int offset = attackSweep[high] - eTime <= eTime - attackSweep[low] ? attackSweep[high] - eTime : attackSweep[low] - eTime;
-  //cout << "endTime: " << endTime << " choose: " << endTime + offset << endl;
+  cout << "endTime: " << endTime << " choose: " << endTime + offset << endl;
   return endTime + offset;
 }

@@ -179,7 +179,7 @@ void Matrix::setDurations(Sieve* durSieve, int maxVal, vector<Envelope*> durEnvs
 	if(type != oldType) {
 	  cout << "Matrix::setDurations - envelope for type " << type << endl;
 	  durEnvs[type] -> print();
-	  int sever; cin >> sever;
+	  int sever; cin >> sever;  
 	  oldType = type;
         }
 */
@@ -194,6 +194,7 @@ void Matrix::setDurations(Sieve* durSieve, int maxVal, vector<Envelope*> durEnvs
       	     << "][" << durNum << "].stime=" << matr[type][attNum][durNum].stime
 	     << " matr[" << type << "][" << attNum << "][" << durNum
 	     << "].attdurprob=" << matr[type][attNum][durNum].attdurprob << endl;
+	int sever; cin >> sever;  
 */
         if ((   sieveAligned
              && att.count(durEnd % tempo.getEDUPerTempoBeat().Num()) == 0
@@ -247,6 +248,8 @@ MatPoint Matrix::chooseSweep(int remain) {
   return chosenPt;
 }
 
+
+//---------------------------------------------------------------------------//
 MatPoint Matrix::chooseContinuum() {
   return choose();
 }
@@ -419,9 +422,13 @@ int Matrix::verify_valid(int endTime){
       return endTime;
     }
   }
-//cout << "endTime: " << eTime << " high_n: " << valid_time[high] << " low_n: " << valid_time[low] <<  endl;
+/*
+cout << "Matrix:verify_valid - endTime: " << eTime << " high=" << high 
+     << " low=" << low <<  endl;
+//<< " high_n: " << valid_time[high] << " low_n: " << valid_time[low] 
+*/
   int offset = short_attime[high] - eTime <= eTime - short_attime[low] ? short_attime[high] - eTime : short_attime[low] - eTime;
-  //cout << "endTime: " << endTime << " choose: " << endTime + offset << endl;
+//cout << "endTime: " << endTime << " choose: " << endTime + offset << endl;
   return endTime + offset;
 }
 

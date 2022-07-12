@@ -89,13 +89,11 @@ class Random {
      * 
      * Returns a random integer in the range [low, high].
      * Avoids repetition, given that
-     * - number of children is greater than or equal to
      *   range of [low, high]
-     * - every RandomOrderInt function with range [low, high] and
-     *   numChildren is unique
+     * - every RandomOrderInt function with range [low, high] is unique
      * @param id - Distinguishes between unique calls of the randOrderInt function
      */
-    static int RandOrderInt(int low, int high, int numChildren, int id);
+    static int RandOrderInt(int low, int high, int id);
 
     /**
     *  Randomly chooses a value from a list.

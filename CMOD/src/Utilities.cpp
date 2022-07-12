@@ -704,10 +704,12 @@ Sieve* Utilities::evaluateSieveFunction(string _functionString,void* _object){
 //  cout << "Sieve* Utilities::evaluateSieveFunction - ValuePick" << endl;
     resultSieve = sieve_ValuePick(root, _object);
   }
+/*
   else if (functionName.compare("PREVIOUS_CHILD_DURATION")==0) {
 //  cout << "Sieve* Utilities::evaluateSieveFunction - PREVIOUS " << endl;
      resultSieve = NULL;
   }
+*/
 
   delete parser;
   return resultSieve;
@@ -1111,6 +1113,30 @@ Sieve* Utilities::sieve_ValuePick(DOMElement* _functionElement, void* _object){
                          eMethod.c_str(), wMethod.c_str(),
                          eArgs[0], wArgVect,
                          offsetVect);
+
+/*                      added by Sever
+  vector<int> attTimes;
+  vector<double> attProbs;
+
+  si.FillInVectors(attTimes, attProbs);
+cout << "   sieve_ValuePick - attTimes.size()=" << attTimes.size() << endl;
+  int beatEDUs;
+  beatEDUs = _tempo.getEDUPerTimeSignatureBeat().Num();
+cout << "      beatEDUs=" << beatEDUs << endl;
+
+  for(int i = 0; i < attTimes.size(); i++){
+
+    if(attTimes[i] > eArgs.size()){
+      break;
+    }
+
+ // short_attime.push_back(attTimes[i]);
+    cout << "   attTimes.size=" << attTimes.size() << endl;
+    cout << attTimes[i] << " , ";
+  }
+  cout << endl;
+*/
+
   } else {
     si.Build(minVal, maxVal, eMethod.c_str(), wMethod.c_str(), eArgVect, wArgVect, offsetVect);
   }
@@ -1222,8 +1248,9 @@ string Utilities::function_Select(DOMElement* _functionElement, void* _object){
   char result [50];
 /*
 for(int i=0; i<list.size(); ++i)
-std::cout << list[i] << ' ';
+std::cout << "Utilities::function_Select - list[" << i << "]=" << list[i] << ' ';
 */
+
   sprintf(result, "%f",  evaluate( list[index], _object));
 /*
 cout << "  result= ";
@@ -1307,7 +1334,7 @@ string Utilities::function_RandomOrderInt(DOMElement* _functionElement, void* _o
   int lowBound = (int)evaluate(XMLTranscode(lowBoundElement), _object);
   int highBound = (int)evaluate(XMLTranscode(highBoundElement), _object);
   int id = (int) evaluate(XMLTranscode(idElement), _object);
-  
+/*
   Event* currentEvent = ((Event*)_object);
   int numChildren = currentEvent->getNumberOfChildren();
   string eventName = currentEvent->getEventName();
@@ -1320,9 +1347,9 @@ string Utilities::function_RandomOrderInt(DOMElement* _functionElement, void* _o
          << " This will cause repeated values."
          << endl;
   }
-
+*/
   char result [50];
-  sprintf(result, "%d",  Random::RandOrderInt(lowBound, highBound, numChildren, id));
+  sprintf(result, "%d",  Random::RandOrderInt(lowBound, highBound, id));
   return string(result);
 }
 
