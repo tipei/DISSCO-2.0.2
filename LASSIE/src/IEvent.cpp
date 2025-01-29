@@ -2732,7 +2732,7 @@ void IEvent::buildNonEventFromDOM(DOMElement* _element){
 
     while (thisModifier){
       extraInfo->addNoteModifiers(getFunctionString(thisModifier));
-      thisModifier = thisModifier -> getNextElementSibling();
+      thisModifier = thisModifier->getNextElementSibling();
     }
   }
 }
@@ -2743,21 +2743,20 @@ IEvent::IEvent(DOMElement* _domElement){
   string orderInPalette = XMLString::transcode(_domElement->getAttribute(orderInPaletteXMLCh));
   eventOrderInPalette = atoi(orderInPalette.c_str());
 
-
   DOMElement* eventTypeElement = _domElement->getFirstElementChild();
-  DOMCharacterData* textData = ( DOMCharacterData*) eventTypeElement->getFirstChild();
+  DOMCharacterData* textData = (DOMCharacterData*)eventTypeElement->getFirstChild();
   char* charBuffer = XMLString::transcode(textData->getData());
-  eventType = (EventType) atoi (charBuffer);
+  eventType = (EventType)atoi(charBuffer);
   XMLString::release(&charBuffer);
 
   DOMElement* eventNameElement = eventTypeElement->getNextElementSibling();
-  textData = ( DOMCharacterData*) eventNameElement->getFirstChild();
+  textData = (DOMCharacterData*)eventNameElement->getFirstChild();
   charBuffer= XMLString::transcode(textData->getData());
   eventName = charBuffer;
   XMLString::release(&charBuffer);
 
   if (eventType >= 5){
-    buildNonEventFromDOM( eventNameElement->getNextElementSibling());
+    buildNonEventFromDOM(eventNameElement->getNextElementSibling());
     return;
   }
 
@@ -2783,18 +2782,15 @@ IEvent::IEvent(DOMElement* _domElement){
 
   thisElement = thisElement->getNextElementSibling();
   secondLevelElement = thisElement->getFirstElementChild();
-  charBuffer = (char*)getFunctionString(secondLevelElement).c_str();
-  tempoMethodFlag = atoi(charBuffer);
+  tempoMethodFlag = stoi(getFunctionString(secondLevelElement));
 
   secondLevelElement = secondLevelElement->getNextElementSibling();
-  charBuffer= XMLString::transcode(textData->getData());
-  charBuffer =  (char*)getFunctionString(secondLevelElement).c_str();
-
-  tempoPrefix = (TempoPrefix) atoi(charBuffer);
+  // charBuffer = XMLString::transcode(textData->getData());
+  // Why? (line above) -Jacob, 1/29/25
+  tempoPrefix = (TempoPrefix)stoi(getFunctionString(secondLevelElement));
 
   secondLevelElement = secondLevelElement->getNextElementSibling();
-  charBuffer =  (char*)getFunctionString(secondLevelElement).c_str();
-  tempoNoteValue = (TempoNoteValue)atoi(charBuffer);
+  tempoNoteValue = (TempoNoteValue)stoi(getFunctionString(secondLevelElement));
 
   secondLevelElement = secondLevelElement->getNextElementSibling();
   tempoFractionEntry1 = getFunctionString(secondLevelElement);
@@ -2811,8 +2807,7 @@ IEvent::IEvent(DOMElement* _domElement){
 
   thisElement = thisElement->getNextElementSibling();
   secondLevelElement = thisElement->getFirstElementChild();
-  charBuffer =  (char*)getFunctionString(secondLevelElement).c_str();
-  flagNumChildren = atoi(charBuffer);
+  flagNumChildren = stoi(getFunctionString(secondLevelElement));
 
   secondLevelElement = secondLevelElement->getNextElementSibling();
   numChildrenEntry1 = getFunctionString(secondLevelElement);
@@ -2842,16 +2837,13 @@ IEvent::IEvent(DOMElement* _domElement){
   childEventDefDurationSieve = getFunctionString(secondLevelElement);
 
   secondLevelElement = secondLevelElement->getNextElementSibling();
-  charBuffer =  (char*)getFunctionString(secondLevelElement).c_str();
-  flagChildEventDef = atoi(charBuffer);
+  flagChildEventDef = stoi(getFunctionString(secondLevelElement));
 
   secondLevelElement = secondLevelElement->getNextElementSibling();
-  charBuffer =  (char*)getFunctionString(secondLevelElement).c_str();
-  flagChildEventDefStartType = atoi(charBuffer);
+  flagChildEventDefStartType = stoi(getFunctionString(secondLevelElement));
 
   secondLevelElement = secondLevelElement->getNextElementSibling();
-  charBuffer =  (char*)getFunctionString(secondLevelElement).c_str();
-  flagChildEventDefDurationType = atoi( charBuffer);
+  flagChildEventDefDurationType = stoi(getFunctionString(secondLevelElement));
 
 
   //layers
@@ -2903,9 +2895,6 @@ IEvent::IEvent(DOMElement* _domElement){
       modifiers = NULL;
     }
   }
-
-
-
 }
 
 
@@ -2913,25 +2902,16 @@ IEvent::BottomEventExtraInfo::BottomEventExtraInfo(int _childTypeFlag, DOMElemen
   childTypeFlag = _childTypeFlag;
 
   DOMElement* thisElement = _thisElement->getFirstElementChild()->getFirstElementChild();
-
-  char* charBuffer;
-  charBuffer =  (char*)getFunctionString(thisElement).c_str();
-  frequencyFlag = atoi(charBuffer);
-
-
+  frequencyFlag = stoi(getFunctionString(thisElement));
 
   thisElement = thisElement->getNextElementSibling();
-  charBuffer =  (char*)getFunctionString(thisElement).c_str();
-  frequencyContinuumFlag = atoi( charBuffer);
+  frequencyContinuumFlag = stoi(getFunctionString(thisElement));
 
   thisElement = thisElement->getNextElementSibling();
   frequencyEntry1 = getFunctionString(thisElement);
 
-
   thisElement = thisElement->getNextElementSibling();
   frequencyEntry2 = getFunctionString(thisElement);
-
-
 
   thisElement = _thisElement->getFirstElementChild()->getNextElementSibling();
   //thisElement = thisElement->getNextElementSibling();
@@ -2966,34 +2946,23 @@ EventBottomModifier* IEvent::BottomEventExtraInfo::buildModifiersFromDOMElement(
 
   EventBottomModifier* currentModifier = new EventBottomModifier();
 
-
   DOMElement* thisElement = _thisModifierElement->getFirstElementChild();
-  char* charBuffer;
-  charBuffer =  (char*)getFunctionString(thisElement).c_str();
-  currentModifier->setModifierType((ModifierType) atoi(charBuffer));
+  currentModifier->setModifierType((ModifierType)stoi(getFunctionString(thisElement)));
 
   thisElement = thisElement->getNextElementSibling();
-  charBuffer =  (char*)getFunctionString(thisElement).c_str();
-  currentModifier->setApplyHowFlag( atoi( charBuffer));
+  currentModifier->setApplyHowFlag(stoi(getFunctionString(thisElement)));
 
   thisElement = thisElement->getNextElementSibling();
   currentModifier->setProbability(getFunctionString(thisElement));
 
-
-
-
-
   thisElement = thisElement->getNextElementSibling();
   currentModifier->setAmpValue(getFunctionString(thisElement));
-
 
   thisElement = thisElement->getNextElementSibling();
   currentModifier->setRateValue(getFunctionString(thisElement));
 
-
   thisElement = thisElement->getNextElementSibling();
   currentModifier->setWidth(getFunctionString(thisElement));
-
 
   thisElement = thisElement->getNextElementSibling();
   currentModifier->setGroupName(getFunctionString(thisElement));
@@ -3003,16 +2972,7 @@ EventBottomModifier* IEvent::BottomEventExtraInfo::buildModifiersFromDOMElement(
 
 }
 
-
-
-
-
-
-
-
-
 EventDiscretePackage::EventDiscretePackage(DOMElement* _thisPackageElement){
-
   DOMElement* thisElement = _thisPackageElement->getFirstElementChild();
   char* charBuffer;
   DOMCharacterData* textData = ( DOMCharacterData*) thisElement->getFirstChild();
@@ -3026,7 +2986,7 @@ EventDiscretePackage::EventDiscretePackage(DOMElement* _thisPackageElement){
   textData = ( DOMCharacterData*) thisElement->getFirstChild();
   if (textData){
     charBuffer = XMLString::transcode(textData->getData());
-    eventType = (EventType) atoi( charBuffer);
+    eventType = (EventType)atoi(charBuffer);
     XMLString::release(&charBuffer);
   } else eventType = (EventType)0;
 
