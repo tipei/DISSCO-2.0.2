@@ -1,37 +1,15 @@
-Makefile
-obj/*
-CMOD/src/ALTERNATE/
-CMOD/src/Event.h0
-CMOD/src/severNote
-Documents/DetailedDoc/
-Documents/ForClass/
-Documents/ResIn18/
-Documents/Research/
-UpgradeProjectFormat.make
+# binaries
 UpgradeProjectFormat
-cmod
-cmod.make
-lass.make
 lassie
-lassie.make
-lcmod.make
-muparser.make
-parser.make
-lib/*
+cmod
+
+# build files
+Makefile
+*.make
+lib
+make
+obj
 docs
 
-### VisualStudioCode ###
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
-*.code-workspace
-
-### VisualStudioCode Patch ###
-# Ignore all local history of files
-.history
-
-notes.md
-CMOD/tests
-CMOD/tests/*
+# VS Code
+.vscode
