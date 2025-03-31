@@ -224,6 +224,11 @@ ProjectViewController* FileOperations::openXMLProject(MainWindow* _mainWindow){
   dialog.add_button(Gtk::Stock::CANCEL, Gtk::RESPONSE_CANCEL);
   dialog.add_button(Gtk::Stock::OK, Gtk::RESPONSE_OK);
 
+  Gtk::FileFilter filter;
+  filter.set_name(".dissco files");
+  filter.add_pattern("*.dissco");
+  dialog.add_filter(filter);
+
   int result = dialog.run();
     
   if(result == Gtk::RESPONSE_OK){
