@@ -40,38 +40,15 @@ class MainWindow;
 // define namespace
 namespace FileOperations {
   ProjectViewController* newProject(MainWindow* _mainWindow);
-  ProjectViewController* openProject(MainWindow* _mainWindow);
   ProjectViewController* openXMLProject(MainWindow* _mainWindow);
-  std::string saveAs(MainWindow* _mainWindow);//return new path
-  std::string pickDatFile(MainWindow* _mainWindow);
-  std::string pickLibFile(MainWindow* _mainWindow,std::string _defaultPath);  
+  string saveAs(MainWindow* _mainWindow);//return new path
+  string pickDatFile(MainWindow* _mainWindow);
+  string pickLibFile(MainWindow* _mainWindow,string _defaultPath);  
   void close(MainWindow* _mainWindow);
-  void createDirectories(std::string _pathAndName);
-  std::string stringToFileName(std::string _filePath);
-  std::string stringToPath(std::string _filePath);
+  void createDirectories(string _pathAndName);
+  string stringToFileName(string _filePath);
+  string stringToPath(string _filePath);
 
   bool checkFilePathValidity(std::string _filePath);
-// void Inappropriate_Project_Name();
-};
-
-
-class fileNameError : public Gtk::Window{
-public:
-  //ExampleWindow();
-  fileNameError();
-  ~fileNameError();
-protected:
-  void inappropriateProjectName();
-};
-
-class fileNameExist : public Gtk::Window{
-public:
-  fileNameExist();
-  ~fileNameExist();
-protected:
-  void duplicateProjectName();
 };
 #endif  //FILE_OPERATIONS_H
-
-
-
