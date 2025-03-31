@@ -11,8 +11,10 @@ ReleaseFlags = {"Optimize"}
 
 solution "dissco"
   configurations {"Debug", "Release"}
+  objdir "obj"
 
 project "lass"
+  location "make" 
   language "C++"
   flags {"StaticRuntime"}
   files {"LASS/src/*.cpp", "LASS/src/*.h"}
@@ -20,55 +22,71 @@ project "lass"
   includedirs {"/usr/local/include"}
   kind "StaticLib"
   targetdir "lib"
-  buildoptions {"-Wno-deprecated -Wall -Wextra", "-gstabs"}
-  configuration "Debug" flags(DebugFlags)
+  buildoptions {"-Wno-deprecated", "-Wall", "-Wextra", "-std=c++11"}
+  configuration "Debug" 
+    flags(DebugFlags)
+    buildoptions {"-g"}
   configuration "Release" flags(ReleaseFlags)
 
 project "parser"
+  location "make" 
   language "C"
   flags {"StaticRuntime"}
   files {"CMOD/src/parser/lex.yy.c"}
   kind "StaticLib"
   targetdir "lib"
-  buildoptions {"-gstabs"}
-  configuration "Debug" flags(DebugFlags)
+  buildoptions {"-Wno-deprecated", "-std=c++11"}
+  configuration "Debug" 
+    flags(DebugFlags)
+    buildoptions {"-g"}
   configuration "Release" flags(ReleaseFlags)
 
 project "muparser"
+  location "make" 
   language "C++"
   flags{"StaticRuntime"}
   files {"CMOD/src/muParser/**.cpp", "CMOD/src/muParser/**.h"}
   kind "StaticLib"
   targetdir "lib"
-  configuration "Debug" flags(DebugFlags)
+   buildoptions {"-Wno-deprecated", "-std=c++11"}
+  configuration "Debug" 
+    flags(DebugFlags)
+    buildoptions {"-g"}
   configuration "Release" flags(ReleaseFlags)
 
 project "lcmod"
+  location "make" 
   language "C++"
   flags {"StaticRuntime"}
   files {"CMOD/src/**.cpp", "CMOD/src/**.h"}
   excludes {"CMOD/src/Main.*", "CMOD/src/test/**"}
   kind "StaticLib"
   targetdir "lib"
-  buildoptions {"-Wno-deprecated", "-gstabs"}
-  configuration "Debug" flags(DebugFlags)
+  buildoptions {"-Wno-deprecated", "-std=c++11"}
+  configuration "Debug" 
+    flags(DebugFlags)
+    buildoptions {"-g"}
   configuration "Release" flags(ReleaseFlags)
 
 project "cmod"
+  location "make" 
   language "C++"
   flags {"StaticRuntime"}
   files {"CMOD/src/Main.*"}
   kind "ConsoleApp"
   libdirs {"lib", "/usr/local/lib"}
   links {"lcmod", "lass", "parser","muparser", "pthread", "sndfile"}
-  linkoptions{"-lxerces-c"}
-  buildoptions {"-Wno-deprecated", "-gstabs"}
-  configuration "Debug" flags(DebugFlags)
+  linkoptions{"-lxerces-c", "-rdynamic"}
+  buildoptions {"-Wno-deprecated", "-std=c++11"}
+  configuration "Debug" 
+    flags(DebugFlags)
+    buildoptions {"-g"}
   configuration "Release" flags(ReleaseFlags)
   configuration "macosx"
     targetdir "bin"
 
 project "UpgradeProjectFormat"
+  location "make" 
   language "C++"
   flags {"StaticRuntime"}
   files {"LASSIE/src/UpgradeProjectFormat.*"}
@@ -76,23 +94,28 @@ project "UpgradeProjectFormat"
   libdirs {"lib", "/usr/local/lib"}
   links {"lcmod", "lass", "parser","muparser", "pthread", "sndfile"}
   linkoptions{"-lxerces-c"}
-  buildoptions {"-Wno-deprecated", "-gstabs"}
-  configuration "Debug" flags(DebugFlags)
+  buildoptions {"-Wno-deprecated", "-Wno-register", "-std=c++11"}
+  configuration "Debug" 
+    flags(DebugFlags)
+    buildoptions {"-g"}
   configuration "Release" flags(ReleaseFlags)
   configuration "macosx"
     targetdir "bin"
 
 project "lassie"
+  location "make" 
   language "C++"
   kind "ConsoleApp"
   files {"LASSIE/src/**.h", "LASSIE/src/**.cpp"}
   excludes {"LASSIE/src/UpgradeProjectFormat.*", "LASSIE/src/test/**"}
   buildoptions {"`pkg-config --cflags gtkmm-2.4`",
-    "-Wno-deprecated", "-gstabs", "-std=c++11"}
+    "-Wno-deprecated-declarations", "-Wno-deprecated", "-std=c++11"}
   linkoptions {"`pkg-config --libs --cflags gtkmm-2.4`", "-Wno-deprecated", "-lxerces-c"}
   libdirs {"/usr/local/lib"}
   links {"lcmod", "lass", "parser", "pthread", "sndfile"}
-  configuration "Debug" flags(DebugFlags)
+  configuration "Debug" 
+    flags(DebugFlags)
+    buildoptions {"-g"}
   configuration "Release" flags(ReleaseFlags)
   configuration "macosx"
     targetdir "bin"
@@ -175,8 +198,8 @@ end
 
 if _ACTION == "clean" then
   print("Removing target and object directories.")
-  os.execute("rm -f *.make")
   os.rmdir("lib")
   os.rmdir("bin")
   os.rmdir("obj")
+  os.rmdir("make")
 end
