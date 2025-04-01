@@ -104,7 +104,8 @@ public:
   void hideContents();
   void insertObject();
   void cleanUpContents();
-  std::string getPathAndName();
+  std::string getPathAndName() { return pathAndName; }
+  std::string getProjectTitle() { return projectTitle; }
   void showAttributes(IEvent* _event);
   void refreshObjectNameInPalette(IEvent* _event);
   void setProperties();
@@ -242,7 +243,6 @@ private:
   void clearDeletedEvents();
 
   DOMDocument *xmlDocument;
-
 };
 
 #endif //PROJECT_VIEW_CONTROLLER_H

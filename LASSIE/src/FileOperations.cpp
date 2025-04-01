@@ -232,13 +232,13 @@ ProjectViewController* FileOperations::openXMLProject(MainWindow* _mainWindow){
   int result = dialog.run();
     
   if(result == Gtk::RESPONSE_OK){
-    string filePath = dialog.get_filename();
-    const size_t lastSlash = filePath.find_last_of('/');
-    const string name = filePath.substr(lastSlash + 1);;
+    string projectPath = dialog.get_filename();
+    const size_t lastSlash = projectPath.find_last_of('/');
+    const string name = projectPath.substr(lastSlash + 1);;
     
-    filePath = filePath.substr(0, lastSlash);
+    projectPath = projectPath.substr(0, lastSlash);
 
-    return new ProjectViewController(_mainWindow, filePath, name);
+    return new ProjectViewController(_mainWindow, projectPath, name);
   }
 
   return NULL;

@@ -53,8 +53,7 @@ class MainWindow : public Gtk::Window {
     ~MainWindow();
     void showEnvelopeLibraryWindow();
     void showMarkovModelLibraryWindow();
-    void setUnsavedTitle();
-    void setSavedTitle();
+    void markTitleAsUnsaved(bool);
     void disableNewAndOpenProject();
 
   private:

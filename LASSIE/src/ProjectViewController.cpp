@@ -145,7 +145,7 @@ extern map<const char*, FileValue*, ltstr> file_data;
 
 
 
-/*! \brief The constructor of ProjectViewController
+/*! \brief The empty constructor of ProjectViewController
 *
 *******************************************************************************/
 ProjectViewController::ProjectViewController(MainWindow* _mainWindow){
@@ -242,7 +242,7 @@ void ProjectViewController::initializeModifiers() {
 
 }
 
-/*! \brief The constructor of ProjectViewController
+/*! \brief The empty constructor of ProjectViewController, given path; called on 'new project'
 *
 *******************************************************************************/
 ProjectViewController::ProjectViewController(
@@ -256,7 +256,6 @@ ProjectViewController::ProjectViewController(
 
   ///////////////////////////////////////////////drag and drop//////////////
   listTargets.push_back( Gtk::TargetEntry("STRING") );
-  //listTargets.push_back( Gtk::TargetEntry("text/plain") );
   //////////////////////////////////////////////////////////////////////////
 
   std::string topName = "0";
@@ -972,14 +971,6 @@ void ProjectViewController::insertObject(){
   newObjectDialog = NULL;
 }
 
-
-//----------------------------------------------------------------------------//
-
-std::string ProjectViewController::getPathAndName(){
-  return pathAndName;
-}
-
-
 //----------------------------------------------------------------------------//
 
 void ProjectViewController::newObjectButtonClicked(){
@@ -1097,20 +1088,19 @@ void ProjectViewController::setProperties (){
   Gtk::Button* button3;
   refBuilder->get_widget("button3", button3);
   button3->signal_clicked().connect(
-      sigc::mem_fun(
-        *this,
-        &ProjectViewController::projectPropertiesDialogFunctionButtonClicked) );
+    sigc::mem_fun(*this,&ProjectViewController::projectPropertiesDialogFunctionButtonClicked)
+  );
 
   if (okButton){
     okButton->signal_clicked().connect(
-      sigc::mem_fun(
-        *this,&ProjectViewController::projectPropertiesDialogButtonClicked) );
+      sigc::mem_fun(*this,&ProjectViewController::projectPropertiesDialogButtonClicked)
+    );
   }
 
   if (cancelButton){
     cancelButton->signal_clicked().connect(
-    sigc::mem_fun(
-      *this,&ProjectViewController::projectPropertiesDialogButtonClicked) );
+      sigc::mem_fun(*this,&ProjectViewController::projectPropertiesDialogButtonClicked)
+    );
   }
 
   Gtk::Entry* entry;
@@ -1386,7 +1376,7 @@ void ProjectViewController::refreshProjectDotDat(){
 
 void ProjectViewController::save(){
   modifiedButNotSaved = false;
-  sharedPointers->mainWindow->setSavedTitle();
+  sharedPointers->mainWindow->markTitleAsUnsaved(false);
 
   eventAttributesView->saveCurrentShownEventData();
   /*
@@ -1403,7 +1393,7 @@ void ProjectViewController::save(){
 
   // The code below is used to save XML file
 
-  string fileName = pathAndName + "/" +projectTitle+".dissco";
+  string fileName = pathAndName + "/" + projectTitle + ".dissco";
 
   FILE* file  = fopen(fileName.c_str(), "w");
 
@@ -1696,9 +1686,6 @@ void ProjectViewController::saveEnvelopeLibrary(){
     return;
   }
 
-
-//---------------------------------------------------------------------------//
-
   EnvelopeLibraryEntry* envLib = envelopeLibraryEntries;
   int count = envLib->count();
 
@@ -1785,8 +1772,8 @@ void ProjectViewController::saveEnvelopeLibrary(){
 
 ProjectViewController::ProjectViewController(
       MainWindow* _mainWindow,
-      std::string _pathAndName,
-      std::string _projectTitle
+      std::string _pathAndName, /* from openXMLProject: projectPath */
+      std::string _projectTitle /* from openXMLProject: name (of .dissco file) */
 ){
 
   seed = "";
@@ -1807,7 +1794,7 @@ ProjectViewController::ProjectViewController(
   XMLPlatformUtils::Initialize();
   XercesDOMParser* parser = new XercesDOMParser();
 
-  string disscoFile = pathAndName +"/"+_projectTitle;
+  std::string disscoFile = pathAndName + "/" + _projectTitle;
 	//removeExtraEntry(disscoFile);
 
   parser->parse(disscoFile.c_str());
@@ -1820,10 +1807,11 @@ ProjectViewController::ProjectViewController(
   //Configurations
   DOMElement* configuration = root->getFirstElementChild();
   //title
-  DOMElement* element = configuration ->getFirstElementChild();
-  projectTitle = IEvent::getFunctionString( element);
+  /* prefer file title over XML-encoded title */
+  projectTitle = _projectTitle.erase(_projectTitle.length() - 7); /* i.e., remove .dissco extension from projectTitle */
 
   //fileFlag
+  DOMElement* element = configuration->getFirstElementChild();
   element = element->getNextElementSibling();
   fileFlag = IEvent::getFunctionString(element);
   //topEvent
@@ -1952,7 +1940,7 @@ ProjectViewController::ProjectViewController(
   int index = 0;
   while( modifierMapIter != defaultNoteModifiers.end()){
     (*modifierMapIter).second = true;
-//    (*modifierMapIter).second = (charBuffer[index]=='1')?true:false;
+    // (*modifierMapIter).second = (charBuffer[index]=='1')?true:false;
     modifierMapIter ++;
     index = index + 3;
   }
@@ -1976,7 +1964,7 @@ ProjectViewController::ProjectViewController(
   eventAttributesView = new EventAttributesViewController(sharedPointers);
   paletteView = new PaletteViewController(sharedPointers);
 
-eventAttributesView->buildNoteModifiersList();
+  eventAttributesView->buildNoteModifiersList();
   //set the attributes of two Paned widgets and add children view in them
   leftTwoPlusAttributes.set_position(200);
   leftTwoPlusAttributes.pack1(*paletteView,true,false);
@@ -2209,8 +2197,7 @@ void ProjectViewController::projectPropertiesDialogFunctionButtonClicked (){
 void ProjectViewController::modified(){
   if (modifiedButNotSaved == false){
     modifiedButNotSaved = true;
-    sharedPointers->mainWindow->setUnsavedTitle();
-
+    sharedPointers->mainWindow->markTitleAsUnsaved(true);
   }
 }
 
