@@ -29,6 +29,10 @@ Just `git clone` this repo; explicitly:
 
 Building, Running, and Starting the Container
 ----------------------
+You first have to allow X11 to allow local connections from root with
+
+    xhost local:root
+
 In the project's root directory (by default, `/DISSCO-2.0.2/` or `\DISSCO-2.0.2\`) with Docker running (and you may need to run these with `sudo`):
 
     docker build . -t ubuntu_dissco_202 && docker run --name dissco_202 -e DISPLAY=$DISPLAY --net=host -it ubuntu_dissco_202
