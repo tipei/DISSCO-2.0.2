@@ -1,0 +1,26 @@
+First, run:
+
+    git pull git@github.com:tipei/DISSCO-2.0.2
+
+This will sync you to the lastest version of DISSCO 2.0.2.
+Next, run:
+
+    xhost local:root
+
+This will allow X11 windows to appear from the docker.
+You then need to build the docker by running:
+
+    docker build . -t ubuntu_dissco_202 && docker run --name dissco_202 -e DISPLAY=$DISPLAY --net=host -it ubuntu_dissco_202
+
+The name of the docker will be "dissco_202".
+Docker will automatically start. 
+You can then build DISSCO 2.0.2 as usual.
+If you want to exit docker just type in:
+
+    exit
+
+After you've built the docker you do not need to rebuild it again. 
+You can re-open it any time you want by running the command:
+
+    docker start dissco_202 -i
+
