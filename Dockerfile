@@ -42,7 +42,4 @@ RUN locale-gen en_US.UTF-8 && update-locale
 
 RUN service dbus start
 
-WORKDIR /root/DISSCO-2.0.2/
-COPY . .
-
 ENTRYPOINT ["/bin/bash"]

@@ -35,7 +35,7 @@ You first have to allow X11 to allow local connections from root with
 
 In the project's root directory (by default, `/DISSCO-2.0.2/` or `\DISSCO-2.0.2\`) with Docker running (and you may need to run these with `sudo`):
 
-    docker build . -t ubuntu_dissco_202 && docker run --name dissco_202 -e DISPLAY=$DISPLAY --net=host -it ubuntu_dissco_202
+    docker build . -t ubuntu_dissco_202 && docker run --name dissco_202 -v $HOME:$HOME -w $HOME -e DISPLAY=$DISPLAY --net=host -it ubuntu_dissco_202
 
 You will have made a container named `dissco_202` from an image named `ubuntu_dissco_202`. You should be inside the `bash` shell in the container as `root` and can skip to the **Building** section of [`BUILDING_LINUX.md`](BUILDING_LINUX.md#building) to continue.
 

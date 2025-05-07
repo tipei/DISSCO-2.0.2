@@ -15,7 +15,7 @@ Then, run:
 This will execute every time you log in, so you only need to do it once.
 You then need to build the docker by running:
 
-    docker build . -t ubuntu_dissco_202 && docker run --name dissco_202 -e DISPLAY=$DISPLAY --net=host -it ubuntu_dissco_202
+    docker build . -t ubuntu_dissco_202 && docker run --name dissco_202 -v $HOME:$HOME -w $HOME -e DISPLAY=$DISPLAY --net=host -it ubuntu_dissco_202
 
 The name of the docker will be "dissco_202".
 Docker will automatically start. 
