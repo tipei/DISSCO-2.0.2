@@ -138,6 +138,10 @@ public:
 	**/
 	void xml_read( XmlReader::xmltag *lptag);
 
+	float get_g();
+	long get_D();
+	float get_lpf_g();
+
 private:
 
 	/**

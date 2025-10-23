@@ -142,4 +142,17 @@ void LPCombFilter::xml_read(XmlReader::xmltag *lptag)
 
 
 //----------------------------------------------------------------------------//
+
+float LPCombFilter::get_g()
+{
+	return g;
+}
+long LPCombFilter::get_D()
+{
+	return D;
+}
+float LPCombFilter::get_lpf_g()
+{
+	return lpf_g;
+}
 #endif //__LP_COMB_FILTER_CPP

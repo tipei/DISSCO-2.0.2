@@ -120,6 +120,9 @@ public:
     **/
     void scale(m_value_type factor);
 
+    m_sample_type* getData();
+
+    void setData(m_sample_type* data, m_sample_count_type sampleCount);
     
 private:
     

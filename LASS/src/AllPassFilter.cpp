@@ -145,5 +145,14 @@ void AllPassFilter::xml_read(XmlReader::xmltag *apftag)
 
 //----------------------------------------------------------------------------//
 
-#endif //__ALL_PASS_FILTER_CPP
+float AllPassFilter::get_g()
+{
+	return g;
+}
 
+long AllPassFilter::get_D()
+{
+	return D;
+}
+
+#endif //__ALL_PASS_FILTER_CPP
