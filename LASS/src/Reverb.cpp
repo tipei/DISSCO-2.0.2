@@ -28,6 +28,11 @@
 #include "AllPassFilter.h"
 #include "Reverb.h"
 #include "Types.h"
+#include "Filter.h"
+#include <chrono>
+#ifdef HAVE_CUDA
+  #include "../CUDA/FilterGPU.h"
+#endif
 
 //----------------------------------------------------------------------------//
 
@@ -40,7 +45,7 @@ Reverb::Reverb(m_rate_type samplingRate)
   float comb_gain_list[REVERB_NUM_COMB_FILTERS];
   float lp_gain_list[REVERB_NUM_COMB_FILTERS];
   int i;
-  
+
   comb_gain_list[0] = 0.46;
   comb_gain_list[1] = 0.48;
   comb_gain_list[2] = 0.50;
@@ -58,12 +63,12 @@ Reverb::Reverb(m_rate_type samplingRate)
   segmentCollection.add(seg);
 
   percentReverb = new Envelope(segmentCollection);
-  
+
   float hi_low_spread = 0.05;
   for(i=0;i<REVERB_NUM_COMB_FILTERS;i++)
     lp_gain_list[i] = 0.05 + (hi_low_spread * (0.95 - comb_gain_list[i]));
-  
-  ConstructorCommon(percentReverb, &comb_gain_list[0], &lp_gain_list[0], 
+
+  ConstructorCommon(percentReverb, &comb_gain_list[0], &lp_gain_list[0],
 		    0.7, 0.6, samplingRate);
 
 }
@@ -73,7 +78,7 @@ Reverb::Reverb(float room_size, m_rate_type samplingRate)
   float comb_gain_list[REVERB_NUM_COMB_FILTERS];
   float lp_gain_list[REVERB_NUM_COMB_FILTERS];
   int i;
-  
+
   Collection<envelope_segment> segmentCollection;
   envelope_segment seg;
 
@@ -99,12 +104,12 @@ Reverb::Reverb(float room_size, m_rate_type samplingRate)
   for(i=0;i<REVERB_NUM_COMB_FILTERS;i++)
     lp_gain_list[i] = 0.05 + (hilow_spread * (0.95 - comb_gain_list[i]));
 
-  ConstructorCommon(percentReverb, &comb_gain_list[0], &lp_gain_list[0], 
+  ConstructorCommon(percentReverb, &comb_gain_list[0], &lp_gain_list[0],
 		    gainAllPass, delay, samplingRate);
 
 }
-	
-Reverb::Reverb(Envelope *percentReverbinput, float hilow_spread, float gainAllPass, 
+
+Reverb::Reverb(Envelope *percentReverbinput, float hilow_spread, float gainAllPass,
 	       float delay, m_rate_type samplingRate)
 {
   float comb_gain_list[REVERB_NUM_COMB_FILTERS];
@@ -125,7 +130,7 @@ Reverb::Reverb(Envelope *percentReverbinput, float hilow_spread, float gainAllPa
 //      cout<<i<<endl;
       lp_gain_list[i] = 0.05 + (hilow_spread * (0.95 - comb_gain_list[i]));
     }
-  ConstructorCommon(percentReverb, &comb_gain_list[0], &lp_gain_list[0], 
+  ConstructorCommon(percentReverb, &comb_gain_list[0], &lp_gain_list[0],
 		    gainAllPass, delay, samplingRate);
   delete temp;
 }
@@ -133,8 +138,8 @@ Reverb::Reverb(Envelope *percentReverbinput, float hilow_spread, float gainAllPa
 /**
  *  advanced constructor
  *
- * percentReverb - this Envelope that defines the intended mix between reverb 
- *   sound and the original sound over the length of the sound.  
+ * percentReverb - this Envelope that defines the intended mix between reverb
+ *   sound and the original sound over the length of the sound.
  *   1.00 is all reverb sound, 0.00 is all original sound.
  * combGainList - this is an array of 6 floats that acts like an equalizer
  *   for the reverbed sound.  Each float controls the gain on one band of
@@ -143,7 +148,7 @@ Reverb::Reverb(Envelope *percentReverbinput, float hilow_spread, float gainAllPa
  *   source sound, but will still respond to higher frequencies.
  * gainAllPasss - this parameter has two effects.  For delay values in the
  *   range that 'Elements of Computer Music' intended for this reverberator
- *   to be used with (anything on the order of milliseconds), this 
+ *   to be used with (anything on the order of milliseconds), this
  *   allPassGain acts to delay the reverb'ed sound slightly and smooth the
  *   reverb'ed sound.  At much higher delay values, on the order of seconds
  *   or tenth of seconds, the gainAllPass parameter primarily acts as a rate
@@ -152,7 +157,7 @@ Reverb::Reverb(Envelope *percentReverbinput, float hilow_spread, float gainAllPa
  *   as the decay rate of the envelope (higher values mean higher decay rate,
  *   lower values mean lower decay rate, and thus more echos)
  * delay - this is the overall delay in units of seconds.  This is analogous
- *   to room size. 
+ *   to room size.
  * samplingRate - the sampling rate of the input sounds
  **/
 Reverb::Reverb(Envelope *percentReverbinput, float *combGainList, float *lpGainList,
@@ -163,7 +168,7 @@ Reverb::Reverb(Envelope *percentReverbinput, float *combGainList, float *lpGainL
   Envelope* temp = new Envelope(*percentReverbinput);
   percentReverb = new Envelope(*temp);
 
-  ConstructorCommon(percentReverbinput, combGainList, lpGainList, gainAllPass, 
+  ConstructorCommon(percentReverbinput, combGainList, lpGainList, gainAllPass,
 		    delay, samplingRate);
 }
 
@@ -172,7 +177,7 @@ Reverb::Reverb(Envelope *percentReverbinput, float *combGainList, float *lpGainL
  *   constructors. Both do the same work, but based on varying degrees
  *   of user specification of parameters
  *
- * percentReverb - this Envelope defines the intended mix between reverb 
+ * percentReverb - this Envelope defines the intended mix between reverb
  *   sound and the original sound over the length of the sound.
  *   1.00 is all reverb sound, 0.00 is all original sound.
  * combGainList - this is an array of 6 floats that acts like an equalizer
@@ -180,9 +185,9 @@ Reverb::Reverb(Envelope *percentReverbinput, float *combGainList, float *lpGainL
  *   the reverbed sound.  If, for example, you zero the first number, you
  *   the reverberator will have no effect on the lowest frequencies in your
  *   source sound, but will still respond to higher frequencies.
- * gainAllPasss - this parameter has two effects.  For delay values in the 
+ * gainAllPasss - this parameter has two effects.  For delay values in the
  *   range that 'Elements of Computer Music' intended for this reverberator
- *   to be used with (anything on the order of milliseconds), this 
+ *   to be used with (anything on the order of milliseconds), this
  *   allPassGain acts to delay the reverb'ed sound slightly and smooth the
  *   reverb'ed sound.  At much higher delay values, on the order of seconds
  *   or tenth of seconds, the gainAllPass parameter primarily acts as a rate
@@ -191,8 +196,8 @@ Reverb::Reverb(Envelope *percentReverbinput, float *combGainList, float *lpGainL
  *   as the decay rate of the envelope (higher values mean higher decay rate,
  *   lower values mean lower decay rate, and thus more echos)
  * delay - this is the overall delay in units of seconds.  This is analogous
- *   to room size. 
- * hilow_spread - this is a value between 0.0 and 1.0 (inclusive) that 
+ *   to room size.
+ * hilow_spread - this is a value between 0.0 and 1.0 (inclusive) that
  *   determines the ratio of low-repsonse to high response.  For a value of
  *   1.0, the low-frequence response of the reverb will be as high as possible
  *   given the values of the other parameters.  For a value of 0.0, the reverb
@@ -201,7 +206,7 @@ Reverb::Reverb(Envelope *percentReverbinput, float *combGainList, float *lpGainL
  * samplingRate - the sampling rate of the input sounds
  **/
 void Reverb::ConstructorCommon(Envelope *percentReverbinput, float *comb_gain_list,
-			       float *lp_gain_list, float gainAllPass, float delay, 
+			       float *lp_gain_list, float gainAllPass, float delay,
 			       m_rate_type samplingRate)
 {
   long combdelay[REVERB_NUM_COMB_FILTERS];
@@ -210,7 +215,7 @@ void Reverb::ConstructorCommon(Envelope *percentReverbinput, float *comb_gain_li
   delete percentReverb;
   percentReverb = temp;
   // figure out allpass filter parameters
-  //gainReverb = percentReverb;              //these two lines need fixing  
+  //gainReverb = percentReverb;              //these two lines need fixing
   //    actually, the above and below two lines probably won't be needed
   //gainDirect = 1 - percentReverb;
 
@@ -247,7 +252,7 @@ Reverb::~Reverb()
 {
   //cout << "&&&&&&&&&&&&&&&&&&&&& REVERB DESTRUCTOR CALLED!" << endl;
   int i;
-	
+
   for(i=0;i<REVERB_NUM_COMB_FILTERS;i++)
     delete lpcfilter[i];
 
@@ -280,12 +285,27 @@ m_sample_type Reverb::do_reverb(m_sample_type x_t, float x_value, Envelope *perc
   y += lpcfilter[5]->do_filter(x_t);
   y /= (m_sample_type)REVERB_NUM_COMB_FILTERS;
 
+
   // after adding up the results, run it through an allpass filter
   y = apfilter->do_filter(y);
   // Mix it with the input sound
   float durationofEnv = percentReverb->getDuration();
   float EnvelopeValueAtx = percentReverb->getValue(x_value,durationofEnv);
   y = (EnvelopeValueAtx*y) + ((1 - EnvelopeValueAtx)*x_t);
+  
+  // if(x_at == 0)
+  //   cout<<"y0 "<<y<<endl<<"EvenlopeValueAtx "<<EnvelopeValueAtx<<endl;
+  
+  // if(x_at == 1000)
+  //   cout<<"y1000 "<<y<<endl<<"EvenlopeValueAtx "<<EnvelopeValueAtx<<endl;
+  
+  // if(x_at == 10000)
+  //   cout<<"y10000 "<<y<<endl<<"EvenlopeValueAtx "<<EnvelopeValueAtx<<endl;
+  
+  // if(x_at == 100000)
+  //   cout<<"y100000 "<<y<<endl<<"EvenlopeValueAtx "<<EnvelopeValueAtx<<endl;
+  // x_at++;
+
   return y;
 }
 
@@ -340,7 +360,7 @@ MultiTrack &Reverb::do_reverb_MultiTrack(MultiTrack &inWave, Envelope *percentRe
 
       newWave = do_reverb_SoundSample(&curTrack->getWave(), percentReverb);
       reset();
-      newAmp  = constructAmp(newWave); 
+      newAmp  = constructAmp(newWave);
       reset();
       newMultiTrack->add(new Track(newWave, newAmp));
     }
@@ -370,7 +390,7 @@ Track &Reverb::do_reverb_Track(Track &inWave, Envelope *percentReverbinput)
   // create a new track based on the returned, filtered SoundSample
   newWave = do_reverb_SoundSample(&inWave.getWave(), percentReverb);
   reset();
-  newAmp  = constructAmp(newWave); 
+  newAmp  = constructAmp(newWave);
   newTrack = new Track(newWave, newAmp);
 
   return *newTrack;
@@ -385,21 +405,24 @@ SoundSample *Reverb::do_reverb_SoundSample(SoundSample *inWave)
 }
 SoundSample *Reverb::do_reverb_SoundSample(SoundSample *inWave, Envelope *percentReverbinput)
 {
-  int i;
-  SoundSample *outWave;
-  // delete percentReverb;
-  // percentReverb = new Envelope(*percentReverbinput);
 
+  int i;
+  SoundSample *outWave;  
   Envelope* temp = new Envelope(*percentReverbinput);
   delete percentReverb;
   percentReverb = temp;
-  // create new SoundSample
-  outWave = new SoundSample(inWave->getSampleCount(),
-			    inWave->getSamplingRate());
 
-  for(i=0;i<inWave->getSampleCount();i++)
-    (*outWave)[i] = do_reverb((*inWave)[i],(float) i / inWave->getSampleCount()
+  #ifdef HAVE_CUDA
+  outWave=do_reverb_SoundSample_GPU(inWave, percentReverb, lpcfilter, apfilter);
+  #else
+    // create new SoundSample
+    outWave = new SoundSample(inWave->getSampleCount(),
+	  		    inWave->getSamplingRate());
+
+    for(i=0;i<inWave->getSampleCount();i++)
+      (*outWave)[i] = do_reverb((*inWave)[i],(float) i / inWave->getSampleCount()
 			      , percentReverb);
+  #endif
 
   return outWave;
 }
@@ -410,7 +433,7 @@ SoundSample *Reverb::do_reverb_SoundSample(SoundSample *inWave, Envelope *percen
  **/
 float Reverb::getDecay(void)
 {
-  // this value used to be multiplied by 4 for some reason that I can't fathom.  this 
+  // this value used to be multiplied by 4 for some reason that I can't fathom.  this
   // was the cause of a multitude of extra silence at the end of the file, so I killed it.
   //  -AL
   return decay_duration;
@@ -430,22 +453,22 @@ Envelope* Reverb::getEnvelope(void)
  *
  * This function works by scanning from t=0 to t=max over a
  * 'wave' SoundSample and finding the max over a window around
- * every sample.  The size of the window (see windowRadius) is 
+ * every sample.  The size of the window (see windowRadius) is
  * calculated so that the lowest possible sound component (20
- * Hz) will fit one cycle into that window.  Then, no matter 
+ * Hz) will fit one cycle into that window.  Then, no matter
  * what partials are present in a SoundSample, we can always
  * be assured of finding at least one full cycle of every frequency
  * component.
  *
  * the algorithm used here is a slight optimization of simply running
- * a nested loop (once over all samples, and an inner one over the 
+ * a nested loop (once over all samples, and an inner one over the
  * window surrounding that point, plus or minus windowRadius).  Instead,
  * we only search the full window once at the beginning, or if the previous
  * maximum amplitude value falls out of the left end (lower time values) of
  * the window.  Otherwise, we simply increment our step through time values
  * (pos) and compare the new sample in the right-most position in our window
  * with the max amplitude from the last step.  This way we SIGNIFICANTLY
- * cut down on running time.  The simple nested-loop algorithm evaluates every 
+ * cut down on running time.  The simple nested-loop algorithm evaluates every
  * point 2205 times.  This algorithm evaluates only as much as needed.  I
  * have no idea what that average- or worst-case complexity is, but suffice
  * to say, this is WAY faster.
@@ -519,7 +542,7 @@ void Reverb::xml_print( ofstream& xmlOutput )
   xmlOutput << "\t<percentReverb value=\"" << percentReverb << "\" />" << endl;
   xmlOutput << "\t<allPassDelay value=\"" << allPassDelay << "\" />" << endl;
   xmlOutput << "\t<decay_duration value=\"" << decay_duration << "\" />" << endl;
-     
+
   // XML for each LPCombFilter
   for( i=0; i<REVERB_NUM_COMB_FILTERS; i++ )
     {
@@ -532,27 +555,27 @@ void Reverb::xml_print( ofstream& xmlOutput )
 
 void Reverb::xml_read(XmlReader::xmltag *reverbtag)
 {
-	
+
   // Sanity Check
   if(strcmp("reverb",reverbtag->name))
     {
       printf("Not a reverb tag!  This is a %s tag!\n",reverbtag->name);
       return;
     }
-	
+
   char *value;
   if((value = reverbtag->findChildParamValue("gainDirect","value")) != 0)
       set_gainDirect(atof(value));
 
   if((value = reverbtag->findChildParamValue("gainReverb","value")) != 0)
       set_gainReverb(atof(value));
-	
+
   if((value = reverbtag->findChildParamValue("allPassDelay","value")) != 0)
       set_allPassDelay(atof(value));
-	
+
   if((value = reverbtag->findChildParamValue("decay_duration","value")) != 0)
       set_decay_duration(atof(value));
-	
+
   XmlReader::xmltag *childtag;
   int lpIndex = 0;
   while((childtag = reverbtag->children->find("LPCombFilter")) != 0)
@@ -562,26 +585,28 @@ void Reverb::xml_read(XmlReader::xmltag *reverbtag)
     setLPComb(lpIndex, lp);
     lpIndex++;
   }
-	
+
   while((childtag = reverbtag->children->find("AllPassFilter")) != 0)
   {
     AllPassFilter* apf = new AllPassFilter();
     apf->xml_read(childtag);
-    setAllPass(apf);	
+    setAllPass(apf);
   }
 }
 
 void Reverb::set_gainDirect(float new_gainDirect)
 {
-  new_gainDirect = 0.0;
+  // new_gainDirect = 0.0;
   // TODO: unused variable
+  (void) new_gainDirect;
   gainDirect = 1; //new_gainDirect
 }
 
 void Reverb::set_gainReverb(float new_gainReverb)
 {
-  new_gainReverb = 0.0;
+  // new_gainReverb = 0.0;
   // TODO: unused variable
+  (void) new_gainReverb;
   gainReverb = 1; //new_gainReverb;
 }
 
@@ -606,4 +631,3 @@ void Reverb::setAllPass(AllPassFilter *f)
 }
 
 #endif //MOSS_REVERB_CPP
-

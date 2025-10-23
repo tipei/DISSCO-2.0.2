@@ -44,9 +44,13 @@ struct ThreadEntry{
   int numChannels;
   int samplingRate;
   pthread_mutex_t* mutexSoundVector;
-  pthread_cond_t* conditionSoundVector;
   int* soundsRendered;
   int* soundObjectsCreated;
+
+  sem_t* semEmptySlotsSounds; 
+  sem_t* semFullSlotsSounds;  
+  sem_t* semEmptySlotsRendered; 
+  sem_t* semFullSlotsRendered;  
 
   MultiTrack** scoreMultiTrack;
 
@@ -62,9 +66,10 @@ void Score::add(Sound* _sound){
   // This funcion can be upgraded to block the main thread in a fancier way, but
   // for now this is enough.
   //                                           --Ming-ching May 06, 2013
-  while (sounds.size()>200){
-    sleep(10);
-  }
+
+  // Rubin Du July 2024: Integrated the resource management, producer thread / consumer thread synchronization, and optimized concurrency by implementing semaphores
+
+  sem_wait(&semEmptySlotsSounds);  // Wait for an empty slot in sounds vector
 
   // Lock the sounds vector
   pthread_mutex_lock( &mutexSoundVector );
@@ -82,10 +87,10 @@ void Score::add(Sound* _sound){
   if(reverbObj != NULL)
   scoreEndTime += reverbObj->getDecay();
 
-  // tell the worker threads to start working
-  pthread_cond_broadcast(&conditionSoundVector);
   // Unlock the sounds vector
   pthread_mutex_unlock( &mutexSoundVector );
+
+  sem_post(&semFullSlotsSounds);  // Signal that there is a full slot in sounds vector
 
 }
 
@@ -98,46 +103,36 @@ void Score::add(Sound* _sound){
 void *render(void *_threadEntry){
   ThreadEntry threadEntry = *((ThreadEntry*) _threadEntry);
   while(true){
+    sem_wait(threadEntry.semFullSlotsSounds); // Wait for a full slot in sounds vector
+
     //Lock the sounds vector
     pthread_mutex_lock( threadEntry.mutexSoundVector );
-    while(threadEntry.sounds->size()==0){
-      // No more sound object to render, unlock the mutex and return.
-      if (threadEntry.score->isDoneGettingSoundObjects()){
-        pthread_mutex_unlock( threadEntry.mutexSoundVector );
 
-        //((ThreadEntry*) _threadEntry)->renderedThreadScore =renderedThreadScore;
-        return _threadEntry;
+      if (threadEntry.sounds->size()) {
+          *(threadEntry.soundsRendered) = *(threadEntry.soundsRendered) + 1;
+          cout<<"Thread #"<<threadEntry.threadID<<": Rendering sound #"<<
+                *(threadEntry.soundsRendered)<<" of "<<
+                *(threadEntry.soundObjectsCreated)<<endl;
 
+          Sound* sound = threadEntry.sounds->back();
+          threadEntry.sounds->pop_back();
+          pthread_mutex_unlock( threadEntry.mutexSoundVector );
+
+          // Render the sound outside the critical section
+          MultiTrack* renderedSound = sound->render(threadEntry.numChannels,threadEntry.samplingRate);
+      
+          threadEntry.score->addRenderedSound(sound->getParam(START_TIME), renderedSound);
+
+          delete sound;
+
+          sem_post(threadEntry.semEmptySlotsSounds);  // Signal that there is an empty slot in sounds vector
+      } 
+      else {
+          pthread_mutex_unlock(threadEntry.mutexSoundVector);
+          sem_post(threadEntry.semFullSlotsSounds);  // Put back the full slot since no sound was consumed
+          if (threadEntry.score->isDoneGettingSoundObjects())   // If the main thread is done adding sounds, return
+            return _threadEntry;
       }
-      //Wait for new sound objects to come in
-      pthread_cond_wait(
-        threadEntry.conditionSoundVector,
-        threadEntry.mutexSoundVector);
-    }
-
-    *(threadEntry.soundsRendered) = *(threadEntry.soundsRendered) + 1;
-    cout<<"Thread #"<<threadEntry.threadID<<": Rendering sound #"<<
-          *(threadEntry.soundsRendered)<<" of "<<
-          *(threadEntry.soundObjectsCreated)<<endl;
-
-    //get an sound object to render
-    Sound* sound = threadEntry.sounds->back();
-    threadEntry.sounds->pop_back();
-
-    //Unlock the sounds vector
-    pthread_mutex_unlock( threadEntry.mutexSoundVector );
-
-    // render the sound:
-    MultiTrack* renderedSound = sound->render(threadEntry.numChannels,
-                                              threadEntry.samplingRate);
-
-
-    threadEntry.score->addRenderedSound(sound->getParam(START_TIME), renderedSound);
-
-    // clean up
-
-    delete sound;
-
   }// end of main while loop
 
 }
@@ -173,7 +168,10 @@ Score::Score(int _numThreads, int _numChannels, int _samplingRate )
   threads = new pthread_t[_numThreads];
   pthread_mutex_init(&mutexSoundVector, NULL);
   pthread_mutex_init(&mutexVectorRenderedSound, NULL);
-  pthread_cond_init(&conditionSoundVector, NULL);
+  sem_init(&semEmptySlotsSounds, 0, MAX_SOUND_OBJECTS);
+  sem_init(&semFullSlotsSounds, 0, 0);    
+  sem_init(&semEmptySlotsRendered, 0, MAX_RENDERED_OBJECTS);
+  sem_init(&semFullSlotsRendered, 0, 0);  
 
   for (int i = 0; i < _numThreads; i ++){
     ThreadEntry* threadEntry = new ThreadEntry;
@@ -183,10 +181,13 @@ Score::Score(int _numThreads, int _numChannels, int _samplingRate )
     threadEntry->numChannels = _numChannels;
     threadEntry->samplingRate = _samplingRate;
     threadEntry->mutexSoundVector=&mutexSoundVector;
-    threadEntry->conditionSoundVector = &conditionSoundVector;
     threadEntry->soundsRendered = &soundsRendered;
     threadEntry->soundObjectsCreated = &soundObjectsCreated;
     threadEntry->scoreMultiTrack =&scoreMultiTrack;
+    threadEntry->semEmptySlotsSounds = &semEmptySlotsSounds;
+    threadEntry->semFullSlotsSounds = &semFullSlotsSounds;
+    threadEntry->semEmptySlotsRendered = &semEmptySlotsRendered;
+    threadEntry->semFullSlotsRendered = &semFullSlotsRendered;
     pthread_create(&threads[i], NULL, render, (void*) threadEntry);
   }
 
@@ -196,41 +197,34 @@ Score::Score(int _numThreads, int _numChannels, int _samplingRate )
 }
 
 
-
-
-
 void Score::addRenderedSound(m_time_type _startTime, MultiTrack* _renderedSound){
 
   std::pair<m_time_type, MultiTrack*>* newPair = new pair<m_time_type, MultiTrack*>(_startTime, _renderedSound);
   // active waiting for the vector size to be below 20 (if the main thread can't
   // composite the rendered sound as fast the speed of worker threads produce
   // rendered sounds, there is no need for the worker threads to rush.
-  while (true){
-    pthread_mutex_lock( &mutexVectorRenderedSound );
-    if (renderedSounds.size()<20){
-      renderedSounds.push_back(newPair);
-      pthread_mutex_unlock(&mutexVectorRenderedSound );
-      return;
-    }
-    pthread_mutex_unlock(&mutexVectorRenderedSound );
-    sleep(1);
-  }
+    sem_wait(&semEmptySlotsRendered);  // Wait for an empty slot in renderedSounds vector
+
+    pthread_mutex_lock(&mutexVectorRenderedSound);
+    renderedSounds.push_back(newPair);
+    pthread_mutex_unlock(&mutexVectorRenderedSound);
+
+    sem_post(&semFullSlotsRendered);  // Signal that there is a full slot in renderedSounds vector
 
 }
 
 
 void Score::compositeRenderedSounds(){
   while (true){
-    if(workerThreadsAllJoined && renderedSounds.size()==0){
-      return;
-    }
+    sem_wait(&semFullSlotsRendered); 
 
     pthread_mutex_lock( &mutexVectorRenderedSound );
 
-    if(renderedSounds.size()!=0){
+    if(renderedSounds.size()){
       pair<m_time_type,MultiTrack*>* thisPair = renderedSounds.back();
       renderedSounds.pop_back();
       pthread_mutex_unlock( &mutexVectorRenderedSound );
+      sem_post(&semEmptySlotsRendered);
       checkScoreMultiTrackLength();
       scoreMultiTrack->composite(*(thisPair->second), thisPair->first);
       delete thisPair->second;
@@ -238,7 +232,9 @@ void Score::compositeRenderedSounds(){
     }
     else{
       pthread_mutex_unlock( &mutexVectorRenderedSound );
-      sleep(1);
+      sem_post(&semFullSlotsRendered);
+      if (workerThreadsAllJoined)
+        return;
     }
 
   }
@@ -260,10 +256,17 @@ MultiTrack* Score::joinThreadsAndMix(){
   cout<<"=======================Threads all joined.==================="<<endl;
   delete [] threads;
   workerThreadsAllJoined = true;
+  sem_post(&semFullSlotsRendered); //unblock the composite thread for proper termination
 
   //join the composite thread
   pthread_join(compositeThread, NULL);
 
+  pthread_mutex_destroy(&mutexSoundVector);
+  pthread_mutex_destroy(&mutexVectorRenderedSound);
+  sem_destroy(&semEmptySlotsSounds);
+  sem_destroy(&semFullSlotsSounds);
+  sem_destroy(&semEmptySlotsRendered);
+  sem_destroy(&semFullSlotsRendered);
 
   // do the reverb
   if(reverbObj != NULL)
@@ -634,7 +637,7 @@ MultiTrack* Score::doneAddingSounds(){
 
   pthread_mutex_lock( &mutexSoundVector );
   doneGettingSoundObjects= true;
-  pthread_cond_broadcast(&conditionSoundVector);
+  sem_post(&semFullSlotsSounds); // unblock the worker threads for proper termination
   pthread_mutex_unlock( &mutexSoundVector );
 
   return joinThreadsAndMix();

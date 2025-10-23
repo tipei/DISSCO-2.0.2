@@ -58,6 +58,8 @@ will be used here for now.*/
 //Also need pthreads from the POSIX library (link with -lpthread)
 #include <pthread.h>
 
+#include <semaphore.h>
+
 using namespace std;
 using namespace __gnu_cxx; 
 

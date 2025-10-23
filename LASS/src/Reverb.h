@@ -284,6 +284,7 @@ class Reverb
   LPCombFilter *lpcfilter[REVERB_NUM_COMB_FILTERS];
   AllPassFilter *apfilter;
   float decay_duration;
+  int x_at;
   Envelope *percentReverb;
 };
 

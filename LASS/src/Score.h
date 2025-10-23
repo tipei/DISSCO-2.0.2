@@ -40,6 +40,9 @@ class Utilities;
 
 //----------------------------------------------------------------------------//
 
+#define MAX_SOUND_OBJECTS 200
+#define MAX_RENDERED_OBJECTS 20
+
 /**
 *	A Score simply consists of a collection of Sounds.
 *	In addition to this, it provides functionality for 
@@ -306,10 +309,19 @@ private:
     **/
     pthread_mutex_t mutexVectorRenderedSound;
     
+    // Rubin Du July 2024: restructured and replaced conditions with semaphores for better resources management and synchronization
+    ///**
+    //* cond to brocast to worker threads the status of vector<Sound*> sounds
+    //**/
+    //pthread_cond_t conditionSoundVector;
+
     /**
-    * cond to brocast to worker threads the status of vector<Sound*> sounds
+    * semaphores for work queue management
     **/
-    pthread_cond_t conditionSoundVector;
+    sem_t semEmptySlotsSounds;
+    sem_t semFullSlotsSounds;
+    sem_t semEmptySlotsRendered;
+    sem_t semFullSlotsRendered;
     
     /**
     * Number of channels

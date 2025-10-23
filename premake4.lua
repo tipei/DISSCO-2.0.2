@@ -3,6 +3,54 @@ if _ACTION ~= "gmake" and _ACTION ~= "clean" then
   _ACTION = "gmake"
 end
 
+local function file_exists(p)
+  local f = io.open(p, "rb"); if f then f:close(); return true end
+  return false
+end
+
+local function detect_cuda_home() --Detect CUDA installation path
+  local env = os.getenv("CUDA_HOME") or os.getenv("CUDA_PATH")
+  if env and file_exists(env .. "/bin/nvcc") then return env end
+
+  local p = io.popen("command -v nvcc 2>/dev/null")
+  local nvcc = p and p:read("*l") or nil
+  if p then p:close() end
+  if nvcc then
+    local root = nvcc:gsub("/bin/nvcc$", "")
+    if file_exists(root .. "/bin/nvcc") then return root end
+  end
+
+  local candidates = {}
+  for _, d in ipairs(os.matchdirs("/usr/local/cuda-[0-9]*.[0-9]*")) do
+    table.insert(candidates, d)
+  end
+  table.insert(candidates, "/usr/local/cuda")
+  table.insert(candidates, "/opt/cuda")
+  table.sort(candidates, function(a, b) return a > b end)
+
+  for _, d in ipairs(candidates) do
+    if file_exists(d .. "/bin/nvcc") then return d end
+  end
+
+  return nil
+end
+
+local function detect_nvidia_smi()
+  local p = io.popen("command -v nvidia-smi 2>/dev/null")
+  local smi = p and p:read("*l") or nil
+  if p then p:close() end
+  if smi and file_exists(smi) then return smi end
+
+  for _, f in ipairs(os.matchfiles("/usr/bin/nvidia-smi")) do if file_exists(f) then return f end end
+  for _, f in ipairs(os.matchfiles("/usr/lib/nvidia-*/bin/nvidia-smi")) do if file_exists(f) then return f end end
+  for _, f in ipairs(os.matchfiles("/usr/lib/wsl/lib/nvidia-smi")) do if file_exists(f) then return f end end
+  return nil
+end
+
+CUDA_HOME  = detect_cuda_home()
+NVIDIA_SMI = detect_nvidia_smi()
+HAVE_CUDA  = (CUDA_HOME ~= nil) and (NVIDIA_SMI ~= nil)  --Detects if CUDA is available
+
 newoption({trigger="examples",
   description="Creates makefiles for LASS examples"})
 
@@ -19,14 +67,44 @@ project "lass"
   flags {"StaticRuntime"}
   files {"LASS/src/*.cpp", "LASS/src/*.h"}
   excludes {"LASS/src/test/**"}
-  includedirs {"/usr/local/include"}
+    includedirs {"/usr/local/include"}
+  if(HAVE_CUDA) then 
+      includedirs {CUDA_HOME .. "/include"}
+    end
   kind "StaticLib"
   targetdir "lib"
   buildoptions {"-Wno-deprecated", "-Wall", "-Wextra", "-std=c++11"}
-  configuration "Debug" 
-    flags(DebugFlags)
-    buildoptions {"-g"}
-  configuration "Release" flags(ReleaseFlags)
+  if(HAVE_CUDA) then 
+    defines { "HAVE_CUDA" }
+    configuration "Debug" 
+      flags(DebugFlags)
+      buildoptions {"-g"}
+      prebuildcommands {
+        "mkdir -p $(OBJDIR)",
+        "nvcc -c ../LASS/CUDA/FilterGPU.cu -Xcompiler -fPIC -g -G -o $(OBJDIR)/FilterGPU.o"
+      }
+      postbuildcommands {
+        "ar rcs $(TARGET) $(OBJDIR)/FilterGPU.o",
+        "ranlib $(TARGET)"
+      }
+    configuration "Release" 
+      flags(ReleaseFlags)  
+      prebuildcommands {
+        "mkdir -p $(OBJDIR)",
+        "nvcc -c ../LASS/CUDA/FilterGPU.cu -Xcompiler -fPIC -O3 -o $(OBJDIR)/FilterGPU.o"
+      }
+      postbuildcommands {
+        "ar rcs $(TARGET) $(OBJDIR)/FilterGPU.o",
+        "ranlib $(TARGET)"
+      }
+
+    configuration {}
+  else
+    configuration "Debug" 
+      flags(DebugFlags)
+      buildoptions {"-g"}
+    configuration "Release" flags(ReleaseFlags)
+  end
 
 project "parser"
   location "make" 
@@ -74,8 +152,12 @@ project "cmod"
   flags {"StaticRuntime"}
   files {"CMOD/src/Main.*"}
   kind "ConsoleApp"
-  libdirs {"lib", "/usr/local/lib"}
-  links {"lcmod", "lass", "parser","muparser", "pthread", "sndfile"}
+  libdirs { "lib", "/usr/local/lib"}
+  links   { "lcmod", "lass", "parser","muparser", "pthread", "sndfile" }
+  if (HAVE_CUDA) then 
+    libdirs { "/usr/local/cuda/lib64" }
+    links   { "cudart" }
+  end
   linkoptions{"-lxerces-c", "-rdynamic"}
   buildoptions {"-Wno-deprecated", "-std=c++11"}
   configuration "Debug" 
@@ -92,7 +174,11 @@ project "UpgradeProjectFormat"
   files {"LASSIE/src/UpgradeProjectFormat.*"}
   kind "ConsoleApp"
   libdirs {"lib", "/usr/local/lib"}
-  links {"lcmod", "lass", "parser","muparser", "pthread", "sndfile"}
+  links {"lcmod", "lass", "parser","muparser", "pthread", "sndfile" }
+  if( HAVE_CUDA ) then 
+    libdirs { CUDA_HOME .. "/lib64", CUDA_HOME .. "/targets/x86_64-linux/lib"}
+    links {"cudart"}
+  end
   linkoptions{"-lxerces-c"}
   buildoptions {"-Wno-deprecated", "-Wno-register", "-std=c++11"}
   configuration "Debug" 
@@ -111,8 +197,12 @@ project "lassie"
   buildoptions {"`pkg-config --cflags gtkmm-2.4`",
     "-Wno-deprecated-declarations", "-Wno-deprecated", "-std=c++11"}
   linkoptions {"`pkg-config --libs --cflags gtkmm-2.4`", "-Wno-deprecated", "-lxerces-c"}
-  libdirs {"/usr/local/lib"}
-  links {"lcmod", "lass", "parser", "pthread", "sndfile"}
+  libdirs { "/usr/local/lib" }
+  links   { "lcmod", "lass", "parser", "pthread", "sndfile" }
+  if( HAVE_CUDA ) then 
+    libdirs { CUDA_HOME .. "/lib64"}
+    links {"cudart"}
+  end
   configuration "Debug" 
     flags(DebugFlags)
     buildoptions {"-g"}
