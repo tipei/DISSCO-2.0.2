@@ -166,4 +166,11 @@ void SoundSample::scale(m_value_type factor)
 }
 
 //----------------------------------------------------------------------------//
+
+m_sample_type* SoundSample::getData()
+{
+    return &(data_[0]);
+}
+
+//----------------------------------------------------------------------------//
 #endif //__SOUND_SAMPLE_CPP
