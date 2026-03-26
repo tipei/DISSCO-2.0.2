@@ -407,7 +407,7 @@ Piece::~Piece(){
   //do nothing
 }
 
-//Experiment 2
+//Experiment 2, all commented out in DISSCO-2.1.0
 vector<DOMElement*> Piece::calcEventM(DOMElement* eventElement){
 
       vector<DOMElement*> childElements;
@@ -419,7 +419,7 @@ vector<DOMElement*> Piece::calcEventM(DOMElement* eventElement){
 	    thisEventElement = thisEventElement->GNES(); //name
 	    string name = XMLTC(thisEventElement);
 
-	    if(type <= 4){  //Top, High, Medium, Low, Bottom
+	  if(type <= 4){  //Top, High, Medium, Low, Bottom
 
 	      thisEventElement = thisEventElement->GNES(); //maxChildDur
 	      float maxChildDur = (float)utilities->evaluate(XMLTC(thisEventElement), (void*)this);
@@ -447,7 +447,7 @@ vector<DOMElement*> Piece::calcEventM(DOMElement* eventElement){
 	      string defFlag = XMLTC(methodFlagElement);
 	      int definitionVal = atoi(defFlag.c_str());
 
-	      if(definitionVal == 0){     //Only Continuum
+	    if(definitionVal == 0){     //Only Continuum
 
 		    //Calculating start time orignality
 		    string startFlag = XMLTC(childStartTypeFlag);
@@ -500,7 +500,7 @@ vector<DOMElement*> Piece::calcEventM(DOMElement* eventElement){
 		       }
 	      }
 
-	      if(type == 4){ //Bottom
+	      if(type == 4) { //Bottom
 		        XMLCh* extraInfoString = XMLString::transcode("ExtraInfo");
 		        DOMNodeList* extraInfoList = eventElement->getElementsByTagName(extraInfoString);
 		        DOMElement* extraInfo = (DOMElement*) extraInfoList->item(0);
@@ -559,12 +559,13 @@ vector<DOMElement*> Piece::calcEventM(DOMElement* eventElement){
 
       	      DOMElement* childElement = utilities->getEventElement(childEventType, childName);
       	      childElements.push_back(childElement);
-      	  }
+      	    }
 
 	        return childElements;
-	  }
-	}
-}
+	      }
+	    }
+    }
+    // return childElements;  
 }
 
 //Experimental
@@ -959,7 +960,7 @@ vector<DOMElement*> Piece::calculateAesthetic(DOMElement* eventElement){
     thisEventElement = thisEventElement->GNES(); //name
     string name = XMLTC(thisEventElement);
 
-    if(type <= 4){  //Top, High, Medium, Low, Bottom
+  if(type <= 4){  //Top, High, Medium, Low, Bottom
 
       thisEventElement = thisEventElement->GNES(); //maxChildDur
       float maxChildDur = (float)utilities->evaluate(XMLTC(thisEventElement), (void*)this);
@@ -987,155 +988,156 @@ vector<DOMElement*> Piece::calculateAesthetic(DOMElement* eventElement){
       string defFlag = XMLTC(methodFlagElement);
       int definitionVal = atoi(defFlag.c_str());
 
-      if(definitionVal == 0){     //Only Continuum
+    if(definitionVal == 0){     //Only Continuum
 
-        //Calculating start time orignality
-        string startFlag = XMLTC(childStartTypeFlag);
-        int startFlagVal = atoi(startFlag.c_str());
+            //Calculating start time orignality
+            string startFlag = XMLTC(childStartTypeFlag);
+            int startFlagVal = atoi(startFlag.c_str());
 
-      //layers, initialize child names
-      thisEventElement = childEventDefElement->GNES();
-      DOMElement* layerElement = thisEventElement->GFEC();
-      vector<DOMElement*> layerElements;
-      vector<DOMElement*> childTypeElements;
+          //layers, initialize child names
+          thisEventElement = childEventDefElement->GNES();
+          DOMElement* layerElement = thisEventElement->GFEC();
+          vector<DOMElement*> layerElements;
+          vector<DOMElement*> childTypeElements;
 
-      while (layerElement){
+          while (layerElement){
 
-        layerElements.push_back(layerElement);
-        DOMElement* childPackage = layerElement->GFEC()->GNES()->GFEC();
+            layerElements.push_back(layerElement);
+            DOMElement* childPackage = layerElement->GFEC()->GNES()->GFEC();
 
-        while(childPackage){
-          childTypeElements.push_back(childPackage);
-          childPackage = childPackage->GNES();
-        }
-        layerElement = layerElement->GNES();
-      }
-
-      int numChildren;
-      DOMElement* flagElement = numChildrenElement->GFEC();
-      if (XMLTC(flagElement) =="0"){ // Continuum
-        DOMElement* entry1Element = flagElement->GNES();
-        if (XMLTC(entry1Element)==""){
-          numChildren = childTypeElements.size();
-        }
-        else {
-          numChildren =(int) utilities->evaluate(XMLTC(entry1Element), (void*)this);
-        }
-      }
-      else if (XMLTC(flagElement) == "1"){ // Density
-        DOMElement* densityElement = numChildrenElement->GFEC()->GNES();
-        DOMElement* areaElement = densityElement->GNES();
-        DOMElement* underOneElement = areaElement->GNES();
-        double density = utilities->evaluate( XMLTC(densityElement),(void*)this);
-        double area = utilities->evaluate( XMLTC(areaElement),(void*)this);
-        double underOne = utilities->evaluate( XMLTC(underOneElement),(void*)this);
-        double soundsPsec = pow(2, density * area - underOne); //this can't be right..
-
-        numChildren = (int)(soundsPsec * utilities->evaluate(pieceDuration, NULL) + underOne/area);
-
-      }
-      else {// by layer
-      numChildren = 0;
-        for (int i = 0; i < layerElements.size(); i ++){
-          numChildren +=utilities->evaluate(XMLTC(layerElements[i]->GFEC()),(void*)this);
-        }
-      }
-
-      if(type == 4){ //Bottom
-        XMLCh* extraInfoString = XMLString::transcode("ExtraInfo");
-        DOMNodeList* extraInfoList = eventElement->getElementsByTagName(extraInfoString);
-        DOMElement* extraInfo = (DOMElement*) extraInfoList->item(0);
-        XMLString::release(&extraInfoString);
-
-        //Frequency Entropy
-        samples.clear();
-        DOMElement* frequencyElement = extraInfo->GFEC();
-        DOMElement* frequencyFlagElement = frequencyElement->GFEC();
-        string flagNum = XMLTC(frequencyFlagElement);
-        int flagVal = atoi(flagNum.c_str());
-
-        if(flagVal == 0){
-          DOMElement* freqEntry1 = frequencyFlagElement->GNES()->GNES();
-
-          for(int i = 0; i < NUM_SAMPLES; i++){
-            double wellTempPitch = utilities->evaluate(XMLTC(freqEntry1), (void*)this);
-            double baseFreqResult = C0 * pow(WELL_TEMP_INCR, wellTempPitch);
-            samples.push_back(baseFreqResult);
+            while(childPackage){
+              childTypeElements.push_back(childPackage);
+              childPackage = childPackage->GNES();
+            }
+            layerElement = layerElement->GNES();
           }
-      }
 
-      else if(flagVal == 1){
-        DOMElement* freqEntry1 = frequencyFlagElement->GNES()->GNES();
-        DOMElement* freqEntry2 = freqEntry1->GNES();
+          int numChildren;
+          DOMElement* flagElement = numChildrenElement->GFEC();
+          if (XMLTC(flagElement) =="0"){ // Continuum
+            DOMElement* entry1Element = flagElement->GNES();
+            if (XMLTC(entry1Element)==""){
+              numChildren = childTypeElements.size();
+            }
+            else {
+              numChildren =(int) utilities->evaluate(XMLTC(entry1Element), (void*)this);
+            }
+          }
+          else if (XMLTC(flagElement) == "1"){ // Density
+            DOMElement* densityElement = numChildrenElement->GFEC()->GNES();
+            DOMElement* areaElement = densityElement->GNES();
+            DOMElement* underOneElement = areaElement->GNES();
+            double density = utilities->evaluate( XMLTC(densityElement),(void*)this);
+            double area = utilities->evaluate( XMLTC(areaElement),(void*)this);
+            double underOne = utilities->evaluate( XMLTC(underOneElement),(void*)this);
+            double soundsPsec = pow(2, density * area - underOne); //this can't be right..
 
-        for(int i = 0; i < NUM_SAMPLES; i++){
-          float fund_freq = utilities->evaluate(XMLTC(freqEntry1), (void*)this);
-          int overtone_step = utilities->evaluate(XMLTC(freqEntry2), (void*)this);
-          double baseFreqResult = fund_freq * overtone_step;
-          samples.push_back(baseFreqResult);
+            numChildren = (int)(soundsPsec * utilities->evaluate(pieceDuration, NULL) + underOne/area);
+
+          }
+          else {// by layer
+          numChildren = 0;
+            for (int i = 0; i < layerElements.size(); i ++){
+              numChildren +=utilities->evaluate(XMLTC(layerElements[i]->GFEC()),(void*)this);
+            }
+          }
+
+          if(type == 4){ //Bottom
+            XMLCh* extraInfoString = XMLString::transcode("ExtraInfo");
+            DOMNodeList* extraInfoList = eventElement->getElementsByTagName(extraInfoString);
+            DOMElement* extraInfo = (DOMElement*) extraInfoList->item(0);
+            XMLString::release(&extraInfoString);
+
+            //Frequency Entropy
+            samples.clear();
+            DOMElement* frequencyElement = extraInfo->GFEC();
+            DOMElement* frequencyFlagElement = frequencyElement->GFEC();
+            string flagNum = XMLTC(frequencyFlagElement);
+            int flagVal = atoi(flagNum.c_str());
+
+            if(flagVal == 0){
+              DOMElement* freqEntry1 = frequencyFlagElement->GNES()->GNES();
+
+              for(int i = 0; i < NUM_SAMPLES; i++){
+                double wellTempPitch = utilities->evaluate(XMLTC(freqEntry1), (void*)this);
+                double baseFreqResult = C0 * pow(WELL_TEMP_INCR, wellTempPitch);
+                samples.push_back(baseFreqResult);
+              }
+          }
+
+          else if(flagVal == 1){
+            DOMElement* freqEntry1 = frequencyFlagElement->GNES()->GNES();
+            DOMElement* freqEntry2 = freqEntry1->GNES();
+
+            for(int i = 0; i < NUM_SAMPLES; i++){
+              float fund_freq = utilities->evaluate(XMLTC(freqEntry1), (void*)this);
+              int overtone_step = utilities->evaluate(XMLTC(freqEntry2), (void*)this);
+              double baseFreqResult = fund_freq * overtone_step;
+              samples.push_back(baseFreqResult);
+            }
+          }
+
+          else if(flagVal == 2){
+            DOMElement* freqEntry1 = frequencyFlagElement->GNES()->GNES();
+            DOMElement* continuumFlagElement = frequencyFlagElement->GNES();
+
+            for(int i = 0; i < NUM_SAMPLES; i++){
+            if (utilities->evaluate(XMLTC(continuumFlagElement), NULL)==0) { //Hertz
+              samples.push_back(utilities->evaluate(XMLTC(freqEntry1), (void*)this));
+              /* 3rd arg is a float (baseFreq in Hz) */
+            }
+            else  {
+              /* 3rd arg is a float (power of 2) */
+              float step = utilities->evaluate(XMLTC(freqEntry1), (void*)this);
+              double range = log10(CEILING / MINFREQ) / log10(2.); // change log base
+              double baseFreqResult = pow(2, step * range) * MINFREQ;  // equal chance for all 8vs
+              samples.push_back(baseFreqResult);
+            }
+          }
+          }
+
+          entropy = calculateEntropyRatio(samples, "Pow2", 0, 15000); //Freq in Hz
+          currentEntropy = utilities->eventValues[name];
+          utilities->eventValues.erase(name);
+          newEntropy = (currentEntropy + entropy); // Mean of ratios
+          utilities->eventValues.insert(std::pair<string, double> (name, newEntropy));
+          //cout<<"Entropy Ratio:"<<entropy<<endl;
+
+          //LOUDNESS Entropy
+
+          DOMElement *loudnessElement = frequencyElement->GNES();
+          samples.clear();
+
+          for(int i = 0; i < NUM_SAMPLES;){
+            double loudval = utilities->evaluate(XMLTC(loudnessElement), (void*)this);
+            if(loudval >= 1.0){
+              samples.push_back(loudval);
+              i++;
+            }
+          }
+
+          entropy = calculateEntropyRatio(samples, "Pow2", 0, 256); //Loudness
+          currentEntropy = utilities->eventValues[name];
+          utilities->eventValues.erase(name);
+          newEntropy = (currentEntropy + entropy); // Mean of ratios
+          utilities->eventValues.insert(std::pair<string, double> (name, newEntropy));
+          //cout<<"Entropy Ratio:"<<entropy<<endl;
         }
-      }
 
-      else if(flagVal == 2){
-        DOMElement* freqEntry1 = frequencyFlagElement->GNES()->GNES();
-        DOMElement* continuumFlagElement = frequencyFlagElement->GNES();
+        for(int i = 0; i < numChildren; i++){
 
-        for(int i = 0; i < NUM_SAMPLES; i++){
-        if (utilities->evaluate(XMLTC(continuumFlagElement), NULL)==0) { //Hertz
-          samples.push_back(utilities->evaluate(XMLTC(freqEntry1), (void*)this));
-          /* 3rd arg is a float (baseFreq in Hz) */
+          double childType = utilities->evaluate(XMLTC(childTypeElement),(void*)this);
+          string childName = XMLTC(childTypeElements[childType]->GFEC());
+          EventType childEventType = (EventType) utilities->evaluate(XMLTC(childTypeElements[childType]->GFEC()->GNES()),(void*)this);
+
+          DOMElement* childElement = utilities->getEventElement(childEventType, childName);
+          childElements.push_back(childElement);
         }
-        else  {
-          /* 3rd arg is a float (power of 2) */
-          float step = utilities->evaluate(XMLTC(freqEntry1), (void*)this);
-          double range = log10(CEILING / MINFREQ) / log10(2.); // change log base
-          double baseFreqResult = pow(2, step * range) * MINFREQ;  // equal chance for all 8vs
-          samples.push_back(baseFreqResult);
-        }
-      }
-      }
 
-      entropy = calculateEntropyRatio(samples, "Pow2", 0, 15000); //Freq in Hz
-      currentEntropy = utilities->eventValues[name];
-      utilities->eventValues.erase(name);
-      newEntropy = (currentEntropy + entropy); // Mean of ratios
-      utilities->eventValues.insert(std::pair<string, double> (name, newEntropy));
-      //cout<<"Entropy Ratio:"<<entropy<<endl;
-
-      //LOUDNESS Entropy
-
-      DOMElement *loudnessElement = frequencyElement->GNES();
-      samples.clear();
-
-      for(int i = 0; i < NUM_SAMPLES;){
-        double loudval = utilities->evaluate(XMLTC(loudnessElement), (void*)this);
-        if(loudval >= 1.0){
-          samples.push_back(loudval);
-          i++;
-        }
-      }
-
-      entropy = calculateEntropyRatio(samples, "Pow2", 0, 256); //Loudness
-      currentEntropy = utilities->eventValues[name];
-      utilities->eventValues.erase(name);
-      newEntropy = (currentEntropy + entropy); // Mean of ratios
-      utilities->eventValues.insert(std::pair<string, double> (name, newEntropy));
-      //cout<<"Entropy Ratio:"<<entropy<<endl;
+      return childElements;
     }
-
-    for(int i = 0; i < numChildren; i++){
-
-      double childType = utilities->evaluate(XMLTC(childTypeElement),(void*)this);
-      string childName = XMLTC(childTypeElements[childType]->GFEC());
-      EventType childEventType = (EventType) utilities->evaluate(XMLTC(childTypeElements[childType]->GFEC()->GNES()),(void*)this);
-
-      DOMElement* childElement = utilities->getEventElement(childEventType, childName);
-      childElements.push_back(childElement);
   }
-
-   return childElements;
-  }
-}
+  // return childElements;
 }
 
   double Piece::calculateEntropyRatio(vector<double> sampleData, string partitionMethod, double min, double max){

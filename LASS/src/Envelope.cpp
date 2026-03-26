@@ -978,35 +978,35 @@ void Envelope::xml_read(XmlReader::xmltag * envtag)
 
   if((value = envtag->findChildParamValue("duration", "value")) != 0)
     setDuration(atof(value));
-
+  // add brackets to get rid of guard warning
   if((value = envtag->findChildParamValue("rate", "value")) != 0)
     setSamplingRate(atoi(value));
 
-    XmlReader::xmltag * segtag;
-    while ((segtag = envtag->children->find("segment")) != 0) {
-	    XmlReader::xmltag * xy = segtag->children->find("xyPoint");
-	    if ((value = xy->getParamValue("x")) != 0) {
-		    seg.x = atof(value);
-		}
-	    if ((value = xy->getParamValue("y")) != 0) {
-		    seg.y = atof(value);
-		}
-	    if ((value = segtag->findChildParamValue("type", "value")) != 0) {
-		    if (strcmp(value, "LINEAR") == 0)
-			seg.interType = LINEAR;
-		    if (strcmp(value, "EXPONENTIAL") == 0)
-			seg.interType = EXPONENTIAL;
-		    if (strcmp(value, "CUBIC_SPLINE") == 0)
-			seg.interType = CUBIC_SPLINE;
-		}
-	    if ((value = segtag->findChildParamValue("length", "type")) != 0) {
-		    if (strcmp(value, "FIXED") == 0)
-				seg.lengthType = FIXED;
-		    if (strcmp(value, "FLEXIBLE") == 0)
-				seg.lengthType = FLEXIBLE;
-		}
-	    segments_->add(seg);
+  XmlReader::xmltag * segtag;
+  while ((segtag = envtag->children->find("segment")) != 0) {
+	XmlReader::xmltag * xy = segtag->children->find("xyPoint");
+	if ((value = xy->getParamValue("x")) != 0) {
+	    seg.x = atof(value);
 	}
+	if ((value = xy->getParamValue("y")) != 0) {
+	    seg.y = atof(value);
+	}
+	if ((value = segtag->findChildParamValue("type", "value")) != 0) {
+		if (strcmp(value, "LINEAR") == 0)
+			seg.interType = LINEAR;
+		if (strcmp(value, "EXPONENTIAL") == 0)
+			seg.interType = EXPONENTIAL;
+		if (strcmp(value, "CUBIC_SPLINE") == 0)
+			seg.interType = CUBIC_SPLINE;
+	}
+	if ((value = segtag->findChildParamValue("length", "type")) != 0) {
+		if (strcmp(value, "FIXED") == 0)
+			seg.lengthType = FIXED;
+		if (strcmp(value, "FLEXIBLE") == 0)
+			seg.lengthType = FLEXIBLE;
+	}
+	segments_->add(seg);
+  }
 
-    defineShape();
+  defineShape();
 }

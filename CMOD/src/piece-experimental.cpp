@@ -281,121 +281,133 @@ Piece::Piece(string _workingPath, string _projectTitle){
     cin>>seed;
   }
 
+  //Testing multiple runs on one seed
+  int numRuns;
+  cout<<"Please key in how many times you want to run (1-10):"<<endl;
+  cin>>numRuns;
+
+  // Enforce numRuns bounds
+  if (numRuns < 1) { numRuns = 1; }
+  if (numRuns > 10) { numRuns = 10; }
+
   //Convert seed string to seed number and seed the random number generator
   int seedNumber = PieceHelper::getSeedNumber(seed);
   Random::Seed((unsigned int)seedNumber);
 
-  //construct the utilities object
-  utilities = new Utilities(root,
-                            _workingPath,
-                            soundSynthesis,
-                            outputParticel,
-                            numThreads,
-                            numChannels,
-                            sampleRate,
-                            this);
+  //For loop to run it for the entered number of runs
+  for (int i = 0; i < numRuns; i++) {
+    cout<<"RUN NUMBER #" << i <<endl;
+    //construct the utilities object
+    utilities = new Utilities(root,
+                              _workingPath,
+                              soundSynthesis,
+                              outputParticel,
+                              numThreads,
+                              numChannels,
+                              sampleRate,
+                              this);
 
-  // setup TimeSpan and Tempo
-  TimeSpan pieceSpan;
-  pieceSpan.start = utilities->evaluate(pieceStartTime, NULL);
-  pieceSpan.duration = utilities->evaluate(pieceDuration, NULL);
-  Tempo mainTempo; //Though we supply this, "Top" will provide its own tempo.
-  
-  // Initialize the output score
-  Output::notation_score_ = NotationScore(_projectTitle);
+    // setup TimeSpan and Tempo
+    TimeSpan pieceSpan;
+    pieceSpan.start = utilities->evaluate(pieceStartTime, NULL);
+    pieceSpan.duration = utilities->evaluate(pieceDuration, NULL);
+    Tempo mainTempo; //Though we supply this, "Top" will provide its own tempo.
+    
+    // Initialize the output score
+    Output::notation_score_ = NotationScore(_projectTitle);
 
-  //Initialize the output class.
-  if (utilities->getOutputParticel()){
-    string particelFilename = _projectTitle + ".particel";
-    Output::initialize(particelFilename);
-    Output::beginSubLevel("Piece");
-    Print();
-  }
-
-
-  //Modify the XML file - Eperimental
-  // string evName = utilities->topEventnames.at(0);
-  // EventType evType = (EventType)0;
-  //
-  // for(int i = 0; i < 20; i++){
-  //   geneticOptimization("redundancy", 34);
-  // }
-  //
-  // cout<<"GA DONE"<<endl;
-
-  //int newSeed = rand();
-  //Random::Seed((unsigned int)newSeed);
-//}
-
-  //Create the Top event and recursively build its children.
-  DOMElement* topElement = utilities->getEventElement(eventTop, fileList);
-  utilities->currChild = 0;
-  Event* topEvent = new Event(topElement,
-        pieceSpan,0, mainTempo, utilities, NULL,NULL,NULL,NULL);
-  topEvent->buildChildren();
-
-  //get the final MultiTrack object and write it to disk
-  if (soundSynthesis){
-    cout << "Piece::Piece: " << "soundSynthesis " << endl;
-    MultiTrack* renderedScore = utilities->doneCMOD();
-    string soundFilename = getNextSoundFile();
-    //Write to file.
-    AuWriter::write(*renderedScore, soundFilename);
-    delete renderedScore;
-  }
-  if (scorePrinting) {
-    cout << "Piece::Piece: " << "Score output " << endl;
-
-		/* for score file */
-
-     // output score to lilypond file
-     //output_score(projectName);
-
-    Output::notation_score_.Build();
-    ofstream score_file;
-    const char* projectNameCstr = (projectName + ".ly").c_str();
-    score_file.open(projectNameCstr);
-    score_file << Output::notation_score_;
-    score_file.close();
-
-    // execute lilypond to create pdf file
-    system(("lilypond " + projectName + ".ly").c_str());
-
-    // generating score files with different suffixes instead of replacing the older files.
-    int suffix_rank = 0;
-    int exist = 1;
-    string suffix = "";
-    while (exist){
-      suffix = "_" + Note::int_to_str(suffix_rank);
-      std::ifstream infile(( "ScoreFiles/" + projectName + suffix + ".pdf").c_str());
-      exist = infile.good();
-      infile.close();
-      suffix_rank++;
+    //Initialize the output class.
+    if (utilities->getOutputParticel()){
+      string particelFilename = _projectTitle + ".particel";
+      Output::initialize(particelFilename);
+      Output::beginSubLevel("Piece");
+      Print();
     }
 
-    system(("mv " + projectName + ".pdf " + "ScoreFiles/" + projectName + suffix + ".pdf").c_str());
 
+    //Modify the XML file - Eperimental
+    // string evName = utilities->topEventnames.at(0);
+    // EventType evType = (EventType)0;
+    //
+    // for(int i = 0; i < 20; i++){
+    //   geneticOptimization("redundancy", 34);
+    // }
+    //
+    // cout<<"GA DONE"<<endl;
+
+    //int newSeed = rand();
+    //Random::Seed((unsigned int)newSeed);
+  //}
+
+    //Create the Top event and recursively build its children.
+    DOMElement* topElement = utilities->getEventElement(eventTop, fileList);
+    utilities->currChild = 0;
+    Event* topEvent = new Event(topElement,
+          pieceSpan,0, mainTempo, utilities, NULL,NULL,NULL,NULL);
+    topEvent->buildChildren();
+
+    //get the final MultiTrack object and write it to disk
+    if (soundSynthesis){
+      cout << "Piece::Piece: " << "soundSynthesis " << endl;
+      MultiTrack* renderedScore = utilities->doneCMOD();
+      string soundFilename = getNextSoundFile();
+      //Write to file.
+      AuWriter::write(*renderedScore, soundFilename);
+      delete renderedScore;
+    }
+    if (scorePrinting) {
+      cout << "Piece::Piece: " << "Score output " << endl;
+
+      /* for score file */
+
+      // output score to lilypond file
+      //output_score(projectName);
+
+      Output::notation_score_.Build();
+      ofstream score_file;
+      const char* projectNameCstr = (projectName + ".ly").c_str();
+      score_file.open(projectNameCstr);
+      score_file << Output::notation_score_;
+      score_file.close();
+
+      // execute lilypond to create pdf file
+      system(("lilypond " + projectName + ".ly").c_str());
+
+      // generating score files with different suffixes instead of replacing the older files.
+      int suffix_rank = 0;
+      int exist = 1;
+      string suffix = "";
+      while (exist){
+        suffix = "_" + Note::int_to_str(suffix_rank);
+        std::ifstream infile(( "ScoreFiles/" + projectName + suffix + ".pdf").c_str());
+        exist = infile.good();
+        infile.close();
+        suffix_rank++;
+      }
+
+      system(("mv " + projectName + ".pdf " + "ScoreFiles/" + projectName + suffix + ".pdf").c_str());
+
+    }
+
+    if (outputParticel){
+      //Finish particel output and free up the Output class members.
+      Output::endSubLevel();
+      Output::free();
+    }
+
+    cout << endl;
+    cout << "-----------------------------------------------------------" <<
+      endl;
+    cout << "Build complete." << endl;
+    cout << "-----------------------------------------------------------" <<
+      endl << endl;
+    cout.flush();
+    //clean up
+    delete utilities;
+    delete topEvent; //wait till the thread join
   }
 
-  if (outputParticel){
-    //Finish particel output and free up the Output class members.
-    Output::endSubLevel();
-    Output::free();
-  }
-
-  cout << endl;
-  cout << "-----------------------------------------------------------" <<
-    endl;
-  cout << "Build complete." << endl;
-  cout << "-----------------------------------------------------------" <<
-    endl << endl;
-  cout.flush();
-
-
-  //clean up
-  delete utilities;
   delete parser;
-  delete topEvent; //wait till the thread join
   XMLPlatformUtils::Terminate();
 
 }
@@ -565,6 +577,7 @@ int sever; cin >> sever;
 	  }
 	}
 }
+  // return childElements;
 }
 
 //Experimental - For now only bottom events
@@ -1432,6 +1445,7 @@ void Piece::functionModifier(DOMElement* functionElement, int maxValue){ //Needs
    return childElements;
   }
 }
+  // return childElements;
 }
 
   double Piece::calculateEntropyRatio(vector<double> sampleData, string partitionMethod, double min, double max){

@@ -109,7 +109,7 @@ bool AuWriter::write(vector<SoundSample*>& channels, string filename,
     s_info.channels = channels.size();
     s_info.samplerate = channels[0]->getSamplingRate();
     s_info.format = SF_FORMAT_PCM_24;
-    bits = 0; //Do not use the incoming format, 24-bit is all-purpose.
+    bits = 0; //Do not use the incoming format, 24-bit is all-purpose. (Set but not used, get rid of bits?)
     
     //Determine what format to use based on the filename extension.
     if(filename.find(".wav") != string::npos) {

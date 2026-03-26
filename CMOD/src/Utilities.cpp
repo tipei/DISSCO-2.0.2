@@ -764,6 +764,7 @@ string Utilities::static_function_CURRENT_PARTIAL_NUM(void* _object){
 
 string Utilities::static_function_CURRENT_DENSITY(void* _object){
   cout<<"Utilities:Warning! static_function_CURRENT_DENSITY is not implemented in CMOD 2.0 yet."<<endl;
+  return "0";
 }
 
 //----------------------------------------------------------------------------//
@@ -771,6 +772,7 @@ string Utilities::static_function_CURRENT_DENSITY(void* _object){
 string Utilities::static_function_CURRENT_SEGMENT(void* _object){
     //should recieve an envelope as the _object? --Ming-ching May 07 2013
     cout<<"Utilities:Warning! static_function_CURRENT_SEGMENT is not implemented in CMOD 2.0 yet."<<endl;
+    return "0";
 }
 
 //----------------------------------------------------------------------------//
@@ -1664,7 +1666,7 @@ Patter* Utilities::getPatternHelper(void* _object, DOMElement* _PATFunction){
 //----------------------------------------------------------------------------//
 
 DOMElement* Utilities::getSPAFunctionElement(void* _object){
-  getSPAFunctionElementHelper(_object,NULL,true);
+  return getSPAFunctionElementHelper(_object,NULL,true);
 }
 
 //----------------------------------------------------------------------------//
@@ -1758,7 +1760,7 @@ DOMElement* Utilities::getSPAFunctionElementHelper(void* _object, DOMElement* _S
 //----------------------------------------------------------------------------//
 
 DOMElement* Utilities::getREVFunctionElement(void* _object){
-  getREVFunctionElementHelper(_object,NULL,true);
+  return getREVFunctionElementHelper(_object,NULL,true);
 }
 
 //----------------------------------------------------------------------------//
@@ -1856,7 +1858,7 @@ DOMElement* Utilities::getREVFunctionElementHelper(void* _object, DOMElement* _R
 //----------------------------------------------------------------------------//
 
 DOMElement* Utilities::getFILFunctionElement(void* _object){
-  getFILFunctionElementHelper(_object,NULL,true);
+  return getFILFunctionElementHelper(_object,NULL,true);
 }
 
 //----------------------------------------------------------------------------//
