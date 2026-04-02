@@ -276,10 +276,22 @@ Piece::Piece(string _workingPath, string _projectTitle){
     cin>>seed;
   }
 
+  //Testing multiple runs on one seed
+  int numRuns;
+  cout<<"Please key in how many times you want to run (1-10):"<<endl;
+  cin>>numRuns;
+
+  // Enforce numRuns bounds
+  if (numRuns < 1) { numRuns = 1; }
+  if (numRuns > 10) { numRuns = 10; }
+
   //Convert seed string to seed number and seed the random number generator
   int seedNumber = PieceHelper::getSeedNumber(seed);
   Random::Seed((unsigned int)seedNumber);
 
+//For loop to run it for the entered number of runs
+for (int i = 0; i < numRuns; i++) {
+  cout<<"RUN NUMBER #" << i <<endl;
   //construct the utilities object
   utilities = new Utilities(root,
                             _workingPath,
@@ -392,12 +404,11 @@ cout << "Piece::Piece: " << "Score output " << endl;
   cout << "-----------------------------------------------------------" <<
     endl << endl;
   cout.flush();
-
-
   //clean up
   delete utilities;
-  delete parser;
   delete topEvent; //wait till the thread join
+}
+  delete parser;
   XMLPlatformUtils::Terminate();
 
 }

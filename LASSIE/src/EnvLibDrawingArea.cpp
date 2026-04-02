@@ -230,6 +230,7 @@ bool EnvLibDrawingArea::mouseMoving (GdkEventMotion* event){
 
  	  moveNode();
   }
+  return true;
 
 }
 
@@ -330,10 +331,9 @@ bool EnvLibDrawingArea::mouseButtonReleased(GdkEventButton* event){
   if( event->button == 1){
 		mouseLeftButtonPressedDown = false;
 		activeSegment = NULL;
-
-
+    return false;
 	}
-
+  return true;
 }
 
 
